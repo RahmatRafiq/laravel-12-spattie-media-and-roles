@@ -1,15 +1,17 @@
 <?php
-
 namespace App\Http\Controllers\Settings;
 
+use App\Helpers\MediaLibrary;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
+use DB;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
+use Storage;
 
 class ProfileController extends Controller
 {
@@ -18,10 +20,25 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
+        $profileImage = $request->user()->getMedia('profile-images')->first();
+
         return Inertia::render('settings/profile', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
-            'status' => $request->session()->get('status'),
+            'status'          => $request->session()->get('status'),
+            'profileImage'    => $profileImage,
         ]);
+    }
+
+    public function upload(Request $request)
+    {
+        $request->validate([
+            'profile-images.*' => 'required|file|max:2048|mimes:jpeg,jpg,png',
+            'id'               => 'required|integer',
+        ]);
+
+        $user = $request->user();
+
+        return response()->json(['message' => 'Profile picture uploaded'], 200);
     }
 
     /**
@@ -29,15 +46,36 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        DB::beginTransaction();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        try {
+            $request->validate([
+                'profile-images' => 'array|max:3',
+            ]);
+
+            $user = $request->user();
+            $user->fill($request->validated());
+
+            if ($user->isDirty('email')) {
+                $user->email_verified_at = null;
+            }
+
+            if ($request->has('profile-images')) {
+                MediaLibrary::put(
+                    $user,
+                    'profile-images',
+                    $request,
+                    'profile-images'
+                );
+            }
+
+            $user->save();
+            DB::commit();
+            return to_route('profile.edit');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Profile update failed.']);
         }
-
-        $request->user()->save();
-
-        return to_route('profile.edit');
     }
 
     /**
@@ -53,11 +91,24 @@ class ProfileController extends Controller
 
         Auth::logout();
 
+        // Delete user's media
+        $user->clearMediaCollection('profile-images');
+
         $user->delete();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    public function deleteFile(Request $request)
+    {
+        $request->validate(['filename' => 'required|string']);
+
+        Storage::disk('profile-images')->delete($request->filename);
+        \Spatie\MediaLibrary\MediaCollections\Models\Media::where('file_name', $request->filename)->first()->delete();
+
+        return response()->json(['message' => 'File berhasil dihapus'], 200);
     }
 }
