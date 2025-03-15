@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Transition } from '@headlessui/react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
-import DropzoneUploader from '@/components/dropzoner';
+import Dropzoner from '@/components/dropzoner';
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -24,65 +24,67 @@ const breadcrumbs: BreadcrumbItem[] = [
 interface ProfileForm {
   name: string;
   email: string;
-  image?: string; // Simpan path file
-  [key: string]: string | number | undefined;
+  'profile-images': string[]; // Array untuk menyimpan file name yang diupload ke temp
+  [key: string]: string | string[]; // Index signature
 }
 
-interface UserProfileImage {
-  file_name: string;
-  size: number;
-  original_url: string;
-}
-
-export default function Profile({
-  mustVerifyEmail,
-  status,
-}: {
-  mustVerifyEmail: boolean;
-  status?: string;
-}) {
+export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
   const { auth } = usePage<SharedData>().props;
+  // Jika sudah ada file profil, gunakan file name-nya sebagai nilai awal
+  const initialImages: string[] = auth.user.profile_image ? [auth.user.profile_image.file_name] : [];
 
-  // Ambil file awal dari auth, jika ada
-  const initialFile: UserProfileImage | null = auth.user.profile_image ? auth.user.profile_image as UserProfileImage : null;
-
+  // Tambahkan field 'profile-images' ke form data
   const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<ProfileForm>({
     name: auth.user.name,
     email: auth.user.email,
-    image: initialFile ? initialFile.file_name : '',
+    'profile-images': initialImages,
   });
-
-  // State untuk menyimpan file yang diupload
-  const [uploadedFile, setUploadedFile] = useState<UserProfileImage | null>(initialFile);
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
     patch(route('profile.update'), { preserveScroll: true });
   };
 
-  const csrf_token = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement).content;
+  const csrf_token = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '';
 
-  // Callback ketika file berhasil diupload
-  const handleUploadSuccess = (
-    file: Dropzone.DropzoneFile,
-    response: { name: string; size: number; path: string }
-  ) => {
-    // Simpan file yang baru diupload ke state
-    const newFile: UserProfileImage = {
-      file_name: response.name,
-      size: response.size,
-      original_url: response.path,
-    };
-    setUploadedFile(newFile);
-    // Simpan path di form data
-    setData('image', response.path);
-  };
+  // Ref untuk elemen dropzone dan instance dropzone
+  const dropzoneRef = useRef<HTMLDivElement>(null);
+  const dzInstance = useRef<Dropzone | null>(null);
 
-  // Callback ketika file dihapus
-  const handleFileRemoved = () => {
-    setUploadedFile(null);
-    setData('image', '');
-  };
+  useEffect(() => {
+    if (dropzoneRef.current) {
+      // Jika sudah ada instance, destroy terlebih dahulu
+      if (dzInstance.current) {
+        dzInstance.current.destroy();
+      }
+      dzInstance.current = Dropzoner(dropzoneRef.current, 'profile-images', {
+        urlStore: '/temp/storage',
+        urlDestroy: '/profile/deleteFile',
+        csrf: csrf_token,
+        acceptedFiles: 'image/*',
+        maxFiles: 3,
+        files: (data['profile-images'] || []).map((fileName: string) => ({
+          file_name: fileName,
+          size: 0,
+          original_url: '',
+        })),
+        kind: 'image',
+      });
+
+      // Callback saat file berhasil di-upload
+      dzInstance.current.on('success', function (file, response: { name: string }) {
+        // Tambahkan file name baru ke form data
+        setData('profile-images', [...(data['profile-images'] || []), response.name]);
+      });
+
+      // Callback saat file dihapus
+      dzInstance.current.on('removedfile', function (file) {
+        const removedFileName = file.name;
+        setData('profile-images', (data['profile-images'] || []).filter(f => f !== removedFileName));
+      });
+    }
+    // Perhatikan dependency, gunakan csrf_token dan dropzoneRef.current
+  }, [csrf_token]);
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
@@ -138,19 +140,10 @@ export default function Profile({
                 )}
               </div>
             )}
+            {/* Dropzone untuk upload gambar profil */}
             <div className="mb-4">
-              <Label htmlFor="profile-image">Profile Image</Label>
-              <DropzoneUploader
-                urlStore={route('storage.store')}
-                urlDestroy={route('profile.deleteFile')}
-                csrf={csrf_token}
-                acceptedFiles="image/*"
-                maxFiles={1}
-                files={uploadedFile ? [uploadedFile] : []}
-                kind="image"
-                onSuccess={handleUploadSuccess}
-                onRemoved={handleFileRemoved}
-              />
+              <Label htmlFor="profile-image">Profile Images</Label>
+              <div ref={dropzoneRef} className="dropzone"></div>
             </div>
             <div className="flex items-center gap-4">
               <Button disabled={processing}>Save</Button>
