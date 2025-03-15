@@ -14,6 +14,7 @@
         "@eslint/js": "^9.19.0",
         "@types/dropzone": "^5.7.9",
         "@types/node": "^22.13.5",
+        "@types/toastify-js": "^1.12.3",
         "eslint": "^9.17.0",
         "eslint-config-prettier": "^10.0.1",
         "eslint-plugin-react": "^7.37.3",
@@ -56,6 +57,7 @@
         "tailwind-merge": "^3.0.1",
         "tailwindcss": "^4.0.0",
         "tailwindcss-animate": "^1.0.7",
+        "toastify-js": "^1.12.0",
         "typescript": "^5.7.2",
         "vite": "^6.0"
     },

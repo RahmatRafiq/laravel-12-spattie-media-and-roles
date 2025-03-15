@@ -11,7 +11,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
-import ProfileDropzone from '@/components/dropzoner';
+import DropzoneUploader from '@/components/dropzoner';
+// import DropzoneUploader from '@/components/dropzoner';
+
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -25,7 +27,7 @@ interface ProfileForm {
   email: string;
 }
 
-export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string; profileImage?: string }) {
+export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
   const { auth } = usePage<SharedData>().props;
 
   const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<Required<ProfileForm>>({
@@ -35,10 +37,14 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
+
     patch(route('profile.update'), {
       preserveScroll: true,
     });
   };
+
+  const csrf_token = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement).content;
+  const profileImage: { file_name: string; size: number; original_url: string } | null = auth.user.profile_image as { file_name: string; size: number; original_url: string } | null;
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
@@ -51,6 +57,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
           <form onSubmit={submit} className="space-y-6">
             <div className="grid gap-2">
               <Label htmlFor="name">Name</Label>
+
               <Input
                 id="name"
                 className="mt-1 block w-full"
@@ -60,11 +67,13 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                 autoComplete="name"
                 placeholder="Full name"
               />
+
               <InputError className="mt-2" message={errors.name} />
             </div>
 
             <div className="grid gap-2">
               <Label htmlFor="email">Email address</Label>
+
               <Input
                 id="email"
                 type="email"
@@ -75,6 +84,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                 autoComplete="username"
                 placeholder="Email address"
               />
+
               <InputError className="mt-2" message={errors.email} />
             </div>
 
@@ -99,15 +109,22 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                 )}
               </div>
             )}
-
-            <ProfileDropzone
-              userId={auth.user.id}
-              onUploadSuccess={(res) => console.log('Upload berhasil:', res)}
-              onUploadError={(err) => console.error('Upload gagal:', err)}
-            />
-
+            <div className="mb-4">
+              <label className="block text-gray-700">Profile Images</label>
+              
+              <DropzoneUploader
+                urlStore="/storage/store"
+                urlDestroy="/profile/deleteFile"
+                csrf={csrf_token}
+                acceptedFiles="image/*"
+                maxFiles={3}
+                files={profileImage ? [{ file_name: profileImage.file_name, size: profileImage.size, original_url: profileImage.original_url }] : []}
+                kind="image"
+              />
+            </div>
             <div className="flex items-center gap-4">
               <Button disabled={processing}>Save</Button>
+
               <Transition
                 show={recentlySuccessful}
                 enter="transition ease-in-out"

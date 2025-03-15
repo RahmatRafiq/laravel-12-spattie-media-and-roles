@@ -1,60 +1,114 @@
 import { useEffect, useRef } from 'react';
 import Dropzone from 'dropzone';
 import 'dropzone/dist/dropzone.css';
+import Toastify from 'toastify-js';
+import 'toastify-js/src/toastify.css';
 
-interface ProfileDropzoneProps {
-  onUploadSuccess?: (response: { [key: string]: string }) => void;
-  onUploadError?: (error: string) => void;
-  userId: number; // properti userId untuk mengangkut id user
+interface DropzoneUploaderProps {
+    urlStore: string;
+    urlDestroy: string;
+    csrf: string;
+    acceptedFiles?: string;
+    
+    maxFiles?: number;
+    files?: { file_name: string; size: number; original_url: string }[];
+    kind?: string;
+    onSuccess?: (file: Dropzone.DropzoneFile, response: { name: string; size: number; path: string }) => void;
 }
 
-export default function ProfileDropzone({ onUploadSuccess, onUploadError, userId }: ProfileDropzoneProps) {
-  const dropzoneRef = useRef<HTMLDivElement>(null);
+const DropzoneUploader: React.FC<DropzoneUploaderProps> = ({
+    urlStore,
+    urlDestroy,
+    csrf,
+    acceptedFiles = 'image/*',
+    maxFiles = 3,
+    files = [],
+    kind = 'image',
+    // onSuccess,
+}) => {
+    const dropzoneRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    if (!dropzoneRef.current) return;
+    useEffect(() => {
+        if (!dropzoneRef.current) return;
 
-    const dz = new Dropzone(dropzoneRef.current, {
-      url: route('profile.upload'),
-      paramName: 'profile-images',
-      maxFiles: 1,
-      maxFilesize: 2,
-      withCredentials: true,
-      acceptedFiles: 'image/jpeg,image/jpg,image/png',
-      headers: {
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-      },
-      init: function () {
-        this.on('sending', function (file, xhr, formData) {
-          formData.append('id', String(userId));
+        const myDropzone = new Dropzone(dropzoneRef.current, {
+            url: urlStore,
+            headers: { 'X-CSRF-TOKEN': csrf },
+            acceptedFiles,
+            maxFiles,
+            addRemoveLinks: true,
+            init: function () {
+                if (files.length > 0) {
+                    files.forEach(file => {
+                        const mockFile = {
+                            name: file.file_name,
+                            size: file.size,
+                            accepted: true,
+                            kind,
+                            upload: {
+                                filename: file.file_name,
+                                size: file.size,
+                            },
+                            dataURL: file.original_url,
+                        };
+
+                        this.emit('addedfile', mockFile);
+                        this.emit('thumbnail', mockFile, file.original_url);
+                        this.emit('complete', mockFile);
+                    });
+                }
+            },
+            // success: function (file: Dropzone.DropzoneFile, response: { name: string; size: number; path: string }) {
+            //     if (file.upload) {
+            //         (file.upload as any).filename = response.name;
+            //         (file.upload as any).size = response.size;
+            //     }
+
+            //     if (onSuccess) {
+            //         onSuccess(file, response);
+            //     }
+
+            //     const input = document.createElement('input');
+            //     input.setAttribute('type', 'hidden');
+            //     input.setAttribute('name', 'images[]');
+            //     input.setAttribute('value', response.path);
+            //     file.previewElement.appendChild(input);
+            // },
+            removedfile: function (file) {
+                fetch(urlDestroy, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': csrf, 
+                        'X-Requested-With': 'XMLHttpRequest' // Ini penting untuk Laravel
+                    },                    body: JSON.stringify({ filename: file.name }),
+                })
+                    .then(response => response.json())
+                    .then(() => {
+                        if (file.previewElement) {
+                            file.previewElement.remove();
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            },
+            error: function (file, response) {
+                Toastify({
+                    text: response instanceof Error ? response.message : 'Upload error',
+                    duration: 5000,
+                    style: { background: 'red' },
+                }).showToast();
+
+                if (file.previewElement) {
+                    file.previewElement.remove();
+                }
+            },
         });
-        this.on('success', function (file, response: { [key: string]: string }) {
-          console.log('Upload berhasil:', response);
-          if (onUploadSuccess) {
-            onUploadSuccess(response);
-          }
-        });
-        this.on('error', function (file, errorMessage) {
-          console.error('Upload error:', errorMessage);
-          if (onUploadError) {
-            onUploadError(errorMessage instanceof Error ? errorMessage.message : errorMessage);
-          }
-        });
-      },
-    });
 
-    return () => {
-      dz.destroy();
-    };
-  }, [onUploadSuccess, onUploadError, userId]);
+        return () => {
+            myDropzone.destroy();
+        };
+    }, [dropzoneRef, urlStore, urlDestroy, csrf, acceptedFiles, maxFiles, files, kind]);
 
-  return (
-    <div className="mt-4">
-      <div ref={dropzoneRef} className="dropzone p-4 border-2 border-dashed rounded cursor-pointer">
-        <div className="dz-message text-center text-gray-500">
-          Drag &amp; drop foto disini, atau klik untuk memilih file.
-        </div>
-      </div>
-    </div>
-  );
-}
+    return <div ref={dropzoneRef} className="dropzone border-dashed border-2 border-gray-300 p-5"></div>;
+};
+
+export default DropzoneUploader;

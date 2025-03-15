@@ -1,0 +1,126 @@
+import Dropzone from 'dropzone'
+import 'dropzone/dist/dropzone.css'
+import Toastify from 'toastify-js'
+import 'toastify-js/src/toastify.css'
+import $ from 'jquery'
+
+Dropzone.autoDiscover = false
+
+const Dropzoner = (
+    element,
+    key,
+    {
+        urlStore,
+        urlDestroy,
+        csrf,
+        acceptedFiles,
+        files,
+        maxFiles,
+        kind,
+    }
+) => {
+    if (!element) {
+        throw new Error('Element not found')
+    }
+    if (!urlStore) {
+        throw new Error('URL Store not found')
+    }
+    if (!csrf) {
+        throw new Error('CSRF not found')
+    }
+    if (!acceptedFiles) {
+        throw new Error('Accepted Files not found')
+    }
+    if (!maxFiles) {
+        throw new Error('Max Files not found')
+    }
+    if (!kind) {
+        throw new Error('Kind not found')
+    }
+
+    console.log('dropzoner work')
+
+    const myDropzone = new Dropzone(element, {
+        url: urlStore,
+        headers: {
+            'X-CSRF-TOKEN': csrf
+        },
+        acceptedFiles: acceptedFiles,
+        maxFiles: maxFiles,
+        addRemoveLinks: true,
+        init: function () {
+            if (files) {
+                let input = document.createElement('input')
+
+                files.forEach(file => {
+                    const mockFile = {
+                        name: file.file_name,
+                        size: file.size,
+                        accepted: true,
+                        kind,
+                        upload: {
+                            filename: file.file_name,
+                            size: file.size
+                        },
+                        dataURL: file.original_url
+                    };
+
+                    this.emit("addedfile", mockFile);
+                    this.emit("thumbnail", mockFile, file.original_url);
+                    this.emit("complete", mockFile);
+
+                    input = document.createElement('input')
+                    input.setAttribute('type', 'hidden')
+                    input.setAttribute('name', `${key}[]`)
+                    input.setAttribute('value', file.file_name)
+                    mockFile.previewElement.appendChild(input)
+                })
+            }
+        },
+        success: function (file, response) {
+            file.upload.filename = response.name
+            file.upload.size = response.size
+            console.log('success')
+
+            const input = document.createElement('input')
+            input.setAttribute('type', 'hidden')
+            input.setAttribute('name', `${key}[]`)
+            input.setAttribute('value', response.name)
+            file.previewElement.appendChild(input)
+        },
+        removedfile: function (file) {
+            $.ajax({
+                type: 'DELETE',
+                url: urlDestroy,
+                headers: {
+                    'X-CSRF-TOKEN': csrf
+                },
+                data: {
+                    filename: file.name,
+                },
+                success: function (data) {
+                    console.log(data)
+                },
+                error: function (e) {
+                    console.log(e)
+                }
+            });
+            var _ref;
+            return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
+        },
+        error: function (file, response) {
+            var _ref;
+            new Toastify({
+                message: response.message,
+                type: 'error',
+                duration: 5000
+            })
+
+            return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
+        },
+    })
+
+    return myDropzone
+}
+
+window.Dropzoner = Dropzoner
