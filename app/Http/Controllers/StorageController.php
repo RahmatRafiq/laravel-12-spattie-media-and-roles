@@ -27,7 +27,7 @@ class StorageController extends Controller
         // store file to temp disk
         $path = Storage::disk('temp')
             ->putFileAs('', $request->file('file'), $name);
-
+ 
         // get full url
         $url = Storage::disk('temp')->url($path);
 
