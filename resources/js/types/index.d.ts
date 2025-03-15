@@ -38,5 +38,10 @@ export interface User {
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;
+    profile_image?: {
+        file_name: string;
+        size: number;
+        original_url: string;
+    };
     [key: string]: unknown; // This allows for additional properties...
 }
