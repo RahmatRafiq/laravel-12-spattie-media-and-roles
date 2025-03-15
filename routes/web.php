@@ -18,7 +18,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
     
-    Route::post('/storage', [\App\Http\Controllers\StorageController::class, 'store'])->name('storage.store');
+    Route::post('temp/storage', [\App\Http\Controllers\StorageController::class, 'store'])->name('storage.store');
     Route::delete('/settings/profile/delete-file', [\App\Http\Controllers\Settings\ProfileController::class, 'deleteFile'])->name('profile.deleteFile');
     Route::post('/settings/profile/upload', [\App\Http\Controllers\Settings\ProfileController::class, 'upload'])->name('profile.upload');
     Route::post('/temp/storage', [\App\Http\Controllers\StorageController::class, 'store'])->name('storage.store');

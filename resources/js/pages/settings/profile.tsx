@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Transition } from '@headlessui/react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
@@ -12,8 +13,6 @@ import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import DropzoneUploader from '@/components/dropzoner';
-// import DropzoneUploader from '@/components/dropzoner';
-
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -25,39 +24,75 @@ const breadcrumbs: BreadcrumbItem[] = [
 interface ProfileForm {
   name: string;
   email: string;
+  image?: string; // Simpan path file
+  [key: string]: string | number | undefined;
 }
 
-export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
+interface UserProfileImage {
+  file_name: string;
+  size: number;
+  original_url: string;
+}
+
+export default function Profile({
+  mustVerifyEmail,
+  status,
+}: {
+  mustVerifyEmail: boolean;
+  status?: string;
+}) {
   const { auth } = usePage<SharedData>().props;
 
-  const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<Required<ProfileForm>>({
+  // Ambil file awal dari auth, jika ada
+  const initialFile: UserProfileImage | null = auth.user.profile_image ? auth.user.profile_image as UserProfileImage : null;
+
+  const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<ProfileForm>({
     name: auth.user.name,
     email: auth.user.email,
+    image: initialFile ? initialFile.file_name : '',
   });
+
+  // State untuk menyimpan file yang diupload
+  const [uploadedFile, setUploadedFile] = useState<UserProfileImage | null>(initialFile);
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
-
-    patch(route('profile.update'), {
-      preserveScroll: true,
-    });
+    patch(route('profile.update'), { preserveScroll: true });
   };
 
   const csrf_token = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement).content;
-  const profileImage: { file_name: string; size: number; original_url: string } | null = auth.user.profile_image as { file_name: string; size: number; original_url: string } | null;
+
+  // Callback ketika file berhasil diupload
+  const handleUploadSuccess = (
+    file: Dropzone.DropzoneFile,
+    response: { name: string; size: number; path: string }
+  ) => {
+    // Simpan file yang baru diupload ke state
+    const newFile: UserProfileImage = {
+      file_name: response.name,
+      size: response.size,
+      original_url: response.path,
+    };
+    setUploadedFile(newFile);
+    // Simpan path di form data
+    setData('image', response.path);
+  };
+
+  // Callback ketika file dihapus
+  const handleFileRemoved = () => {
+    setUploadedFile(null);
+    setData('image', '');
+  };
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Profile settings" />
-
       <SettingsLayout>
         <div className="space-y-6">
           <HeadingSmall title="Profile information" description="Update your name and email address" />
-
           <form onSubmit={submit} className="space-y-6">
             <div className="grid gap-2">
               <Label htmlFor="name">Name</Label>
-
               <Input
                 id="name"
                 className="mt-1 block w-full"
@@ -67,13 +102,10 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                 autoComplete="name"
                 placeholder="Full name"
               />
-
               <InputError className="mt-2" message={errors.name} />
             </div>
-
             <div className="grid gap-2">
               <Label htmlFor="email">Email address</Label>
-
               <Input
                 id="email"
                 type="email"
@@ -84,10 +116,8 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                 autoComplete="username"
                 placeholder="Email address"
               />
-
               <InputError className="mt-2" message={errors.email} />
             </div>
-
             {mustVerifyEmail && auth.user.email_verified_at === null && (
               <div>
                 <p className="text-muted-foreground -mt-4 text-sm">
@@ -101,7 +131,6 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                     Click here to resend the verification email.
                   </Link>
                 </p>
-
                 {status === 'verification-link-sent' && (
                   <div className="mt-2 text-sm font-medium text-green-600">
                     A new verification link has been sent to your email address.
@@ -110,21 +139,21 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
               </div>
             )}
             <div className="mb-4">
-              <label className="block text-gray-700">Profile Images</label>
-              
+              <Label htmlFor="profile-image">Profile Image</Label>
               <DropzoneUploader
-                urlStore="/storage/store"
-                urlDestroy="/profile/deleteFile"
+                urlStore={route('storage.store')}
+                urlDestroy={route('profile.deleteFile')}
                 csrf={csrf_token}
                 acceptedFiles="image/*"
-                maxFiles={3}
-                files={profileImage ? [{ file_name: profileImage.file_name, size: profileImage.size, original_url: profileImage.original_url }] : []}
+                maxFiles={1}
+                files={uploadedFile ? [uploadedFile] : []}
                 kind="image"
+                onSuccess={handleUploadSuccess}
+                onRemoved={handleFileRemoved}
               />
             </div>
             <div className="flex items-center gap-4">
               <Button disabled={processing}>Save</Button>
-
               <Transition
                 show={recentlySuccessful}
                 enter="transition ease-in-out"
@@ -137,7 +166,6 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
             </div>
           </form>
         </div>
-
         <DeleteUser />
       </SettingsLayout>
     </AppLayout>
