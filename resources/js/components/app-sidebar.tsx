@@ -15,7 +15,7 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
-        title: 'Users',
+        title: 'Users Management',
         href: '',
         icon: Users,
         children: [
@@ -30,8 +30,8 @@ const mainNavItems: NavItem[] = [
                 icon: Shield,
             },
             {
-                title: 'CRUD User',
-                href: '/users/crud',
+                title: 'User',
+                href: '/users',
                 icon: Settings,
             },
         ],
