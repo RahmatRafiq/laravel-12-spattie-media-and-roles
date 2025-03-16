@@ -20,11 +20,11 @@ export default function UserForm({
     const isEdit = !!user;
 
     const { data, setData, post, put, processing, errors } = useForm({
-        name: user ? user.name : '',
-        email: user ? user.email : '',
+        name: user?.name || '',
+        email: user?.email || '',
         password: '',
         password_confirmation: '',
-        role_id: user && user.roles ? user.roles[0]?.id || '' : '', // ambil role pertama jika ada
+        role_id: user?.roles && user.roles.length > 0 ? user.roles[0].id : null,
     });
 
     const breadcrumbs: BreadcrumbItem[] = [
@@ -45,6 +45,9 @@ export default function UserForm({
         value: r.id,
         label: r.name,
     }));
+
+    // Pastikan role_id cocok (number)
+    const selectedRole = roleOptions.find((opt) => opt.value === Number(data.role_id)) || null;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -116,16 +119,11 @@ export default function UserForm({
                             <Label htmlFor="role_id">Role</Label>
                             <CustomSelect
                                 id="role_id"
+                                isMulti={false}
                                 options={roleOptions}
-                                value={roleOptions.find((opt) => opt.value === data.role_id) || null}
-                                onChange={(newValue) => {
-                                    if (!Array.isArray(newValue)) {
-                                        if (newValue && 'value' in newValue) {
-                                            setData('role_id', newValue.value);
-                                        } else {
-                                            setData('role_id', '');
-                                        }
-                                    }
+                                value={selectedRole}
+                                onChange={(selected) => {
+                                    setData('role_id', (selected as { value: number })?.value ?? null);
                                 }}
                             />
                             <InputError message={errors.role_id} />
