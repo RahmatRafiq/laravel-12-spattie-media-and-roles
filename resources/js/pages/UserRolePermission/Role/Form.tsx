@@ -5,15 +5,18 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { Role } from '@/types/UserRolePermission';
+import type { Role, Permission } from '@/types/UserRolePermission';
 import { BreadcrumbItem } from '@/types';
 import AppLayout from '@/layouts/app-layout';
 import { Separator } from '@/components/ui/separator';
+import Select from 'react-select';
 
-export default function RoleForm({ role }: { role?: Role }) {
+export default function RoleForm({ role, permissions }: { role?: Role; permissions: Permission[] }) {
   const isEdit = !!role;
   const { data, setData, post, put, processing, errors } = useForm({
     name: role ? role.name : '',
+    guard_name: role ? role.guard_name : 'web', // default ke 'web'
+    permissions: role && role.permissions ? role.permissions.map(p => p.id) : [],
   });
 
   const breadcrumbs: BreadcrumbItem[] = [
@@ -31,6 +34,17 @@ export default function RoleForm({ role }: { role?: Role }) {
     }
   };
 
+  const permissionOptions = permissions.map(p => ({
+    value: p.id,
+    label: p.name,
+  }));
+
+  const guardOptions = [
+    { value: 'web', label: 'web' },
+    { value: 'api', label: 'api' },
+    // Tambahkan guard lain jika perlu
+  ];
+
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title={isEdit ? 'Edit Role' : 'Create Role'} />
@@ -44,7 +58,6 @@ export default function RoleForm({ role }: { role?: Role }) {
               <Button asChild variant="ghost" size="sm" className="justify-start bg-muted">
                 <Link href="/roles">Role Management</Link>
               </Button>
-              {/* Sidebar lain jika ada */}
             </nav>
           </aside>
 
@@ -68,6 +81,38 @@ export default function RoleForm({ role }: { role?: Role }) {
                   required
                 />
                 <InputError message={errors.name} />
+              </div>
+
+              <div>
+                <Label htmlFor="guard">Guard</Label>
+                <Select
+                  id="guard"
+                  options={guardOptions}
+                  value={guardOptions.find(option => option.value === data.guard_name)}
+                  onChange={(selected) => setData('guard_name', selected?.value || '')}
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                />
+                <InputError message={errors.guard_name} />
+              </div>
+
+              <div>
+                <Label htmlFor="permissions">Permissions</Label>
+                <Select
+                  id="permissions"
+                  isMulti
+                  options={permissionOptions}
+                  value={permissionOptions.filter(option => data.permissions.includes(option.value))}
+                  onChange={(selected) =>
+                    setData(
+                      'permissions',
+                      selected.map(option => option.value)
+                    )
+                  }
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                />
+                <InputError message={errors.permissions} />
               </div>
 
               <div className="flex items-center space-x-4">
