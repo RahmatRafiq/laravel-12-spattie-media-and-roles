@@ -7,9 +7,12 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role as SpatieRole;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UserController extends Controller
 {
+    use SoftDeletes;
+
     public function index()
     {
         $users = User::with('roles')->get();
@@ -84,5 +87,19 @@ class UserController extends Controller
     {
         $user->delete();
         return redirect()->route('user.index')->with('success', 'User berhasil dihapus.');
+    }
+
+    public function restore($id)
+    {
+        $user = User::withTrashed()->findOrFail($id);
+        $user->restore();
+        return redirect()->route('user.index')->with('success', 'User berhasil dipulihkan.');
+    }
+
+    public function forceDestroy($id)
+    {
+        $user = User::withTrashed()->findOrFail($id);
+        $user->forceDelete();
+        return redirect()->route('user.index')->with('success', 'User berhasil dihapus secara permanen.');
     }
 }
