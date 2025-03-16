@@ -16,14 +16,14 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Users',
-        href: '/users',
+        href: '',
         icon: Users,
         children: [
             {
                 title: 'Roles',
-                href: '/users/roles',
+                href: '/roles',
                 icon: Shield,
-            },
+            },  
             {
                 title: 'Permissions',
                 href: '/users/permissions',

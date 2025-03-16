@@ -24,6 +24,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/temp/storage', [\App\Http\Controllers\StorageController::class, 'destroy'])->name('storage.destroy');
     Route::get('/temp/storage/{path}', [\App\Http\Controllers\StorageController::class, 'show'])->name('storage.show');
 
+    Route::resource('roles', \App\Http\Controllers\RolePermission\RoleController::class);
+    Route::resource('permissions', \App\Http\Controllers\RolePermission\RoleController::class);
+
     Route::post('logout', [SocialAuthController::class, 'logout'])->name('logout');
 });
 
