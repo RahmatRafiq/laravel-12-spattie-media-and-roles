@@ -1,10 +1,7 @@
-
-
 import Dropzone from 'dropzone';
 import 'dropzone/dist/dropzone.css';
 import Toastify from 'toastify-js';
 import 'toastify-js/src/toastify.css';
-
 
 Dropzone.autoDiscover = false;
 
@@ -80,16 +77,19 @@ const Dropzoner = (
       }
       console.log('Upload successful');
     },
-  
     removedfile: function (file) {
-      $.ajax({
-        type: 'DELETE',
-        url: urlDestroy,
-        headers: { 'X-CSRF-TOKEN': csrf },
-        data: { filename: file.name },
-        success: (data) => console.log(data),
-        error: (e) => console.log(e),
-      });
+      fetch(urlDestroy, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRF-TOKEN': csrf,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ filename: file.name })
+      })
+        .then(res => res.json())
+        .then(data => console.log(data))
+        .catch(error => console.error(error));
+
       file.previewElement?.parentNode?.removeChild(file.previewElement);
     },
     error: function (file, message: string | Error) {

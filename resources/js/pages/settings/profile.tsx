@@ -24,16 +24,25 @@ const breadcrumbs: BreadcrumbItem[] = [
 interface ProfileForm {
   name: string;
   email: string;
-  'profile-images': string[]; // Array untuk menyimpan file name yang diupload ke temp
-  [key: string]: string | string[]; // Index signature
+  'profile-images': string[];
+  [key: string]: string | string[];
 }
 
 export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
-  const { auth } = usePage<SharedData>().props;
-  // Jika sudah ada file profil, gunakan file name-nya sebagai nilai awal
-  const initialImages: string[] = auth.user.profile_image ? [auth.user.profile_image.file_name] : [];
+  const { auth, profileImage } = usePage<SharedData & { profileImage: { file_name: string; size: number; original_url?: string; url?: string } }>().props;
 
-  // Tambahkan field 'profile-images' ke form data
+  const initialImages: string[] = profileImage ? [profileImage.file_name] : [];
+
+  const initialFiles = profileImage
+    ? [
+        {
+          file_name: profileImage.file_name,
+          size: profileImage.size,
+          original_url: profileImage.original_url || profileImage.url || '',
+        },
+      ]
+    : [];
+
   const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<ProfileForm>({
     name: auth.user.name,
     email: auth.user.email,
@@ -47,43 +56,39 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
 
   const csrf_token = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || '';
 
-  // Ref untuk elemen dropzone dan instance dropzone
   const dropzoneRef = useRef<HTMLDivElement>(null);
   const dzInstance = useRef<Dropzone | null>(null);
 
   useEffect(() => {
     if (dropzoneRef.current) {
-      // Jika sudah ada instance, destroy terlebih dahulu
       if (dzInstance.current) {
         dzInstance.current.destroy();
       }
       dzInstance.current = Dropzoner(dropzoneRef.current, 'profile-images', {
-        urlStore: '/temp/storage',
-        urlDestroy: '/profile/deleteFile',
+        urlStore: route('storage.destroy'),
+        urlDestroy: route('profile.deleteFile'),
         csrf: csrf_token,
         acceptedFiles: 'image/*',
         maxFiles: 3,
-        files: (data['profile-images'] || []).map((fileName: string) => ({
-          file_name: fileName,
-          size: 0,
-          original_url: '',
-        })),
+        files: initialFiles,
         kind: 'image',
       });
 
-      // Callback saat file berhasil di-upload
-      dzInstance.current.on('success', function (file, response: { name: string }) {
-        // Tambahkan file name baru ke form data
+      dzInstance.current.on('success', function (file, response: { name: string; url?: string }) {
         setData('profile-images', [...(data['profile-images'] || []), response.name]);
+        if (file.previewElement && response.url) {
+          const thumbnail = file.previewElement.querySelector('[data-dz-thumbnail]') as HTMLImageElement;
+          if (thumbnail) {
+            thumbnail.src = response.url;
+          }
+        }
       });
 
-      // Callback saat file dihapus
       dzInstance.current.on('removedfile', function (file) {
         const removedFileName = file.name;
         setData('profile-images', (data['profile-images'] || []).filter(f => f !== removedFileName));
       });
     }
-    // Perhatikan dependency, gunakan csrf_token dan dropzoneRef.current
   }, [csrf_token]);
 
   return (
@@ -140,7 +145,6 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                 )}
               </div>
             )}
-            {/* Dropzone untuk upload gambar profil */}
             <div className="mb-4">
               <Label htmlFor="profile-image">Profile Images</Label>
               <div ref={dropzoneRef} className="dropzone"></div>
