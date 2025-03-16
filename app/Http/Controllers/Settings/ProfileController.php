@@ -15,9 +15,6 @@ use Storage;
 
 class ProfileController extends Controller
 {
-    /**
-     * Show the user's profile settings page.
-     */
     public function edit(Request $request): Response
     {
         $profileImage = $request->user()->getMedia('profile-images')->first();
@@ -35,32 +32,43 @@ class ProfileController extends Controller
             'profile-images.*' => 'required|file|max:2048|mimes:jpeg,jpg,png',
             'id'               => 'required|integer',
         ]);
-
+    
         $user = $request->user();
-
-        return response()->json(['message' => 'Profile picture uploaded'], 200);
+        $file = $request->file('profile-images')[0];
+        $name = $file->hashName();
+        $filePath = Storage::disk('temp')->putFile('', $file);
+        $media = $user->addMediaFromDisk($filePath, 'temp')->toMediaCollection('profile-images');
+        Storage::disk('temp')->delete($filePath);
+    
+        return response()->json([
+             'name' => $media->file_name,
+             'url'  => $media->getFullUrl()
+        ], 200);
     }
 
-    /**
-     * Update the user's profile settings.
-     */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         DB::beginTransaction();
-
+    
         try {
             $request->validate([
                 'profile-images' => 'array|max:3',
             ]);
-
+    
             $user = $request->user();
             $user->fill($request->validated());
-
+    
             if ($user->isDirty('email')) {
                 $user->email_verified_at = null;
             }
-
+    
             if ($request->has('profile-images')) {
+                $profileImages = $request->input('profile-images');
+                if (is_array($profileImages) && count($profileImages) > 0) {
+                    $lastImage = end($profileImages);
+                    $request->merge(['profile-images' => [$lastImage]]);
+                }
+    
                 MediaLibrary::put(
                     $user,
                     'profile-images',
@@ -68,19 +76,17 @@ class ProfileController extends Controller
                     'profile-images'
                 );
             }
-
+    
             $user->save();
             DB::commit();
             return to_route('profile.edit');
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Profile update error: ' . $e->getMessage());
             return back()->withErrors(['error' => 'Profile update failed.']);
         }
     }
 
-    /**
-     * Delete the user's account.
-     */
     public function destroy(Request $request): RedirectResponse
     {
         $request->validate([
@@ -91,7 +97,6 @@ class ProfileController extends Controller
 
         Auth::logout();
 
-        // Delete user's media
         $user->clearMediaCollection('profile-images');
 
         $user->delete();
@@ -117,5 +122,4 @@ class ProfileController extends Controller
     
         return response()->json(['message' => 'File berhasil dihapus'], 200);
     }
-    
 }
