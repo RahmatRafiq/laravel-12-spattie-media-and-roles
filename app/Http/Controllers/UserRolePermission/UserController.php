@@ -21,7 +21,7 @@ class UserController extends Controller
         };
 
         return Inertia::render('UserRolePermission/User/Index', [
-            'users' => $users,
+            'users'  => $users,
             'filter' => $filter,
         ]);
     }
@@ -52,7 +52,7 @@ class UserController extends Controller
         $role = SpatieRole::findById($validatedData['role_id']);
         $user->assignRole($role);
 
-        return redirect()->route('user.index')->with('success', 'User berhasil dibuat.');
+        return redirect()->route('users.index')->with('success', 'User berhasil dibuat.');
     }
 
     public function edit($id)
@@ -85,13 +85,13 @@ class UserController extends Controller
         $role = SpatieRole::findById($validatedData['role_id']);
         $user->syncRoles([$role]);
 
-        return redirect()->route('user.index')->with('success', 'User berhasil diperbarui.');
+        return redirect()->route('users.index')->with('success', 'User berhasil diperbarui.');
     }
 
     public function destroy(User $user)
     {
         $user->delete();
-        return redirect()->route('user.index')->with('success', 'User berhasil dihapus.');
+        return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
     }
 
     public function trashed()
@@ -105,12 +105,12 @@ class UserController extends Controller
     public function restore($id)
     {
         User::withTrashed()->findOrFail($id)->restore();
-        return redirect()->route('user.index')->with('success', 'User berhasil dipulihkan.');
+        return redirect()->route('users.index')->with('success', 'User berhasil dipulihkan.');
     }
 
     public function forceDelete($id)
     {
         User::withTrashed()->findOrFail($id)->forceDelete();
-        return redirect()->route('user.index')->with('success', 'User berhasil dihapus secara permanen.');
+        return redirect()->route('users.index')->with('success', 'User berhasil dihapus secara permanen.');
     }
 }
