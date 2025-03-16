@@ -26,7 +26,7 @@ const mainNavItems: NavItem[] = [
             },  
             {
                 title: 'Permissions',
-                href: '/users/permissions',
+                href: '/permissions',
                 icon: Shield,
             },
             {
