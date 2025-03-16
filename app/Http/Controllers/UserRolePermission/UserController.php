@@ -58,7 +58,7 @@ class UserController extends Controller
 
     public function edit($id)
     {
-        $user  = User::withTrashed()->with('roles')->findOrFail($id);
+        $user  = User::withTrashed()->findOrFail($id);
         $roles = Role::all();
         return Inertia::render('UserRolePermission/User/Form', [
             'user'  => $user,
