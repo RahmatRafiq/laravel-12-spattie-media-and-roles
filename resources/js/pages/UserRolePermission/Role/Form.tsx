@@ -83,7 +83,7 @@ export default function RoleForm({ role, permissions }: { role?: Role; permissio
                 <InputError message={errors.name} />
               </div>
 
-                <div>
+              <div>
                 <Label htmlFor="guard">Guard</Label>
                 <CustomSelect
                   id="guard"
@@ -92,9 +92,9 @@ export default function RoleForm({ role, permissions }: { role?: Role; permissio
                   onChange={(selected) => setData('guard_name', (selected as { value: string }).value)}
                 />
                 <InputError message={errors.guard_name} />
-                </div>
+              </div>
 
-                <div>
+              <div>
                 <Label htmlFor="permissions">Permissions</Label>
                 <CustomSelect
                   id="permissions"
@@ -102,14 +102,14 @@ export default function RoleForm({ role, permissions }: { role?: Role; permissio
                   options={permissionOptions}
                   value={permissionOptions.filter(option => data.permissions.includes(option.value))}
                   onChange={(newValue) =>
-                  setData(
-                    'permissions',
-                    Array.isArray(newValue) ? newValue.map(option => option.value) : []
-                  )
+                    setData(
+                      'permissions',
+                      Array.isArray(newValue) ? newValue.map(option => option.value) : []
+                    )
                   }
                 />
                 <InputError message={errors.permissions} />
-                </div>
+              </div>
 
               <div className="flex items-center space-x-4">
                 <Button disabled={processing}>
