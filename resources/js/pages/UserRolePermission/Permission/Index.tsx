@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 
 const breadcrumbs: BreadcrumbItem[] = [
-  { title: 'Settings', href: '/settings' },
   { title: 'Permission Management', href: '/permissions' },
 ];
 
@@ -22,7 +21,7 @@ export default function PermissionIndex({ permissions, success }: { permissions:
 
         <div className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-12">
           {/* Sidebar */}
-          <aside className="w-full max-w-xl lg:w-48">
+          {/* <aside className="w-full max-w-xl lg:w-48">
             <nav className="flex flex-col space-y-1">
               <Button asChild variant="ghost" size="sm" className="justify-start">
                 <Link href="/roles">Role Management</Link>
@@ -31,7 +30,7 @@ export default function PermissionIndex({ permissions, success }: { permissions:
                 <Link href="/permissions">Permission Management</Link>
               </Button>
             </nav>
-          </aside>
+          </aside> */}
 
           <Separator className="my-6 md:hidden" />
 
