@@ -13,6 +13,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $filter = $request->query('filter', 'active');
+        $users = User::with('roles')->get();
 
         $users = match ($filter) {
             'trashed' => User::onlyTrashed()->with('roles')->get(),
@@ -58,7 +59,7 @@ class UserController extends Controller
 
     public function edit($id)
     {
-        $user  = User::withTrashed()->with('roles')->findOrFail($id);
+        $user  = User::withTrashed()->findOrFail($id);
         $roles = Role::all();
         return Inertia::render('UserRolePermission/User/Form', [
             'user'  => $user,
@@ -91,9 +92,14 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        if ($user->trashed()) {
+            return redirect()->route('users.index')->with('error', 'User sudah dihapus sebelumnya.');
+        }
+    
         $user->delete();
         return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
     }
+    
 
     public function trashed()
     {
