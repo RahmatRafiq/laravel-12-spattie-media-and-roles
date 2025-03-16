@@ -35,12 +35,12 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
 
   const initialFiles = profileImage
     ? [
-        {
-          file_name: profileImage.file_name,
-          size: profileImage.size,
-          original_url: profileImage.original_url || profileImage.url || '',
-        },
-      ]
+      {
+        file_name: profileImage.file_name,
+        size: profileImage.size,
+        original_url: profileImage.original_url || profileImage.url || '',
+      },
+    ]
     : [];
 
   const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<ProfileForm>({
@@ -147,7 +147,11 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
             )}
             <div className="mb-4">
               <Label htmlFor="profile-image">Profile Images</Label>
-              <div ref={dropzoneRef} className="dropzone"></div>
+              <div
+                ref={dropzoneRef}
+                className="dropzone border-dashed border-2 rounded p-4 dark:text-black"
+              ></div>
+
             </div>
             <div className="flex items-center gap-4">
               <Button disabled={processing}>Save</Button>
