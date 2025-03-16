@@ -5,11 +5,12 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+
 import type { Role, Permission } from '@/types/UserRolePermission';
 import { BreadcrumbItem } from '@/types';
 import AppLayout from '@/layouts/app-layout';
 import { Separator } from '@/components/ui/separator';
-import Select from 'react-select';
+import CustomSelect from '@/components/select';
 
 export default function RoleForm({ role, permissions }: { role?: Role; permissions: Permission[] }) {
   const isEdit = !!role;
@@ -42,7 +43,6 @@ export default function RoleForm({ role, permissions }: { role?: Role; permissio
   const guardOptions = [
     { value: 'web', label: 'web' },
     { value: 'api', label: 'api' },
-    // Tambahkan guard lain jika perlu
   ];
 
   return (
@@ -83,37 +83,33 @@ export default function RoleForm({ role, permissions }: { role?: Role; permissio
                 <InputError message={errors.name} />
               </div>
 
-              <div>
+                <div>
                 <Label htmlFor="guard">Guard</Label>
-                <Select
+                <CustomSelect
                   id="guard"
                   options={guardOptions}
                   value={guardOptions.find(option => option.value === data.guard_name)}
-                  onChange={(selected) => setData('guard_name', selected?.value || '')}
-                  className="react-select-container"
-                  classNamePrefix="react-select"
+                  onChange={(selected) => setData('guard_name', (selected as { value: string }).value)}
                 />
                 <InputError message={errors.guard_name} />
-              </div>
+                </div>
 
-              <div>
+                <div>
                 <Label htmlFor="permissions">Permissions</Label>
-                <Select
+                <CustomSelect
                   id="permissions"
                   isMulti
                   options={permissionOptions}
                   value={permissionOptions.filter(option => data.permissions.includes(option.value))}
-                  onChange={(selected) =>
-                    setData(
-                      'permissions',
-                      selected.map(option => option.value)
-                    )
+                  onChange={(newValue) =>
+                  setData(
+                    'permissions',
+                    Array.isArray(newValue) ? newValue.map(option => option.value) : []
+                  )
                   }
-                  className="react-select-container"
-                  classNamePrefix="react-select"
                 />
                 <InputError message={errors.permissions} />
-              </div>
+                </div>
 
               <div className="flex items-center space-x-4">
                 <Button disabled={processing}>
@@ -121,12 +117,13 @@ export default function RoleForm({ role, permissions }: { role?: Role; permissio
                 </Button>
                 <Link
                   href={route('roles.index')}
-                  className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+                  className="px-4 py-2 bg-muted text-foreground rounded hover:bg-muted/70"
                 >
                   Cancel
                 </Link>
               </div>
             </form>
+
           </div>
         </div>
       </div>
