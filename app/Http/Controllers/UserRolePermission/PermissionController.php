@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\RolePermission;
+namespace App\Http\Controllers\UserRolePermission;
 
 use App\Http\Controllers\Controller;
 use App\Models\Permission;
