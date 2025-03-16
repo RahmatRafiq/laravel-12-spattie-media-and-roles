@@ -28,7 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('permissions', \App\Http\Controllers\UserRolePermission\PermissionController::class);
     
     Route::resource('users', \App\Http\Controllers\UserRolePermission\UserController::class);
-    Route::get('users/trashed', [\App\Http\Controllers\UserRolePermission\UserController::class, 'index'])->name('users.trashed');
+    Route::get('users/trashed', [\App\Http\Controllers\UserRolePermission\UserController::class, 'trashed'])->name('users.trashed');
     Route::get('users/{user}/restore', [\App\Http\Controllers\UserRolePermission\UserController::class, 'restore'])->name('users.restore');
     Route::delete('users/{user}/force-delete', [\App\Http\Controllers\UserRolePermission\UserController::class, 'forceDelete'])->name('users.force-delete');
 
