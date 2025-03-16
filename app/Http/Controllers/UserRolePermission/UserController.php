@@ -7,17 +7,22 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role as SpatieRole;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UserController extends Controller
 {
-    use SoftDeletes;
-
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('roles')->get();
+        $filter = $request->query('filter', 'active');
+
+        $users = match ($filter) {
+            'trashed' => User::onlyTrashed()->with('roles')->get(),
+            'all' => User::withTrashed()->with('roles')->get(),
+            default => User::with('roles')->get(),
+        };
+
         return Inertia::render('UserRolePermission/User/Index', [
             'users' => $users,
+            'filter' => $filter,
         ]);
     }
 
@@ -52,7 +57,7 @@ class UserController extends Controller
 
     public function edit($id)
     {
-        $user  = User::findOrFail($id);
+        $user  = User::withTrashed()->findOrFail($id);
         $roles = Role::all();
         return Inertia::render('UserRolePermission/User/Form', [
             'user'  => $user,
@@ -69,7 +74,7 @@ class UserController extends Controller
             'role_id'  => 'required|exists:roles,id',
         ]);
 
-        $user        = User::findOrFail($id);
+        $user        = User::withTrashed()->findOrFail($id);
         $user->name  = $validatedData['name'];
         $user->email = $validatedData['email'];
         if ($request->filled('password')) {
@@ -89,17 +94,23 @@ class UserController extends Controller
         return redirect()->route('user.index')->with('success', 'User berhasil dihapus.');
     }
 
+    public function trashed()
+    {
+        $users = User::onlyTrashed()->with('roles')->get();
+        return Inertia::render('UserRolePermission/User/Trashed', [
+            'users' => $users,
+        ]);
+    }
+
     public function restore($id)
     {
-        $user = User::withTrashed()->findOrFail($id);
-        $user->restore();
+        User::withTrashed()->findOrFail($id)->restore();
         return redirect()->route('user.index')->with('success', 'User berhasil dipulihkan.');
     }
 
-    public function forceDestroy($id)
+    public function forceDelete($id)
     {
-        $user = User::withTrashed()->findOrFail($id);
-        $user->forceDelete();
+        User::withTrashed()->findOrFail($id)->forceDelete();
         return redirect()->route('user.index')->with('success', 'User berhasil dihapus secara permanen.');
     }
 }
