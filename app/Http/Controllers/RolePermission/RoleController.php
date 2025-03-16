@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\RolePermission;
 
+use App\Helpers\Guards;
 use App\Http\Controllers\Controller;
+use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class RoleController extends Controller
@@ -25,8 +28,12 @@ class RoleController extends Controller
      */
     public function create()
     {
-        return Inertia::render('UserRolePermission/Role/Form');
+        $permissions = Permission::all();
+        return Inertia::render('UserRolePermission/Role/Form', [
+            'permissions' => $permissions,
+        ]);
     }
+    
 
     /**
      * Simpan role baru ke database.
@@ -35,11 +42,16 @@ class RoleController extends Controller
     {
         $request->validate([
             'name' => 'required|unique:roles,name',
+            'guard_name' => ['required', 'string', 'max:255', Rule::in(Guards::list())],
+            'permissions' => 'required|array',
         ]);
 
-        Role::create([
+        $role = Role::create([
             'name' => $request->name,
+            'guard_name' => $request->guard_name,
         ]);
+
+        $role->permissions()->sync($request->permissions);
 
         return redirect()->route('roles.index')->with('success', 'Role berhasil dibuat.');
     }
@@ -49,10 +61,14 @@ class RoleController extends Controller
      */
     public function edit($id)
     {
-        $role = Role::findOrFail($id);
+        $role = Role::with('permissions')->findOrFail($id);
+
         return Inertia::render('UserRolePermission/Role/Form', [
-            'role' => $role,
+            'role' => $role->load('permissions'),
+            'permissions' => Permission::all(),
+            'guards' => array_keys(config('auth.guards')),
         ]);
+        
     }
 
     /**
@@ -62,12 +78,17 @@ class RoleController extends Controller
     {
         $role = Role::findOrFail($id);
         $request->validate([
-            'name' => 'required|unique:roles,name,' . $role->id,
+            'name' => 'required|string|max:255|unique:roles,name,' . $role->id,
+            'guard_name' => ['required', 'string', 'max:255', Rule::in(Guards::list())],
+            'permissions' => 'required|array',
         ]);
 
         $role->update([
             'name' => $request->name,
+            'guard_name' => $request->guard_name,
         ]);
+
+        $role->permissions()->sync($request->permissions);
 
         return redirect()->route('roles.index')->with('success', 'Role berhasil diperbarui.');
     }
