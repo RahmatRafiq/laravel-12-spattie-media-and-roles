@@ -2,16 +2,59 @@ import { Head, Link } from '@inertiajs/react';
 import { Inertia } from '@inertiajs/inertia';
 import HeadingSmall from '@/components/heading-small';
 import { BreadcrumbItem } from '@/types';
-import type { Role } from '@/types/UserRolePermission';
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import DataTable from 'datatables.net-react';
+import DT from 'datatables.net-dt';
+import { useEffect } from 'react';
+import "datatables.net-dt/css/dataTables.dataTables.css"; 
+
 
 const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Role Management', href: '/roles' },
 ];
 
-export default function RoleIndex({ roles, success }: { roles: Role[]; success?: string }) {
+export default function RoleIndex({ success }: { success?: string }) {
+  DataTable.use(DT);
+  const columns = [
+    { data: 'id' },
+    { data: 'name' },
+    { data: 'guard_name' },
+    { data: 'created_at' },
+    { data: 'updated_at' },
+    {
+      data: null,
+      orderable: false,
+      searchable: false,
+      render: function (_: unknown, _type: unknown, row: { id: number }) {
+        return `
+          <a href="/roles/${row.id}/edit" class="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">Edit</a>
+          <button data-id="${row.id}" class="ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 btn-delete">Delete</button>
+        `;
+      },
+    }
+
+  ];
+
+  useEffect(() => {
+    const handleDelete = (e: Event) => {
+      const target = e.target as HTMLElement;
+      if (target && target.matches('.btn-delete')) {
+        const id = target.getAttribute('data-id');
+        if (id && confirm('Are you sure to delete this role?')) {
+          Inertia.delete(route('roles.destroy', id));
+        }
+      }
+    };
+
+    document.addEventListener('click', handleDelete);
+
+    return () => {
+      document.removeEventListener('click', handleDelete);
+    };
+  }, []);
+
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Roles" />
@@ -20,13 +63,6 @@ export default function RoleIndex({ roles, success }: { roles: Role[]; success?:
         <h1 className="text-2xl font-semibold mb-4">Settings</h1>
 
         <div className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-12">
-          {/* <aside className="w-full max-w-xl lg:w-48">
-            <nav className="flex flex-col space-y-1">
-              <Button asChild variant="ghost" size="sm" className="justify-start bg-muted">
-                <Link href="/roles">Role Management</Link>
-              </Button>
-            </nav>
-          </aside> */}
 
           <Separator className="my-6 md:hidden" />
 
@@ -45,41 +81,35 @@ export default function RoleIndex({ roles, success }: { roles: Role[]; success?:
               <div className="p-2 bg-green-100 text-green-800 rounded">{success}</div>
             )}
 
-            <table className="min-w-full bg-white dark:bg-gray-800 border">
+            {/* DataTable */}
+            <DataTable
+              ajax={{
+                url: route('roles.json'),
+                type: 'POST',
+                headers: {
+                  'X-Requested-With': 'XMLHttpRequest',
+                  'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                },
+              }}
+              columns={columns}
+              className="display min-w-full bg-white dark:bg-gray-800 border w-full"
+              options={{
+                processing: true,
+                serverSide: true,
+                paging: true,
+              }}
+            >
               <thead>
                 <tr>
-                  <th className="p-2 border">ID</th>
-                  <th className="p-2 border">Name</th>
-                  <th className="p-2 border">Actions</th>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Guard Name</th>
+                  <th>Created At</th>
+                  <th>Updated At</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
-              <tbody>
-                {roles.map((role) => (
-                  <tr key={role.id} className="text-center">
-                    <td className="p-2 border">{role.id}</td>
-                    <td className="p-2 border">{role.name}</td>
-                    <td className="p-2 border">
-                      <Link
-                        href={route('roles.edit', role.id)}
-                        className="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-                      >
-                        Edit
-                      </Link>
-                      <button
-                        onClick={() => {
-                          if (confirm('Are you sure to delete this role?')) {
-                            Inertia.delete(route('roles.destroy', role.id));
-                          }
-                        }}
-                        className="ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            </DataTable>
           </div>
         </div>
       </div>
