@@ -39,3 +39,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
+
+
+// "datatables.net": "^2.2.2",
+// "datatables.net-dt": "^2.2.2",
+// "datatables.net-react": "^1.0.0",
+// "jquery": "^3.7.1",
