@@ -2,14 +2,43 @@ import { Head, Link } from '@inertiajs/react';
 import { Inertia } from '@inertiajs/inertia';
 import HeadingSmall from '@/components/heading-small';
 import { BreadcrumbItem } from '@/types';
-import type { User } from '@/types/UserRolePermission';
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
+import DataTableWrapper from '@/components/datatables';
 
-export default function UserIndex({ users, success }: { users: User[]; success?: string }) {
+export default function UserIndex({ success }: { success?: string }) {
   const breadcrumbs: BreadcrumbItem[] = [
     { title: 'User Management', href: '/users' },
   ];
+
+  const columns = [
+    { data: 'id', title: 'ID' },
+    { data: 'name', title: 'Name' },
+    { data: 'email', title: 'Email' },
+    { 
+      data: 'roles', 
+      title: 'Role(s)', 
+      render: function (_: unknown, _type: unknown, row: { roles: { name: string }[] }) {
+        return row.roles.map(role => role.name).join(', ');
+      }
+    },
+    {
+      data: null,
+      title: 'Actions',
+      orderable: false,
+      searchable: false,
+      render: function (_: unknown, _type: unknown, row: { id: number }) {
+        return `
+          <a href="/users/${row.id}/edit" class="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">Edit</a>
+          <button data-id="${row.id}" class="ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 btn-delete">Delete</button>
+        `;
+      },
+    },
+  ];
+
+  const handleDelete = (id: number) => {
+    Inertia.delete(route('users.destroy', id));
+  };
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
@@ -32,47 +61,20 @@ export default function UserIndex({ users, success }: { users: User[]; success?:
             <div className="p-2 bg-green-100 text-green-800 rounded">{success}</div>
           )}
 
-          <table className="min-w-full bg-white dark:bg-gray-800 border">
-            <thead>
-              <tr>
-                <th className="p-2 border">ID</th>
-                <th className="p-2 border">Name</th>
-                <th className="p-2 border">Email</th>
-                <th className="p-2 border">Role(s)</th>
-                <th className="p-2 border">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user.id} className="text-center">
-                  <td className="p-2 border">{user.id}</td>
-                  <td className="p-2 border">{user.name}</td>
-                  <td className="p-2 border">{user.email}</td>
-                  <td className="p-2 border">
-                    {user.roles.map((role) => role.name).join(', ')}
-                  </td>
-                  <td className="p-2 border">
-                    <Link
-                      href={route('users.edit', user.id)}
-                      className="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-                    >
-                      Edit
-                    </Link>
-                    <button
-                      onClick={() => {
-                        if (confirm('Are you sure to delete this user?')) {
-                          Inertia.delete(route('users.destroy', user.id));
-                        }
-                      }}
-                      className="ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTableWrapper
+            ajax={{
+              url: route('users.json'),
+              type: 'POST',
+              headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN':
+                  document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+                  '',
+              },
+            }}
+            columns={columns}
+            onRowDelete={handleDelete}
+          />
         </div>
       </div>
     </AppLayout>
