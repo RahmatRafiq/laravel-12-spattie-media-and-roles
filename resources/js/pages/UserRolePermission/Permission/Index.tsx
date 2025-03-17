@@ -43,7 +43,8 @@ export default function PermissionIndex({ success }: { success?: string }) {
         <div className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-12">
           <Separator className="my-6 md:hidden" />
 
-          <div className="flex-1 md:max-w-2xl space-y-6">
+          {/* <div className="flex-1 md:max-w-2xl space-y-6"> */}
+          <div className="col-md-12">
             <HeadingSmall title="Permissions" description="Manage permissions for your application" />
 
             <div className="flex items-center justify-between">

@@ -42,9 +42,12 @@ export default function PermissionForm({ permission }: { permission?: Permission
           <aside className="w-full max-w-xl lg:w-48">
             <nav className="flex flex-col space-y-1">
               <Button asChild variant="ghost" size="sm" className="justify-start">
+                <Link href="/users">User List</Link>
+              </Button>
+              <Button asChild variant="ghost" size="sm" className="justify-start">
                 <Link href="/roles">Role Management</Link>
               </Button>
-              <Button asChild variant="ghost" size="sm" className="justify-start bg-muted">
+              <Button asChild variant="ghost" size="sm" className="justify-start">
                 <Link href="/permissions">Permission Management</Link>
               </Button>
             </nav>
