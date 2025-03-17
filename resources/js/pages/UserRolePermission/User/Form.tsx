@@ -46,7 +46,6 @@ export default function UserForm({
         label: r.name,
     }));
 
-    // Pastikan role_id cocok (number)
     const selectedRole = roleOptions.find((opt) => opt.value === Number(data.role_id)) || null;
 
     return (
@@ -54,93 +53,108 @@ export default function UserForm({
             <Head title={isEdit ? 'Edit User' : 'Create User'} />
             <div className="px-4 py-6">
                 <h1 className="text-2xl font-semibold mb-4">User Management</h1>
-
-                <div className="flex-1 md:max-w-2xl space-y-6">
-                    <HeadingSmall
-                        title={isEdit ? 'Edit User' : 'Create User'}
-                        description="Fill in the details below"
-                    />
-
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                            <Label htmlFor="name">Name</Label>
-                            <Input
-                                id="name"
-                                type="text"
-                                value={data.name}
-                                onChange={(e) => setData('name', e.target.value)}
-                                required
-                            />
-                            <InputError message={errors.name} />
-                        </div>
-
-                        <div>
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                value={data.email}
-                                onChange={(e) => setData('email', e.target.value)}
-                                required
-                            />
-                            <InputError message={errors.email} />
-                        </div>
-
-                        <div>
-                            <Label htmlFor="password">
-                                Password{' '}
-                                {isEdit && (
-                                    <span className="text-sm text-muted">(Leave blank if not changing)</span>
-                                )}
-                            </Label>
-                            <Input
-                                id="password"
-                                type="password"
-                                value={data.password}
-                                onChange={(e) => setData('password', e.target.value)}
-                                placeholder={isEdit ? '••••••••' : ''}
-                            />
-                            <InputError message={errors.password} />
-                        </div>
-
-                        <div>
-                            <Label htmlFor="password_confirmation">Confirm Password</Label>
-                            <Input
-                                id="password_confirmation"
-                                type="password"
-                                value={data.password_confirmation}
-                                onChange={(e) => setData('password_confirmation', e.target.value)}
-                                placeholder={isEdit ? '••••••••' : ''}
-                            />
-                            <InputError message={errors.password_confirmation} />
-                        </div>
-
-                        <div>
-                            <Label htmlFor="role_id">Role</Label>
-                            <CustomSelect
-                                id="role_id"
-                                isMulti={false}
-                                options={roleOptions}
-                                value={selectedRole}
-                                onChange={(selected) => {
-                                    setData('role_id', (selected as { value: number })?.value ?? null);
-                                }}
-                            />
-                            <InputError message={errors.role_id} />
-                        </div>
-
-                        <div className="flex items-center space-x-4">
-                            <Button disabled={processing}>
-                                {isEdit ? 'Update User' : 'Create User'}
+                <div className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-12">
+                    {/* Sidebar */}
+                    <aside className="w-full max-w-xl lg:w-48">
+                        <nav className="flex flex-col space-y-1">
+                            <Button asChild variant="ghost" size="sm" className="justify-start">
+                                <Link href="/users">User List</Link>
                             </Button>
-                            <Link
-                                href={route('users.index')}
-                                className="px-4 py-2 bg-muted text-foreground rounded hover:bg-muted/70"
-                            >
-                                Cancel
-                            </Link>
-                        </div>
-                    </form>
+                            <Button asChild variant="ghost" size="sm" className="justify-start">
+                                <Link href="/roles">Role Management</Link>
+                            </Button>
+                            <Button asChild variant="ghost" size="sm" className="justify-start">
+                                <Link href="/permissions">Permission Management</Link>
+                            </Button>
+                        </nav>
+                    </aside>
+                    <div className="flex-1 md:max-w-2xl space-y-6">
+                        <HeadingSmall
+                            title={isEdit ? 'Edit User' : 'Create User'}
+                            description="Fill in the details below"
+                        />
+
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div>
+                                <Label htmlFor="name">Name</Label>
+                                <Input
+                                    id="name"
+                                    type="text"
+                                    value={data.name}
+                                    onChange={(e) => setData('name', e.target.value)}
+                                    required
+                                />
+                                <InputError message={errors.name} />
+                            </div>
+
+                            <div>
+                                <Label htmlFor="email">Email</Label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    value={data.email}
+                                    onChange={(e) => setData('email', e.target.value)}
+                                    required
+                                />
+                                <InputError message={errors.email} />
+                            </div>
+
+                            <div>
+                                <Label htmlFor="password">
+                                    Password{' '}
+                                    {isEdit && (
+                                        <span className="text-sm text-muted">(Leave blank if not changing)</span>
+                                    )}
+                                </Label>
+                                <Input
+                                    id="password"
+                                    type="password"
+                                    value={data.password}
+                                    onChange={(e) => setData('password', e.target.value)}
+                                    placeholder={isEdit ? '••••••••' : ''}
+                                />
+                                <InputError message={errors.password} />
+                            </div>
+
+                            <div>
+                                <Label htmlFor="password_confirmation">Confirm Password</Label>
+                                <Input
+                                    id="password_confirmation"
+                                    type="password"
+                                    value={data.password_confirmation}
+                                    onChange={(e) => setData('password_confirmation', e.target.value)}
+                                    placeholder={isEdit ? '••••••••' : ''}
+                                />
+                                <InputError message={errors.password_confirmation} />
+                            </div>
+
+                            <div>
+                                <Label htmlFor="role_id">Role</Label>
+                                <CustomSelect
+                                    id="role_id"
+                                    isMulti={false}
+                                    options={roleOptions}
+                                    value={selectedRole}
+                                    onChange={(selected) => {
+                                        setData('role_id', (selected as { value: number })?.value ?? null);
+                                    }}
+                                />
+                                <InputError message={errors.role_id} />
+                            </div>
+
+                            <div className="flex items-center space-x-4">
+                                <Button disabled={processing}>
+                                    {isEdit ? 'Update User' : 'Create User'}
+                                </Button>
+                                <Link
+                                    href={route('users.index')}
+                                    className="px-4 py-2 bg-muted text-foreground rounded hover:bg-muted/70"
+                                >
+                                    Cancel
+                                </Link>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </AppLayout>

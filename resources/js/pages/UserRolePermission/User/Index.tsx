@@ -47,7 +47,8 @@ export default function UserIndex({ success }: { success?: string }) {
       <div className="px-4 py-6">
         <h1 className="text-2xl font-semibold mb-4">User Management</h1>
 
-        <div className="flex-1 md:max-w-4xl space-y-6">
+        {/* <div className="flex-1 md:max-w-4xl space-y-6 w-full  col-md-12"> */}
+        <div className="col-md-12">
           <HeadingSmall title="Users" description="Manage application users and their roles" />
 
           <div className="flex items-center justify-between">
