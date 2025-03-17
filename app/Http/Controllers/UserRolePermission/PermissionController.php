@@ -1,7 +1,7 @@
 <?php
-
 namespace App\Http\Controllers\UserRolePermission;
 
+use App\Helpers\DataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Permission;
 use Illuminate\Http\Request;
@@ -18,6 +18,34 @@ class PermissionController extends Controller
         return Inertia::render('UserRolePermission/Permission/Index', [
             'permissions' => $permissions,
         ]);
+    }
+
+    public function json(Request $request)
+    {
+        $search = $request->search['value'];
+        $query  = Permission::query();
+
+        // columns
+        $columns = [
+            'id',
+            'name',
+            'created_at',
+            'updated_at',
+        ];
+
+        // search
+        if ($request->filled('search')) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        // order
+        if ($request->filled('order')) {
+            $query->orderBy($columns[$request->order[0]['column']], $request->order[0]['dir']);
+        }
+
+        $data = DataTable::paginate($query, $request);
+
+        return response()->json($data);
     }
 
     /**

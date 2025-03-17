@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\UserRolePermission;
 
+use App\Helpers\DataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Role;
 use App\Models\User;
@@ -13,7 +14,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $filter = $request->query('filter', 'active');
-        $users = User::with('roles')->get();
+        $users  = User::with('roles')->get();
 
         $users = match ($filter) {
             'trashed' => User::onlyTrashed()->with('roles')->get(),
@@ -26,6 +27,37 @@ class UserController extends Controller
             'filter' => $filter,
             'roles'  => Role::all(),
         ]);
+    }
+
+    public function json(Request $request)
+    {
+        $search = $request->search['value'];
+        $query  = User::query();
+        $query  = User::with('roles');
+        // columns
+        $columns = [
+            'id',
+            'name',
+            'email',
+            'role',
+            'created_at',
+            'updated_at',
+        ];
+
+        // search
+        if ($request->filled('search')) {
+            $query->where('name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%");
+        }
+
+        // order
+        if ($request->filled('order')) {
+            $query->orderBy($columns[$request->order[0]['column']], $request->order[0]['dir']);
+        }
+
+        $data = DataTable::paginate($query, $request);
+
+        return response()->json($data);
     }
 
     public function create()
@@ -95,11 +127,10 @@ class UserController extends Controller
         if ($user->trashed()) {
             return redirect()->route('users.index')->with('error', 'User sudah dihapus sebelumnya.');
         }
-    
+
         $user->delete();
         return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
     }
-    
 
     public function trashed()
     {
