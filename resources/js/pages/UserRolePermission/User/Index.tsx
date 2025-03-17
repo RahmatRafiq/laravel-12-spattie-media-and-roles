@@ -65,12 +65,6 @@ export default function UserIndex({ success }: { success?: string }) {
             ajax={{
               url: route('users.json'),
               type: 'POST',
-              headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN':
-                  document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
-                  '',
-              },
             }}
             columns={columns}
             onRowDelete={handleDelete}

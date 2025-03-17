@@ -64,12 +64,6 @@ export default function RoleIndex({ success }: { success?: string }) {
               ajax={{
                 url: route('roles.json'),
                 type: 'POST',
-                headers: {
-                  'X-Requested-With': 'XMLHttpRequest',
-                  'X-CSRF-TOKEN':
-                    document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
-                    '',
-                },
               }}
               columns={columns}
               onRowDelete={handleDelete}

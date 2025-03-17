@@ -61,15 +61,11 @@ export default function PermissionIndex({ success }: { success?: string }) {
               ajax={{
                 url: route('permissions.json'),
                 type: 'POST',
-                headers: {
-                  'X-Requested-With': 'XMLHttpRequest',
-                  'X-CSRF-TOKEN':
-                    document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                },
               }}
               columns={columns}
               onRowDelete={handleDelete}
             />
+
           </div>
         </div>
       </div>
