@@ -1,25 +1,33 @@
 import { useEffect } from 'react';
 import DataTable from 'datatables.net-react';
-import DT from 'datatables.net-dt';
+import DT, { ObjectColumnData } from 'datatables.net-dt';
 import 'datatables.net-dt/css/dataTables.dataTables.css';
 
-interface DataTableWrapperProps {
-  ajax: {
-    url: string;
-    type: string;
-    headers?: Record<string, string>;
-  };
-  columns: { data: string | number | null; title: string }[];
+interface AjaxConfig {
+  url: string;
+  type: string;
+  headers?: Record<string, string>;
+}
+
+interface DataTableWrapperProps<T> {
+  ajax: AjaxConfig;
+  columns: Array<{
+    data: string | number | ObjectColumnData | null;
+    title: string;
+    render?: (data: T[keyof T] | null, type: string, row: T, meta: unknown) => string;
+    orderable?: boolean;
+    searchable?: boolean;
+  }>;
   options?: object;
   onRowDelete?: (id: number) => void;
 }
 
-export default function DataTableWrapper({
+export default function DataTableWrapper<T>({
   ajax,
   columns,
   options,
   onRowDelete,
-}: DataTableWrapperProps) {
+}: DataTableWrapperProps<T>) {
   DataTable.use(DT);
 
   useEffect(() => {
@@ -43,11 +51,18 @@ export default function DataTableWrapper({
       document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
   };
 
-  // Merge headers: props > default
   const mergedHeaders = {
     ...defaultHeaders,
     ...(ajax.headers || {}),
   };
+
+  const defaultOptions = {
+    processing: true,
+    serverSide: true,
+    paging: true,
+  };
+
+  const tableOptions = { ...defaultOptions, ...options };
 
   return (
     <DataTable
@@ -57,12 +72,7 @@ export default function DataTableWrapper({
       }}
       columns={columns}
       className="display min-w-full bg-white dark:bg-gray-800 border w-full"
-      options={{
-        processing: true,
-        serverSide: true,
-        paging: true,
-        ...options,
-      }}
+      options={tableOptions}
     >
       <thead>
         <tr>
