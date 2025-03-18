@@ -22,12 +22,10 @@ const columns = (filter: string) => [
     render: (_: null, __: string, row: unknown) => {
       const user = row as User;
       let html = '';
-      // Jika filter trashed atau jika filter all dan user sudah di-trash, tampilkan tombol restore/force delete
       if (filter === 'trashed' || (filter === 'all' && user.trashed)) {
         html += `<button class="btn-restore ml-2 px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700" data-id="${user.id}">Restore</button>`;
         html += `<button class="btn-force-delete ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" data-id="${user.id}">Force Delete</button>`;
       } else {
-        // Untuk data aktif, tampilkan tombol edit (yang di-render oleh React) dan delete
         html += `<span class="inertia-link-cell" data-id="${user.id}"></span>`;
         html += `<button class="btn-delete ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" data-id="${user.id}">Delete</button>`;
       }
@@ -35,7 +33,6 @@ const columns = (filter: string) => [
     },
   },
 ];
-
 
 export default function UserIndex({ filter: initialFilter, success }: { filter: string; success?: string }) {
   const breadcrumbs: BreadcrumbItem[] = [{ title: 'User Management', href: '/users' }];
@@ -98,8 +95,27 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
     });
   };
 
-  const handleTabClick = (newFilter: string) => {
-    setFilter(newFilter);
+  // Toggle tab menggunakan style mirip AppearanceToggleTab
+  const renderToggleTabs = () => {
+    const tabs = ['active', 'trashed', 'all'];
+    return (
+      <div className="inline-flex gap-1 rounded-lg bg-neutral-100 p-1 dark:bg-neutral-800">
+        {tabs.map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setFilter(tab)}
+            className={clsx(
+              'flex items-center rounded-md px-3.5 py-1.5 transition-colors',
+              filter === tab
+                ? 'bg-white shadow-xs dark:bg-neutral-700 dark:text-neutral-100'
+                : 'text-neutral-500 hover:bg-neutral-200/60 hover:text-black dark:text-neutral-400 dark:hover:bg-neutral-700/60'
+            )}
+          >
+            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+          </button>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -115,27 +131,12 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
               <Button>Create User</Button>
             </Link>
           </div>
-          {/* Tab Filter */}
-          <div className="mb-4 flex gap-4">
-            {['active', 'trashed', 'all'].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => handleTabClick(tab)}
-                className={clsx(
-                  'px-4 py-2 rounded',
-                  filter === tab
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                )}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </button>
-            ))}
-          </div>
+          {/* Toggle Tabs */}
+          <div className="mb-4">{renderToggleTabs()}</div>
           {success && (
             <div className="p-2 mb-2 bg-green-100 text-green-800 rounded">{success}</div>
           )}
-          {/* Gunakan key berdasarkan filter agar komponen DataTableWrapper re-mount setiap kali filter berubah */}
+          {/* Gunakan key berdasarkan filter agar DataTableWrapper re-mount ketika filter berubah */}
           <DataTableWrapper
             key={filter}
             ref={dtRef}
