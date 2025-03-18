@@ -50,6 +50,17 @@ class RoleController extends Controller
 
         $data = DataTable::paginate($query, $request);
 
+        $data['data'] = collect($data['data'])->map(function ($role) {
+            return [
+                'id'         => $role->id,
+                'name'       => $role->name,
+                'guard_name' => $role->guard_name,
+                'created_at' => $role->created_at->toDateTimeString(),
+                'updated_at' => $role->updated_at->toDateTimeString(),
+                'actions'    => '',
+            ];
+        });
+
         return response()->json($data);
     }
     /**

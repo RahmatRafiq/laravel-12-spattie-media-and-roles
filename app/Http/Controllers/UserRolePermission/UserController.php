@@ -11,12 +11,11 @@ use Spatie\Permission\Models\Role as SpatieRole;
 
 class UserController extends Controller
 {
+    // Menampilkan halaman index sesuai filter (active, trashed, all)
     public function index(Request $request)
     {
         $filter = $request->query('filter', 'active');
-        $users  = User::with('roles')->get();
-
-        $users = match ($filter) {
+        $users  = match ($filter) {
             'trashed' => User::onlyTrashed()->with('roles')->get(),
             'all' => User::withTrashed()->with('roles')->get(),
             default => User::with('roles')->get(),
@@ -29,33 +28,44 @@ class UserController extends Controller
         ]);
     }
 
+    // Endpoint JSON untuk DataTable
     public function json(Request $request)
     {
-        $search = $request->search['value'];
-        $query  = User::query();
-        $query  = User::with('roles');
-        // columns
-        $columns = [
-            'id',
-            'name',
-            'email',
-            'role',
-            'created_at',
-            'updated_at',
-        ];
+        $search = $request->input('search.value', '');
+        $filter = $request->input('filter', 'active');
 
-        // search
-        if ($request->filled('search')) {
-            $query->where('name', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%");
+        $query = match ($filter) {
+            'trashed' => User::onlyTrashed()->with('roles'),
+            'all' => User::withTrashed()->with('roles'),
+            default => User::with('roles'),
+        };
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
         }
 
-        // order
+        $columns = ['id', 'name', 'email', 'created_at', 'updated_at'];
         if ($request->filled('order')) {
-            $query->orderBy($columns[$request->order[0]['column']], $request->order[0]['dir']);
+            $orderColumn = $columns[$request->order[0]['column']] ?? 'id';
+            $query->orderBy($orderColumn, $request->order[0]['dir']);
         }
 
         $data = DataTable::paginate($query, $request);
+
+        // Inject roles & actions supaya DataTable client-side tidak error
+        $data['data'] = collect($data['data'])->map(function ($user) {
+            return [
+                'id'      => $user->id,
+                'name'    => $user->name,
+                'email'   => $user->email,
+                'roles'   => $user->roles->pluck('name')->toArray(),
+                'trashed' => $user->trashed(),
+                'actions' => '',
+            ];
+        });
 
         return response()->json($data);
     }
@@ -122,11 +132,9 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'User berhasil diperbarui.');
     }
 
+    // Soft delete: Hapus user secara soft delete
     public function destroy(User $user)
     {
-        if ($user->trashed()) {
-            return redirect()->route('users.index')->with('error', 'User sudah dihapus sebelumnya.');
-        }
 
         $user->delete();
         return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
@@ -142,13 +150,13 @@ class UserController extends Controller
 
     public function restore($id)
     {
-        User::withTrashed()->findOrFail($id)->restore();
+        User::onlyTrashed()->where('id', $id)->restore();
         return redirect()->route('users.index')->with('success', 'User berhasil dipulihkan.');
     }
 
     public function forceDelete($id)
     {
-        User::withTrashed()->findOrFail($id)->forceDelete();
+        User::onlyTrashed()->where('id', $id)->forceDelete();
         return redirect()->route('users.index')->with('success', 'User berhasil dihapus secara permanen.');
     }
 }
