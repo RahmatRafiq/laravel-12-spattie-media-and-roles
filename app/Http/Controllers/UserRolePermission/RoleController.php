@@ -26,7 +26,7 @@ class RoleController extends Controller
     public function json(Request $request)
     {
         $search = $request->search['value'];
-        $query  = Role::query();
+        $query  = Role::with('permissions'); // eager load permissions
 
         // columns
         $columns = [
@@ -52,23 +52,24 @@ class RoleController extends Controller
 
         $data['data'] = collect($data['data'])->map(function ($role) {
             return [
-                'id'         => $role->id,
-                'name'       => $role->name,
-                'guard_name' => $role->guard_name,
-                'created_at' => $role->created_at->toDateTimeString(),
-                'updated_at' => $role->updated_at->toDateTimeString(),
+                'id'          => $role->id,
+                'name'        => $role->name,
+                'guard_name'  => $role->guard_name,
+                'created_at'  => $role->created_at->toDateTimeString(),
+                'updated_at'  => $role->updated_at->toDateTimeString(),
                 'permissions' => $role->permissions->map(function ($permission) {
                     return [
                         'id'   => $permission->id,
                         'name' => $permission->name,
                     ];
                 })->toArray(),
-                'actions'    => '',
+                'actions'     => '',
             ];
         });
 
         return response()->json($data);
     }
+
     /**
      * Tampilkan form untuk membuat role baru.
      */
