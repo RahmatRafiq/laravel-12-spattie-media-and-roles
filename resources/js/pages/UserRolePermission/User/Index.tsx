@@ -22,10 +22,12 @@ const columns = (filter: string) => [
     render: (_: null, __: string, row: unknown) => {
       const user = row as User;
       let html = '';
-      if (filter === 'trashed') {
+      // Jika filter trashed atau jika filter all dan user sudah di-trash, tampilkan tombol restore/force delete
+      if (filter === 'trashed' || (filter === 'all' && user.trashed)) {
         html += `<button class="btn-restore ml-2 px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700" data-id="${user.id}">Restore</button>`;
         html += `<button class="btn-force-delete ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" data-id="${user.id}">Force Delete</button>`;
       } else {
+        // Untuk data aktif, tampilkan tombol edit (yang di-render oleh React) dan delete
         html += `<span class="inertia-link-cell" data-id="${user.id}"></span>`;
         html += `<button class="btn-delete ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" data-id="${user.id}">Delete</button>`;
       }
@@ -33,6 +35,7 @@ const columns = (filter: string) => [
     },
   },
 ];
+
 
 export default function UserIndex({ filter: initialFilter, success }: { filter: string; success?: string }) {
   const breadcrumbs: BreadcrumbItem[] = [{ title: 'User Management', href: '/users' }];
