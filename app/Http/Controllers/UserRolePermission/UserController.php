@@ -15,10 +15,10 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $filter = $request->query('filter', 'active');
-        $users = match ($filter) {
+        $users  = match ($filter) {
             'trashed' => User::onlyTrashed()->with('roles')->get(),
-            'all'     => User::withTrashed()->with('roles')->get(),
-            default   => User::with('roles')->get(),
+            'all' => User::withTrashed()->with('roles')->get(),
+            default => User::with('roles')->get(),
         };
 
         return Inertia::render('UserRolePermission/User/Index', [
@@ -36,14 +36,14 @@ class UserController extends Controller
 
         $query = match ($filter) {
             'trashed' => User::onlyTrashed()->with('roles'),
-            'all'     => User::withTrashed()->with('roles'),
-            default   => User::with('roles'),
+            'all' => User::withTrashed()->with('roles'),
+            default => User::with('roles'),
         };
 
         if ($search) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -54,6 +54,17 @@ class UserController extends Controller
         }
 
         $data = DataTable::paginate($query, $request);
+
+        // Inject roles & actions supaya DataTable client-side tidak error
+        $data['data'] = collect($data['data'])->map(function ($user) {
+            return [
+                'id'      => $user->id,
+                'name'    => $user->name,
+                'email'   => $user->email,
+                'roles'   => $user->roles->pluck('name')->toArray(), // Directly send role names
+                'actions' => '', // Placeholder kolom actions agar datatables tidak error
+            ];
+        });
 
         return response()->json($data);
     }
@@ -106,7 +117,7 @@ class UserController extends Controller
             'role_id'  => 'required|exists:roles,id',
         ]);
 
-        $user = User::withTrashed()->findOrFail($id);
+        $user        = User::withTrashed()->findOrFail($id);
         $user->name  = $validatedData['name'];
         $user->email = $validatedData['email'];
         if ($request->filled('password')) {
