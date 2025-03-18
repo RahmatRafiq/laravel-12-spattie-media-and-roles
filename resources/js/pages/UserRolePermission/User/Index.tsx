@@ -1,55 +1,52 @@
+// UserIndex.tsx
+import React, { useRef } from 'react';
 import ReactDOM from 'react-dom/client';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import HeadingSmall from '@/components/heading-small';
 import { Button } from '@/components/ui/button';
-import DataTableWrapper from '@/components/datatables';
+import DataTableWrapper, { DataTableWrapperRef } from '@/components/datatables';
 import { BreadcrumbItem } from '@/types';
 import { User } from '@/types/UserRolePermission';
 
-// Definisi tipe untuk kolom (contoh sederhana)
-export interface DataTableColumn<T> {
-  data: keyof T | null;
-  title: string;
-  render?: (data: T[keyof T] | null, type: string, row: T, meta: unknown) => string;
-  orderable?: boolean;
-  searchable?: boolean;
-}
-
-const columns: DataTableColumn<User>[] = [
+const columns = [
   { data: 'id', title: 'ID' },
   { data: 'name', title: 'Name' },
   { data: 'email', title: 'Email' },
   {
     data: 'roles',
     title: 'Role(s)',
-    render: (_, __, row) => row.roles.map(role => role.name).join(', ')
   },
   {
     data: null,
     title: 'Actions',
     orderable: false,
     searchable: false,
-    // Placeholder untuk Edit dan Delete
-    render: (_, __, row) => `
-      <span class="inertia-link-cell" data-id="${row.id}"></span>
-      <span class="inertia-delete-cell" data-id="${row.id}"></span>
-    `,
+    render: (_: null, __: string, row: unknown) => {
+      const user = row as User;
+      return `
+        <span class="inertia-link-cell" data-id="${user.id}"></span>
+        <button class="btn-delete ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" data-id="${user.id}">
+          Delete
+        </button>
+      `;
+
+    },
   },
 ];
 
 export default function UserIndex({ success }: { success?: string }) {
-  const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'User Management', href: '/users' },
-  ];
+  const breadcrumbs: BreadcrumbItem[] = [{ title: 'User Management', href: '/users' }];
+  const dtRef = useRef<DataTableWrapperRef>(null);
 
-  // Opsi DataTable dengan drawCallback untuk render komponen Inertia Link
+  const handleDelete = (id: number) => {
+    router.delete(route('users.destroy', id), {
+      onSuccess: () => dtRef.current?.reload(),
+    });
+  };
+
   const tableOptions = {
-    processing: true,
-    serverSide: true,
-    paging: true,
     drawCallback: function () {
-      // Render komponen Edit pada placeholder inertia-link-cell
       document.querySelectorAll('.inertia-link-cell').forEach((cell) => {
         const id = cell.getAttribute('data-id')!;
         if (id) {
@@ -60,28 +57,6 @@ export default function UserIndex({ success }: { success?: string }) {
               className="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
             >
               Edit
-            </Link>
-          );
-        }
-      });
-      // Render komponen Delete pada placeholder inertia-delete-cell
-      document.querySelectorAll('.inertia-delete-cell').forEach((cell) => {
-        const id = cell.getAttribute('data-id')!;
-        if (id) {
-          const root = ReactDOM.createRoot(cell);
-          root.render(
-            <Link
-              href={route('users.destroy', id)}
-              method="delete"
-              as="button"
-              className="ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-              onClick={(e) => {
-                if (!confirm("Are you sure to delete this item?")) {
-                  e.preventDefault();
-                }
-              }}
-            >
-              Delete
             </Link>
           );
         }
@@ -105,13 +80,15 @@ export default function UserIndex({ success }: { success?: string }) {
           {success && (
             <div className="p-2 bg-green-100 text-green-800 rounded">{success}</div>
           )}
-          <DataTableWrapper<User>
+          <DataTableWrapper
+            ref={dtRef}
             ajax={{
               url: route('users.json'),
               type: 'POST',
             }}
             columns={columns}
             options={tableOptions}
+            onRowDelete={handleDelete}
           />
         </div>
       </div>

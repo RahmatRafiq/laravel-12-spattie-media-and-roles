@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import DataTable from 'datatables.net-react';
+import { useEffect, forwardRef, useImperativeHandle, useRef } from 'react';
+import DataTable, { DataTableRef } from 'datatables.net-react';
 import DT, { ObjectColumnData } from 'datatables.net-dt';
 import 'datatables.net-dt/css/dataTables.dataTables.css';
 
@@ -22,13 +22,24 @@ interface DataTableWrapperProps<T> {
   onRowDelete?: (id: number) => void;
 }
 
-export default function DataTableWrapper<T>({
-  ajax,
-  columns,
-  options,
-  onRowDelete,
-}: DataTableWrapperProps<T>) {
+export interface DataTableWrapperRef {
+  reload: () => void;
+}
+
+const DataTableWrapper = forwardRef(function DataTableWrapper<T>(
+  { ajax, columns, options, onRowDelete }: DataTableWrapperProps<T>,
+  ref: React.Ref<DataTableWrapperRef>
+) {
   DataTable.use(DT);
+  const tableRef = useRef<DataTableRef | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    reload: () => {
+      if (tableRef.current) {
+        tableRef.current.dt()?.ajax.reload(undefined, false);
+      }
+    },
+  }));
 
   useEffect(() => {
     const handleDelete = (e: Event) => {
@@ -47,8 +58,7 @@ export default function DataTableWrapper<T>({
 
   const defaultHeaders = {
     'X-Requested-With': 'XMLHttpRequest',
-    'X-CSRF-TOKEN':
-      document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
   };
 
   const mergedHeaders = {
@@ -71,8 +81,11 @@ export default function DataTableWrapper<T>({
         headers: mergedHeaders,
       }}
       columns={columns}
-      className="display min-w-full bg-white dark:bg-gray-800 border w-full"
       options={tableOptions}
+      className="display min-w-full bg-white dark:bg-gray-800 border w-full"
+      ref={(instance) => {
+        tableRef.current = instance ? instance : null;
+      }}
     >
       <thead>
         <tr>
@@ -87,4 +100,6 @@ export default function DataTableWrapper<T>({
       </thead>
     </DataTable>
   );
-}
+});
+
+export default DataTableWrapper;
