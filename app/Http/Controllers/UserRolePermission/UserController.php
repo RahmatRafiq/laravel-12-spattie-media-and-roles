@@ -11,7 +11,6 @@ use Spatie\Permission\Models\Role as SpatieRole;
 
 class UserController extends Controller
 {
-    // Menampilkan halaman index sesuai filter (active, trashed, all)
     public function index(Request $request)
     {
         $filter = $request->query('filter', 'active');
@@ -28,7 +27,6 @@ class UserController extends Controller
         ]);
     }
 
-    // Endpoint JSON untuk DataTable
     public function json(Request $request)
     {
         $search = $request->input('search.value', '');
@@ -55,7 +53,6 @@ class UserController extends Controller
 
         $data = DataTable::paginate($query, $request);
 
-        // Inject roles & actions supaya DataTable client-side tidak error
         $data['data'] = collect($data['data'])->map(function ($user) {
             return [
                 'id'      => $user->id,
@@ -103,6 +100,7 @@ class UserController extends Controller
     {
         $user  = User::withTrashed()->findOrFail($id);
         $roles = Role::all();
+        $user->role_id = $user->roles->first()->id ?? null;
         return Inertia::render('UserRolePermission/User/Form', [
             'user'  => $user,
             'roles' => $roles,
@@ -132,7 +130,6 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'User berhasil diperbarui.');
     }
 
-    // Soft delete: Hapus user secara soft delete
     public function destroy(User $user)
     {
 

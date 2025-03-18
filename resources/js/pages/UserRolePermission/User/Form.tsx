@@ -24,8 +24,9 @@ export default function UserForm({
         email: user?.email || '',
         password: '',
         password_confirmation: '',
-        role_id: user?.roles && user.roles.length > 0 ? user.roles[0].id : null,
+        role_id: user?.role_id || null,
     });
+
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'User Management', href: '/users' },
