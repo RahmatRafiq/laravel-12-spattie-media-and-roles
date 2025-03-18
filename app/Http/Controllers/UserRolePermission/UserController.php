@@ -61,8 +61,9 @@ class UserController extends Controller
                 'id'      => $user->id,
                 'name'    => $user->name,
                 'email'   => $user->email,
-                'roles'   => $user->roles->pluck('name')->toArray(), // Directly send role names
-                'actions' => '', // Placeholder kolom actions agar datatables tidak error
+                'roles'   => $user->roles->pluck('name')->toArray(),
+                'trashed' => $user->trashed(),
+                'actions' => '',
             ];
         });
 
@@ -134,15 +135,11 @@ class UserController extends Controller
     // Soft delete: Hapus user secara soft delete
     public function destroy(User $user)
     {
-        if ($user->trashed()) {
-            return redirect()->route('users.index')->with('error', 'User sudah dihapus sebelumnya.');
-        }
 
         $user->delete();
         return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
     }
 
-    // Menampilkan halaman user yang di-soft delete (opsional)
     public function trashed()
     {
         $users = User::onlyTrashed()->with('roles')->get();
@@ -151,17 +148,15 @@ class UserController extends Controller
         ]);
     }
 
-    // Restore user yang telah di-soft delete
     public function restore($id)
     {
-        User::withTrashed()->findOrFail($id)->restore();
+        User::onlyTrashed()->where('id', $id)->restore();
         return redirect()->route('users.index')->with('success', 'User berhasil dipulihkan.');
     }
 
-    // Force delete: Hapus user secara permanen (hard delete)
     public function forceDelete($id)
     {
-        User::withTrashed()->findOrFail($id)->forceDelete();
+        User::onlyTrashed()->where('id', $id)->forceDelete();
         return redirect()->route('users.index')->with('success', 'User berhasil dihapus secara permanen.');
     }
 }
