@@ -1,11 +1,12 @@
 import { useEffect, forwardRef, useImperativeHandle, useRef } from 'react';
 import DataTable, { DataTableRef } from 'datatables.net-react';
-import DT, { ObjectColumnData } from 'datatables.net-dt';
+import DT, { ObjectColumnData, Api } from 'datatables.net-dt';
 import 'datatables.net-dt/css/dataTables.dataTables.css';
 
 interface AjaxConfig {
   url: string;
   type: string;
+  data?: (d: Record<string, unknown>) => void;
   headers?: Record<string, string>;
 }
 
@@ -22,8 +23,10 @@ interface DataTableWrapperProps<T> {
   onRowDelete?: (id: number) => void;
 }
 
+// Tambahkan method dt ke interface
 export interface DataTableWrapperRef {
   reload: () => void;
+  dt: () => Api | null;
 }
 
 const DataTableWrapper = forwardRef(function DataTableWrapper<T>(
@@ -39,6 +42,7 @@ const DataTableWrapper = forwardRef(function DataTableWrapper<T>(
         tableRef.current.dt()?.ajax.reload(undefined, false);
       }
     },
+    dt: () => (tableRef.current ? tableRef.current.dt() : null),
   }));
 
   useEffect(() => {
@@ -58,7 +62,9 @@ const DataTableWrapper = forwardRef(function DataTableWrapper<T>(
 
   const defaultHeaders = {
     'X-Requested-With': 'XMLHttpRequest',
-    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+    'X-CSRF-TOKEN':
+      document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+      '',
   };
 
   const mergedHeaders = {
