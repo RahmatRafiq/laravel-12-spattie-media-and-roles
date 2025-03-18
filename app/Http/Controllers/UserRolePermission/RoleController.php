@@ -57,6 +57,12 @@ class RoleController extends Controller
                 'guard_name' => $role->guard_name,
                 'created_at' => $role->created_at->toDateTimeString(),
                 'updated_at' => $role->updated_at->toDateTimeString(),
+                'permissions' => $role->permissions->map(function ($permission) {
+                    return [
+                        'id'   => $permission->id,
+                        'name' => $permission->name,
+                    ];
+                })->toArray(),
                 'actions'    => '',
             ];
         });

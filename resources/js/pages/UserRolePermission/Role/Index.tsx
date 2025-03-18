@@ -13,10 +13,38 @@ const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Role Management', href: '/roles' },
 ];
 
-export default function RoleIndex({ success }: { success?: string }) {
+function formatRolePermissions(data: Role): string {
+  const role = data as Role;
+  if (!role.permissions || role.permissions.length === 0) {
+    return '<div class="p-3 text-gray-500">No permissions assigned.</div>';
+  }
+  const listItems = role.permissions
+    .map(
+      (permission) =>
+        `<li class="ml-4 list-disc text-gray-700">${permission.name}</li>`
+    )
+    .join('');
+  return `
+    <div class="p-4 bg-gray-50 border border-gray-200 rounded shadow-sm">
+      <strong class="block text-gray-800 mb-2">Permissions:</strong>
+      <ul>${listItems}</ul>
+    </div>
+  `;
+}
+
+
+export default function RoleIndexAccordion({ success }: { success?: string }) {
   const dtRef = useRef<DataTableWrapperRef>(null);
 
   const columns = [
+    {
+      data: null,
+      title: '',
+      orderable: false,
+      searchable: false,
+      className: 'details-control',
+      render: () => '<span style="cursor: pointer;">+</span>',
+    },
     { data: 'id', title: 'ID' },
     { data: 'name', title: 'Name' },
     { data: 'guard_name', title: 'Guard Name' },
@@ -47,10 +75,7 @@ export default function RoleIndex({ success }: { success?: string }) {
     });
   };
 
-
-
   const drawCallback = () => {
-    // Render tombol Edit dengan React
     document.querySelectorAll('.inertia-link-cell').forEach((cell) => {
       const id = cell.getAttribute('data-id');
       if (id) {
@@ -65,13 +90,40 @@ export default function RoleIndex({ success }: { success?: string }) {
         );
       }
     });
+
+    const table = dtRef.current?.dt();
+    if (table) {
+      document.querySelectorAll('.details-control').forEach((cell) => {
+        cell.addEventListener('click', function () {
+          const tr = cell.closest('tr');
+          if (!tr) return;
+          const row = table.row(tr);
+          if (row.child.isShown()) {
+            row.child.hide();
+            tr.classList.remove('shown');
+            cell.innerHTML = '<span style="cursor: pointer;">+</span>';
+          } else {
+            row.child(formatRolePermissions(row.data())).show();
+            tr.classList.add('shown');
+            cell.innerHTML = '<span style="cursor: pointer;">-</span>';
+          }
+        });
+      });
+    }
+
+    document.querySelectorAll('.btn-delete').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        if (id) handleDelete(Number(id));
+      });
+    });
   };
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Roles" />
       <div className="px-4 py-6">
-        <h1 className="text-2xl font-semibold mb-4">Settings</h1>
+        <h1 className="text-2xl font-semibold mb-4">Role Management</h1>
         <div className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-12">
           <Separator className="my-6 md:hidden" />
           <div className="col-md-12">
