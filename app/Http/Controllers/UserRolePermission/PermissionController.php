@@ -45,6 +45,16 @@ class PermissionController extends Controller
 
         $data = DataTable::paginate($query, $request);
 
+        $data['data'] = collect($data['data'])->map(function ($permission) {
+            return [
+                'id'         => $permission->id,
+                'name'       => $permission->name,
+                'created_at' => $permission->created_at->toDateTimeString(),
+                'updated_at' => $permission->updated_at->toDateTimeString(),
+                'actions'    => '',
+            ];
+        });
+
         return response()->json($data);
     }
 
