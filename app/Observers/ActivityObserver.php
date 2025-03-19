@@ -9,13 +9,13 @@ class ActivityObserver
 {
     public function created(Activity $activity)
     {
-        // Pastikan activity berasal dari model User
         if ($activity->subject_type !== User::class) {
             return;
         }
 
-        // Mengirim notifikasi ke semua admin (sesuaikan logika pencarian admin dengan struktur aplikasi Anda)
-        $admins = User::where('role', 'admin')->get();
+        \Log::info("Activity untuk user tercatat, id: " . $activity->id);
+
+        $admins = User::role('admin')->get();
         foreach ($admins as $admin) {
             $admin->notify(new AdminUserActivityNotification($activity));
         }
