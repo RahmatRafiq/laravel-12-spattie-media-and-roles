@@ -15,6 +15,11 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
+        title: 'Log Activity',
+        href: '/activity-logs',
+        icon: LayoutGrid,
+    },
+    {
         title: 'Users Management',
         href: '',
         icon: Users,

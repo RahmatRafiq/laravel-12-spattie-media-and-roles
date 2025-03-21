@@ -57,7 +57,43 @@ class User extends Authenticatable implements HasMedia
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'email'])
-            ->setDescriptionForEvent(fn(string $eventName) => "User telah di{$eventName}");
+            ->logOnly(['name', 'email', 'password'])
+            ->logOnlyDirty()
+            ->setDescriptionForEvent(function (string $eventName) {
+                $user     = auth()->user();
+                $userName = $user ? $user->name : 'unknown';
+                $userId   = $user ? $user->id : 'unknown';
+                return "User {$this->name} (ID: {$this->id}) telah di{$eventName} oleh {$userName} (ID: {$userId})";
+            });
     }
+
+    // public function getActivitylogOptions(): LogOptions
+    // {
+    //     return LogOptions::defaults()
+    //         ->logOnly(['name', 'email', 'password'])
+    //         ->logOnlyDirty()
+    //         ->setDescriptionForEvent(function (string $eventName) {
+    //             $user     = auth()->user();
+    //             $userName = $user ? $user->name : 'unknown';
+    //             $userId   = $user ? $user->id : 'unknown';
+    //             return "User {$this->name} (ID: {$this->id}) telah di{$eventName} oleh {$userName} (ID: {$userId})";
+    //         });
+    // }
+
+    // public function getActivitylogOptions(): LogOptions
+    // {
+    //     return LogOptions::defaults()
+    //         ->logOnly(['name', 'email', 'password'])
+    //         ->setDescriptionForEvent(function (string $eventName) {
+    //             $user = auth()->user();
+    //             $userName = $user ? $user->name : 'unknown';
+    //             $userId = $user ? $user->id : 'unknown';
+    //             return "User {$this->name} (ID: {$this->id}) telah di{$eventName} oleh {$userName} (ID: {$userId})";
+    //         });
+    // return LogOptions::defaults()
+    //     ->logOnly(['name', 'email', 'password'])
+    //     ->logOnlyDirty()
+    //     ->setDescriptionForEvent(fn(string $eventName) => "User {$this->name} (ID: {$this->id}) telah di{$eventName} oleh " . (auth()->user() ? auth()->user()->name . ' (ID: ' . auth()->user()->id . ')' : 'unknown'));
+
+    // }
 }
