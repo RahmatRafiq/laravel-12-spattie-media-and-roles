@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\SocialAuthController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -37,8 +38,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('users/{user}/force-delete', [\App\Http\Controllers\UserRolePermission\UserController::class, 'forceDelete'])->name('users.force-delete');
 
     Route::post('logout', [SocialAuthController::class, 'logout'])->name('logout');
-});
 
+});
+Route::get('/dashboard/activity-logs', function () {
+    return Inertia::render('ActivityLogList');
+})->middleware(['auth']);
+
+Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-log.index');
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
 
