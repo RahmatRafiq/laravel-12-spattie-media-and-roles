@@ -65,29 +65,35 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
         dzInstance.current.destroy();
       }
       dzInstance.current = Dropzoner(dropzoneRef.current, 'profile-images', {
-        urlStore: route('storage.destroy'),
-        urlDestroy: route('profile.deleteFile'),
+        urlStore: route('storage.store'),
+        urlDestroy: route('storage.destroy'),
         csrf: csrf_token,
         acceptedFiles: 'image/*',
-        maxFiles: 3,
+        maxFiles: 1,
         files: initialFiles,
         kind: 'image',
       });
 
-      dzInstance.current.on('success', function (file, response: { name: string; url?: string }) {
+
+      dzInstance.current.on('success', (file, response: { name: string; url: string }) => {
         setData('profile-images', [...(data['profile-images'] || []), response.name]);
-        if (file.previewElement && response.url) {
-          const thumbnail = file.previewElement.querySelector('[data-dz-thumbnail]') as HTMLImageElement;
-          if (thumbnail) {
-            thumbnail.src = response.url;
-          }
-        }
+        const thumb = file.previewElement?.querySelector('[data-dz-thumbnail]') as HTMLImageElement;
+        if (thumb) thumb.src = response.url;
       });
 
-      dzInstance.current.on('removedfile', function (file) {
-        const removedFileName = file.name;
-        setData('profile-images', (data['profile-images'] || []).filter(f => f !== removedFileName));
+
+      dzInstance.current.on('removedfile', (file) => {
+        setData('profile-images',
+          (data['profile-images'] || []).filter(name => name !== file.name)
+        );
+
+        fetch(route('storage.destroy'), {
+          method: 'DELETE',
+          headers: { 'X-CSRF-TOKEN': csrf_token, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: file.name }),
+        });
       });
+
     }
   }, [csrf_token]);
 

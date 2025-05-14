@@ -17,7 +17,14 @@ class ProfileController extends Controller
 {
     public function edit(Request $request): Response
     {
-        $profileImage = $request->user()->getMedia('profile-images')->first();
+        $media        = $request->user()->getMedia('profile-images')->first();
+        $profileImage = $media
+        ? [
+            'file_name' => $media->file_name,
+            'size'      => $media->size,
+            'url'       => $media->getFullUrl(),
+        ]
+        : null;
 
         return Inertia::render('settings/profile', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
@@ -29,61 +36,45 @@ class ProfileController extends Controller
     public function upload(Request $request)
     {
         $request->validate([
-            'profile-images.*' => 'required|file|max:2048|mimes:jpeg,jpg,png',
-            'id'               => 'required|integer',
+            'profile-images.*' => 'required|file|image|max:2048',
         ]);
-    
-        $user = $request->user();
-        $file = $request->file('profile-images')[0];
-        $name = $file->hashName();
-        $filePath = Storage::disk('temp')->putFile('', $file);
-        $media = $user->addMediaFromDisk($filePath, 'temp')->toMediaCollection('profile-images');
-        Storage::disk('temp')->delete($filePath);
-    
+
+        $file     = $request->file('profile-images')[0];
+        $tempPath = $file->store('', 'temp');
+
         return response()->json([
-             'name' => $media->file_name,
-             'url'  => $media->getFullUrl()
-        ], 200);
+            'name' => basename($tempPath),
+            'url'  => Storage::disk('temp')->url($tempPath),
+        ]);
     }
 
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
+        $request->validate([
+            'profile-images'   => 'array|max:1',
+            'profile-images.*' => 'string',
+        ]);
+
+        $user = $request->user();
+
         DB::beginTransaction();
-    
         try {
-            $request->validate([
-                'profile-images' => 'array|max:3',
-            ]);
-    
-            $user = $request->user();
+            MediaLibrary::put(
+                $user,
+                'profile-images',
+                $request,
+                'profile-images'
+            );
+
             $user->fill($request->validated());
-    
-            if ($user->isDirty('email')) {
-                $user->email_verified_at = null;
-            }
-    
-            if ($request->has('profile-images')) {
-                $profileImages = $request->input('profile-images');
-                if (is_array($profileImages) && count($profileImages) > 0) {
-                    $lastImage = end($profileImages);
-                    $request->merge(['profile-images' => [$lastImage]]);
-                }
-    
-                MediaLibrary::put(
-                    $user,
-                    'profile-images',
-                    $request,
-                    'profile-images'
-                );
-            }
-    
             $user->save();
+
             DB::commit();
             return to_route('profile.edit');
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Profile update error: ' . $e->getMessage());
-            return back()->withErrors(['error' => 'Profile update failed.']);
+            \Log::error($e->getMessage());
+            return back()->withErrors('Profile update failed.');
         }
     }
 
@@ -110,16 +101,16 @@ class ProfileController extends Controller
     public function deleteFile(Request $request)
     {
         $data = $request->validate(['filename' => 'required|string']);
-    
+
         if (Storage::disk('profile-images')->exists($data['filename'])) {
             Storage::disk('profile-images')->delete($data['filename']);
         }
-    
+
         $media = \Spatie\MediaLibrary\MediaCollections\Models\Media::where('file_name', $data['filename'])->first();
         if ($media) {
             $media->delete();
         }
-    
+
         return response()->json(['message' => 'File berhasil dihapus'], 200);
     }
 }
