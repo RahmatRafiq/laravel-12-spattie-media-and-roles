@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import DataTableWrapper, { DataTableWrapperRef } from '@/components/datatables';
 import { BreadcrumbItem } from '@/types';
 import { User } from '@/types/UserRolePermission';
-import clsx from 'clsx';
+import ToggleTabs from '@/components/toggle-tabs';
 
 const columns = (filter: string) => [
   { data: 'id', title: 'ID' },
@@ -58,7 +58,6 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
   };
 
   const drawCallback = () => {
-    // Render tombol Edit dengan React
     document.querySelectorAll('.inertia-link-cell').forEach((cell) => {
       const id = cell.getAttribute('data-id');
       if (id) {
@@ -95,28 +94,6 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
     });
   };
 
-  // Toggle tab menggunakan style mirip AppearanceToggleTab
-  const renderToggleTabs = () => {
-    const tabs = ['active', 'trashed', 'all'];
-    return (
-      <div className="inline-flex gap-1 rounded-lg bg-neutral-100 p-1 dark:bg-neutral-800">
-        {tabs.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setFilter(tab)}
-            className={clsx(
-              'flex items-center rounded-md px-3.5 py-1.5 transition-colors',
-              filter === tab
-                ? 'bg-white shadow-xs dark:bg-neutral-700 dark:text-neutral-100'
-                : 'text-neutral-500 hover:bg-neutral-200/60 hover:text-black dark:text-neutral-400 dark:hover:bg-neutral-700/60'
-            )}
-          >
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
-          </button>
-        ))}
-      </div>
-    );
-  };
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
@@ -131,12 +108,12 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
               <Button>Create User</Button>
             </Link>
           </div>
-          {/* Toggle Tabs */}
-          <div className="mb-4">{renderToggleTabs()}</div>
+
+          <ToggleTabs tabs={['active', 'trashed', 'all']} active={filter} onChange={setFilter} />
+
           {success && (
             <div className="p-2 mb-2 bg-green-100 text-green-800 rounded">{success}</div>
           )}
-          {/* Gunakan key berdasarkan filter agar DataTableWrapper re-mount ketika filter berubah */}
           <DataTableWrapper
             key={filter}
             ref={dtRef}
