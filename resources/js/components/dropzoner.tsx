@@ -22,6 +22,7 @@ interface DropzoneOptions {
   minFiles?: number;
   files?: FileData[];
   kind: string;
+  urlDestroyPermanent: string;
 }
 
 const Dropzoner = (
@@ -38,6 +39,7 @@ const Dropzoner = (
     maxSizeMB,
     minFiles = 0,
     minSizeMB = 0,
+    urlDestroyPermanent,
   }: DropzoneOptions
 ): Dropzone => {
   if (!element) throw new Error('Element not found');
@@ -118,25 +120,42 @@ const Dropzoner = (
       Toastify({ text: `Berhasil upload "${file.name}".`, duration: 3000 }).showToast();
       console.log('Upload successful');
     },
-    removedfile: (file) => {
-      fetch(urlDestroy, {
+    removedfile: function (file: Dropzone.DropzoneFile) {
+      // tentukan URL berdasarkan apakah ini file mock lama atau file baru di temp
+      const isInitial = files?.some(f => f.file_name === file.name);
+      const deleteUrl = isInitial ? urlDestroyPermanent : urlDestroy;
+      const payloadKey = isInitial ? 'filename' : 'filename'; // tetap sama
+
+      fetch(deleteUrl, {
         method: 'DELETE',
         headers: {
           'X-CSRF-TOKEN': csrf,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ filename: file.name }),
+        body: JSON.stringify({ [payloadKey]: file.name })
       })
         .then(res => res.json())
         .then(() => {
-          Toastify({ text: `File "${file.name}" dihapus.`, duration: 2000 }).showToast();
+          Toastify({
+            text: isInitial
+              ? `Permanent file "${file.name}" deleted`
+              : `Temporary file "${file.name}" deleted`,
+            duration: 3000
+          }).showToast();
         })
-        .catch(() => {
-          Toastify({ text: `Error menghapus "${file.name}"`, className: 'error', duration: 3000 }).showToast();
+        .catch(error => {
+          Toastify({
+            text: `Error deleting "${file.name}"`,
+            className: 'error',
+            duration: 3000
+          }).showToast();
+          console.error(error);
         });
 
+      // bersihkan preview di UI
       file.previewElement?.parentNode?.removeChild(file.previewElement);
     }
+
   });
 
   return myDropzone;

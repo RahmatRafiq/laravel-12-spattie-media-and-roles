@@ -67,11 +67,12 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
       dzInstance.current = Dropzoner(dropzoneRef.current, 'profile-images', {
         urlStore: route('storage.store'),
         urlDestroy: route('storage.destroy'),
+        urlDestroyPermanent: route('profile.deleteFile'),
         csrf: csrf_token,
-        acceptedFiles: 'image/jpeg,image/png',
-        maxSizeMB: 1,
-        minSizeMB: 0.05,
+        acceptedFiles: 'image/*',
         maxFiles: 1,
+        maxSizeMB: 5,
+        minSizeMB: 0.05,
         minFiles: 1,
         files: initialFiles,
         kind: 'image',
@@ -79,11 +80,18 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
 
 
 
+
       dzInstance.current.on('success', (file, response: { name: string; url: string }) => {
-        setData('profile-images', [...(data['profile-images'] || []), response.name]);
+        setData('profile-images', [response.name]);
         const thumb = file.previewElement?.querySelector('[data-dz-thumbnail]') as HTMLImageElement;
         if (thumb) thumb.src = response.url;
+        dzInstance.current?.files.forEach((f) => {
+          if (f !== file) {
+            dzInstance.current?.removeFile(f);
+          }
+        });
       });
+
 
 
       dzInstance.current.on('removedfile', (file) => {
