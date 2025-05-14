@@ -68,11 +68,15 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
         urlStore: route('storage.store'),
         urlDestroy: route('storage.destroy'),
         csrf: csrf_token,
-        acceptedFiles: 'image/*',
+        acceptedFiles: 'image/jpeg,image/png',
+        maxSizeMB: 1,
+        minSizeMB: 0.05,
         maxFiles: 1,
+        minFiles: 1,
         files: initialFiles,
         kind: 'image',
       });
+
 
 
       dzInstance.current.on('success', (file, response: { name: string; url: string }) => {
