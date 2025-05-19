@@ -10,6 +10,10 @@ class RoleSeeder extends Seeder
 {
     public function run(): void
     {
+        Role::firstOrCreate([
+            'name' => 'admin',
+        ]);
+
         $faker = Faker::create();
 
         for ($i = 0; $i < 20; $i++) {
