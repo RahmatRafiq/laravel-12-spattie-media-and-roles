@@ -1,17 +1,23 @@
 import React from 'react';
 import Select, { Props as SelectProps, StylesConfig } from 'react-select';
+import CreatableSelect from 'react-select/creatable';
 
-export default function CustomSelect<OptionType>(props: SelectProps<OptionType>) {
+type CustomSelectProps<OptionType> = SelectProps<OptionType> & {
+  isCreatable?: boolean;
+};
+
+export default function CustomSelect<OptionType>(props: CustomSelectProps<OptionType>) {
+  const { isCreatable, ...restProps } = props;
   const customStyles: StylesConfig<OptionType, boolean> = {
     control: (provided, state) => ({
       ...provided,
       backgroundColor: '#fff',
-      borderColor: state.isFocused ? '#3b82f6' : '#d1d5db', // Tailwind blue-500 or gray-300
+      borderColor: state.isFocused ? '#3b82f6' : '#d1d5db',
       boxShadow: state.isFocused ? '0 0 0 2px rgba(59, 130, 246, 0.5)' : 'none',
-      borderRadius: '0.375rem', // rounded-md
+      borderRadius: '0.375rem',
       minHeight: '2.5rem',
       '&:hover': {
-        borderColor: '#3b82f6', // blue-500
+        borderColor: '#3b82f6',
       },
     }),
     menu: (provided) => ({
@@ -26,11 +32,11 @@ export default function CustomSelect<OptionType>(props: SelectProps<OptionType>)
       ...provided,
       padding: '0.5rem 0.75rem',
       backgroundColor: state.isSelected
-        ? '#3b82f6' // blue-500
+        ? '#3b82f6'
         : state.isFocused
-        ? 'rgba(59, 130, 246, 0.1)' // blue-500/10
-        : 'transparent',
-      color: state.isSelected ? '#ffffff' : '#111827', // white or gray-900
+          ? 'rgba(59, 130, 246, 0.1)'
+          : 'transparent',
+      color: state.isSelected ? '#ffffff' : '#111827',
       cursor: 'pointer',
       '&:hover': {
         backgroundColor: 'rgba(59, 130, 246, 0.1)',
@@ -38,20 +44,20 @@ export default function CustomSelect<OptionType>(props: SelectProps<OptionType>)
     }),
     singleValue: (provided) => ({
       ...provided,
-      color: '#111827', // gray-900
+      color: '#111827',
     }),
     placeholder: (provided) => ({
       ...provided,
-      color: '#9ca3af', // gray-400
+      color: '#9ca3af',
     }),
     multiValue: (provided) => ({
       ...provided,
-      backgroundColor: 'rgba(59, 130, 246, 0.2)', // blue-500/20
+      backgroundColor: 'rgba(59, 130, 246, 0.2)',
       borderRadius: '0.25rem',
     }),
     multiValueLabel: (provided) => ({
       ...provided,
-      color: '#1e40af', // blue-800
+      color: '#1e40af',
     }),
     multiValueRemove: (provided) => ({
       ...provided,
@@ -62,10 +68,18 @@ export default function CustomSelect<OptionType>(props: SelectProps<OptionType>)
       },
     }),
   };
-
+  if (isCreatable) {
+    return (
+      <CreatableSelect
+        {...restProps}
+        styles={customStyles}
+        classNamePrefix="react-select"
+      />
+    );
+  }
   return (
     <Select
-      {...props}
+      {...restProps}
       styles={customStyles}
       classNamePrefix="react-select"
     />
