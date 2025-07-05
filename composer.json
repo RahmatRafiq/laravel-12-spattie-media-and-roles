@@ -67,6 +67,22 @@
             "npm run build:ssr",
             "Composer\\Config::disableProcessTimeout",
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"php artisan inertia:start-ssr\" --names=server,queue,logs,ssr"
+        ],
+        "docker:dev": [
+            "./vendor/bin/sail up -d"
+        ],
+        "docker:stop": [
+            "./vendor/bin/sail down"
+        ],
+        "docker:build": [
+            "./vendor/bin/sail build --no-cache"
+        ],
+        "deploy:prod": [
+            "php artisan config:cache",
+            "php artisan route:cache",
+            "php artisan view:cache",
+            "php artisan migrate --force",
+            "npm run build"
         ]
     },
     "extra": {
