@@ -24,6 +24,30 @@ export interface ExpandConfig<T> {
     columnTitle?: string;
 }
 
+export interface ConfirmationConfig {
+    delete?: {
+        title?: string;
+        message?: string;
+        confirmText?: string;
+        cancelText?: string;
+        successMessage?: string;
+    };
+    restore?: {
+        title?: string;
+        message?: string;
+        confirmText?: string;
+        cancelText?: string;
+        successMessage?: string;
+    };
+    forceDelete?: {
+        title?: string;
+        message?: string;
+        confirmText?: string;
+        cancelText?: string;
+        successMessage?: string;
+    };
+}
+
 export interface DataTableColumn<T> {
     data: string | number | null;
     name?: string;
@@ -45,7 +69,10 @@ export interface DataTableWrapperProps<T> {
     columns: DataTableColumn<T>[];
     options?: DataTableOptions;
     onRowDelete?: (id: number) => void;
+    onRowRestore?: (id: number) => void;
+    onRowForceDelete?: (id: number) => void;
     expand?: ExpandConfig<T>;
+    confirmationConfig?: ConfirmationConfig;
 }
 
 export interface DataTableWrapperRef {
