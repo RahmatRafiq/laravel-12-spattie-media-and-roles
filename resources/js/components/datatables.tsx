@@ -23,7 +23,6 @@ interface DataTableWrapperProps<T> {
   onRowDelete?: (id: number) => void;
 }
 
-// Tambahkan method dt ke interface
 export interface DataTableWrapperRef {
   reload: () => void;
   dt: () => Api | null;

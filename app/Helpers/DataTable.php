@@ -6,18 +6,17 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class DataTable {
-    public static function paginate(Builder $query, Request $request)
+    public static function paginate(Builder $query, Request $request, callable $recordsTotalCallback = null)
     {
-        $length = $request->length;
-        $start = $request->start;
+        $length = $request->input('length', 10);
+        $start = $request->input('start', 0);
 
-        // Clone query untuk menghitung total records tanpa filter search
-        $totalQuery = clone $query;
+        if ($recordsTotalCallback) {
+            $recordsTotal = $recordsTotalCallback();
+        } else {
+            $recordsTotal = $query->count();
+        }
         
-        // Hitung total records tanpa filter search
-        $recordsTotal = $totalQuery->count();
-        
-        // Hitung filtered records (dengan search jika ada)
         $recordsFiltered = $query->count();
 
         return [
@@ -27,7 +26,7 @@ class DataTable {
                 ->offset($start)
                 ->limit($length)
                 ->get(),
-            'draw' => $request->draw,
+            'draw' => $request->input('draw', 1),
         ];
     }
 }

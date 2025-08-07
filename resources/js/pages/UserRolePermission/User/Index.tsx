@@ -9,7 +9,6 @@ import { BreadcrumbItem } from '@/types';
 import { User } from '@/types/UserRolePermission';
 import ToggleTabs from '@/components/toggle-tabs';
 
-// Definisi kolom yang statis - logic untuk tombol akan ditentukan di drawCallback
 const columns = [
   { data: 'id', title: 'ID' },
   { data: 'name', title: 'Name' },
@@ -60,7 +59,6 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
 
   const handleFilterChange = (newFilter: string) => {
     setFilter(newFilter);
-    // Update DataTable dengan filter baru tanpa recreate
     if (dtRef.current) {
       const newUrl = route('users.json') + '?filter=' + newFilter;
       dtRef.current.updateUrl(newUrl);
@@ -83,7 +81,6 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
       }
     });
 
-    // Attach event listener untuk tombol Delete, Restore, dan Force Delete
     document.querySelectorAll('.btn-delete').forEach((btn) => {
       btn.addEventListener('click', () => {
         const id = btn.getAttribute('data-id');

@@ -24,7 +24,6 @@ class UserController extends Controller
     public function json(Request $request)
     {
         $search = $request->input('search.value', '');
-        // Ambil filter dari query parameter atau dari request body
         $filter = $request->query('filter') ?? $request->input('filter', 'active');
 
         $baseQuery = match ($filter) {
@@ -33,10 +32,11 @@ class UserController extends Controller
             default => User::with('roles'),
         };
 
-        // Count total records tanpa search filter
-        $recordsTotal = $baseQuery->count();
+        $recordsTotalCallback = function() use ($baseQuery) {
+            $totalQuery = clone $baseQuery;
+            return $totalQuery->count();
+        };
 
-        // Apply search filter jika ada
         if ($search) {
             $baseQuery->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -44,39 +44,24 @@ class UserController extends Controller
             });
         }
 
-        // Count filtered records
-        $recordsFiltered = $baseQuery->count();
-
         $columns = ['id', 'name', 'email', 'created_at', 'updated_at'];
         if ($request->filled('order')) {
             $orderColumn = $columns[$request->order[0]['column']] ?? 'id';
             $baseQuery->orderBy($orderColumn, $request->order[0]['dir']);
         }
 
-        // Get paginated data
-        $length = $request->input('length', 10);
-        $start = $request->input('start', 0);
-        
-        $users = $baseQuery
-            ->offset($start)
-            ->limit($length)
-            ->get();
+        $data = DataTable::paginate($baseQuery, $request, $recordsTotalCallback);
 
-        $data = [
-            'recordsTotal' => $recordsTotal,
-            'recordsFiltered' => $recordsFiltered,
-            'data' => $users->map(function ($user) {
-                return [
-                    'id'      => $user->id,
-                    'name'    => $user->name,
-                    'email'   => $user->email,
-                    'roles'   => $user->roles->pluck('name')->toArray(),
-                    'trashed' => !is_null($user->deleted_at),
-                    'actions' => '',
-                ];
-            }),
-            'draw' => $request->input('draw', 1),
-        ];
+        $data['data'] = collect($data['data'])->map(function ($user) {
+            return [
+                'id'      => $user->id,
+                'name'    => $user->name,
+                'email'   => $user->email,
+                'roles'   => $user->roles->pluck('name')->toArray(),
+                'trashed' => !is_null($user->deleted_at),
+                'actions' => '',
+            ];
+        });
 
         return response()->json($data);
     }
@@ -146,7 +131,6 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-
         $user->delete();
         return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
     }
