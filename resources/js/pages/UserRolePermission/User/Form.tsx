@@ -1,22 +1,16 @@
-import { Head, useForm, Link } from '@inertiajs/react';
-import { FormEvent } from 'react';
 import HeadingSmall from '@/components/heading-small';
 import InputError from '@/components/input-error';
+import CustomSelect from '@/components/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { BreadcrumbItem } from '@/types';
 import AppLayout from '@/layouts/app-layout';
-import CustomSelect from '@/components/select';
+import { BreadcrumbItem } from '@/types';
 import type { Role, User } from '@/types/UserRolePermission';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { FormEvent } from 'react';
 
-export default function UserForm({
-    user,
-    roles,
-}: {
-    user?: User;
-    roles: Role[];
-}) {
+export default function UserForm({ user, roles }: { user?: User; roles: Role[] }) {
     const isEdit = !!user;
 
     const { data, setData, post, put, processing, errors } = useForm({
@@ -26,7 +20,6 @@ export default function UserForm({
         password_confirmation: '',
         role_id: user?.role_id || null,
     });
-
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'User Management', href: '/users' },
@@ -53,7 +46,7 @@ export default function UserForm({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={isEdit ? 'Edit User' : 'Create User'} />
             <div className="px-4 py-6">
-                <h1 className="text-2xl font-semibold mb-4">User Management</h1>
+                <h1 className="mb-4 text-2xl font-semibold">User Management</h1>
                 <div className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-12">
                     {/* Sidebar */}
                     <aside className="w-full max-w-xl lg:w-48">
@@ -69,43 +62,25 @@ export default function UserForm({
                             </Button>
                         </nav>
                     </aside>
-                    <div className="flex-1 md:max-w-2xl space-y-6">
-                        <HeadingSmall
-                            title={isEdit ? 'Edit User' : 'Create User'}
-                            description="Fill in the details below"
-                        />
+                    <div className="flex-1 space-y-6 md:max-w-2xl">
+                        <HeadingSmall title={isEdit ? 'Edit User' : 'Create User'} description="Fill in the details below" />
 
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
                                 <Label htmlFor="name">Name</Label>
-                                <Input
-                                    id="name"
-                                    type="text"
-                                    value={data.name}
-                                    onChange={(e) => setData('name', e.target.value)}
-                                    required
-                                />
+                                <Input id="name" type="text" value={data.name} onChange={(e) => setData('name', e.target.value)} required />
                                 <InputError message={errors.name} />
                             </div>
 
                             <div>
                                 <Label htmlFor="email">Email</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    value={data.email}
-                                    onChange={(e) => setData('email', e.target.value)}
-                                    required
-                                />
+                                <Input id="email" type="email" value={data.email} onChange={(e) => setData('email', e.target.value)} required />
                                 <InputError message={errors.email} />
                             </div>
 
                             <div>
                                 <Label htmlFor="password">
-                                    Password{' '}
-                                    {isEdit && (
-                                        <span className="text-sm text-muted">(Leave blank if not changing)</span>
-                                    )}
+                                    Password {isEdit && <span className="text-muted text-sm">(Leave blank if not changing)</span>}
                                 </Label>
                                 <Input
                                     id="password"
@@ -144,13 +119,8 @@ export default function UserForm({
                             </div>
 
                             <div className="flex items-center space-x-4">
-                                <Button disabled={processing}>
-                                    {isEdit ? 'Update User' : 'Create User'}
-                                </Button>
-                                <Link
-                                    href={route('users.index')}
-                                    className="px-4 py-2 bg-muted text-foreground rounded hover:bg-muted/70"
-                                >
+                                <Button disabled={processing}>{isEdit ? 'Update User' : 'Create User'}</Button>
+                                <Link href={route('users.index')} className="bg-muted text-foreground hover:bg-muted/70 rounded px-4 py-2">
                                     Cancel
                                 </Link>
                             </div>
