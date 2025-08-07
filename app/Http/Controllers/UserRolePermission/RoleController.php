@@ -12,9 +12,6 @@ use Inertia\Inertia;
 
 class RoleController extends Controller
 {
-    /**
-     * Tampilkan daftar role.
-     */
     public function index()
     {
         $roles = Role::all();
@@ -25,10 +22,9 @@ class RoleController extends Controller
 
     public function json(Request $request)
     {
-        $search = $request->search['value'];
-        $query  = Role::with('permissions'); // eager load permissions
+        $search = $request->input('search.value', '');
+        $query  = Role::with('permissions');
 
-        // columns
         $columns = [
             'id',
             'name',
@@ -37,18 +33,24 @@ class RoleController extends Controller
             'updated_at',
         ];
 
-        // search
-        if ($request->filled('search')) {
+        $recordsTotalCallback = null;
+        if ($search) {
+            $recordsTotalCallback = function() {
+                return Role::count();
+            };
+        }
+
+        if ($search) {
             $query->where('name', 'like', "%{$search}%")
                 ->orWhere('guard_name', 'like', "%{$search}%");
         }
 
-        // order
         if ($request->filled('order')) {
-            $query->orderBy($columns[$request->order[0]['column']], $request->order[0]['dir']);
+            $orderColumn = $columns[$request->order[0]['column']] ?? 'id';
+            $query->orderBy($orderColumn, $request->order[0]['dir']);
         }
 
-        $data = DataTable::paginate($query, $request);
+        $data = DataTable::paginate($query, $request, $recordsTotalCallback);
 
         $data['data'] = collect($data['data'])->map(function ($role) {
             return [
@@ -70,9 +72,6 @@ class RoleController extends Controller
         return response()->json($data);
     }
 
-    /**
-     * Tampilkan form untuk membuat role baru.
-     */
     public function create()
     {
         $permissions = Permission::all();
@@ -81,9 +80,6 @@ class RoleController extends Controller
         ]);
     }
 
-    /**
-     * Simpan role baru ke database.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -102,9 +98,6 @@ class RoleController extends Controller
         return redirect()->route('roles.index')->with('success', 'Role berhasil dibuat.');
     }
 
-    /**
-     * Tampilkan form untuk mengedit role.
-     */
     public function edit($id)
     {
         $role = Role::with('permissions')->findOrFail($id);
@@ -114,12 +107,8 @@ class RoleController extends Controller
             'permissions' => Permission::all(),
             'guards'      => array_keys(config('auth.guards')),
         ]);
-
     }
 
-    /**
-     * Update role di database.
-     */
     public function update(Request $request, $id)
     {
         $role = Role::findOrFail($id);
@@ -139,9 +128,6 @@ class RoleController extends Controller
         return redirect()->route('roles.index')->with('success', 'Role berhasil diperbarui.');
     }
 
-    /**
-     * Hapus role dari database.
-     */
     public function destroy($id)
     {
         $role = Role::findOrFail($id);

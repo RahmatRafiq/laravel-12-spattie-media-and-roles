@@ -26,16 +26,25 @@ class UserController extends Controller
         $search = $request->input('search.value', '');
         $filter = $request->query('filter') ?? $request->input('filter', 'active');
 
+        // Create base query for filtering
         $baseQuery = match ($filter) {
             'trashed' => User::onlyTrashed()->with('roles'),
             'all' => User::withTrashed()->with('roles'),
             default => User::with('roles'),
         };
 
-        $recordsTotalCallback = function() use ($baseQuery) {
-            $totalQuery = clone $baseQuery;
-            return $totalQuery->count();
-        };
+        // Only create callback if we might have search filters
+        $recordsTotalCallback = null;
+        if ($search) {
+            // Only create callback when we have search (to avoid duplicate queries when no search)
+            $recordsTotalCallback = function() use ($filter) {
+                return match ($filter) {
+                    'trashed' => User::onlyTrashed()->count(),
+                    'all' => User::withTrashed()->count(),
+                    default => User::count(),
+                };
+            };
+        }
 
         if ($search) {
             $baseQuery->where(function ($q) use ($search) {

@@ -10,14 +10,21 @@ class DataTable {
     {
         $length = $request->input('length', 10);
         $start = $request->input('start', 0);
+        
+        $hasSearch = $request->filled('search') && !empty($request->input('search.value'));
 
         if ($recordsTotalCallback) {
             $recordsTotal = $recordsTotalCallback();
+            
+            if ($hasSearch) {
+                $recordsFiltered = $query->count();
+            } else {
+                $recordsFiltered = $recordsTotal;
+            }
         } else {
             $recordsTotal = $query->count();
+            $recordsFiltered = $recordsTotal;
         }
-        
-        $recordsFiltered = $query->count();
 
         return [
             'recordsTotal' => $recordsTotal,
