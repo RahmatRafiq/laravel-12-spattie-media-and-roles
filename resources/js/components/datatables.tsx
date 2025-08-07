@@ -1,38 +1,34 @@
-import { useEffect, forwardRef, useImperativeHandle, useRef } from 'react';
-import DataTable, { DataTableRef } from 'datatables.net-react';
-import DT, { ObjectColumnData, Api } from 'datatables.net-dt';
+import { AjaxConfig, DataTableOptions, DataTableWrapperProps, DataTableWrapperRef, ExpandConfig } from '@/types/DataTables';
+import DT from 'datatables.net-dt';
 import 'datatables.net-dt/css/dataTables.dataTables.css';
-import { 
-    AjaxConfig, 
-    ExpandConfig, 
-    DataTableWrapperProps, 
-    DataTableWrapperRef,
-    DataTableOptions
-} from '@/types/DataTables';
+import DataTable, { DataTableRef } from 'datatables.net-react';
+import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 
-export type { DataTableWrapperRef, ExpandConfig, AjaxConfig, DataTableWrapperProps, DataTableOptions };
+export type { AjaxConfig, DataTableOptions, DataTableWrapperProps, DataTableWrapperRef, ExpandConfig };
 
 export function createExpandConfig<T>(config: ExpandConfig<T>): ExpandConfig<T> {
     return config;
 }
 
-const DataTableWrapperInner = forwardRef<DataTableWrapperRef, DataTableWrapperProps<unknown>>(
-    function DataTableWrapper({ ajax, columns, options, onRowDelete, expand }, ref) {
+const DataTableWrapperInner = forwardRef<DataTableWrapperRef, DataTableWrapperProps<unknown>>(function DataTableWrapper(
+    { ajax, columns, options, onRowDelete, expand },
+    ref,
+) {
     DataTable.use(DT);
     const tableRef = useRef<DataTableRef | null>(null);
 
-    const processedColumns = expand?.enabled 
+    const processedColumns = expand?.enabled
         ? [
-                {
-                    data: null,
-                    title: expand.columnTitle || '',
-                    orderable: false,
-                    searchable: false,
-                    className: 'details-control',
-                    render: (): string => `<span style="cursor: pointer;">${expand.expandIcon || '+'}</span>`,
-                },
-                ...columns
-            ]
+            {
+                data: null,
+                title: expand.columnTitle || '',
+                orderable: false,
+                searchable: false,
+                className: 'details-control',
+                render: (): string => `<span style="cursor: pointer;">${expand.expandIcon || '+'}</span>`,
+            },
+            ...columns,
+        ]
         : columns;
 
     useImperativeHandle(ref, () => ({
@@ -66,17 +62,17 @@ const DataTableWrapperInner = forwardRef<DataTableWrapperRef, DataTableWrapperPr
         const handleExpand = (event: Event) => {
             const target = event.target as HTMLElement;
             const detailsControl = target.closest('.details-control');
-            
+
             if (detailsControl && expand?.enabled) {
                 const tr = detailsControl.closest('tr');
                 if (!tr) return;
-                
+
                 const table = tableRef.current?.dt();
                 if (!table) return;
-                
+
                 const row = table.row(tr);
                 const isShown = row.child.isShown();
-                
+
                 if (isShown) {
                     row.child.hide();
                     tr.classList.remove('shown');
@@ -92,7 +88,7 @@ const DataTableWrapperInner = forwardRef<DataTableWrapperRef, DataTableWrapperPr
 
         document.addEventListener('click', handleDelete);
         document.addEventListener('click', handleExpand);
-        
+
         return () => {
             document.removeEventListener('click', handleDelete);
             document.removeEventListener('click', handleExpand);
@@ -101,9 +97,7 @@ const DataTableWrapperInner = forwardRef<DataTableWrapperRef, DataTableWrapperPr
 
     const defaultHeaders: Record<string, string> = {
         'X-Requested-With': 'XMLHttpRequest',
-        'X-CSRF-TOKEN':
-            document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
-            '',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
     };
 
     const mergedHeaders: Record<string, string> = {
@@ -127,7 +121,7 @@ const DataTableWrapperInner = forwardRef<DataTableWrapperRef, DataTableWrapperPr
             }}
             columns={processedColumns}
             options={tableOptions}
-            className="display min-w-full bg-white dark:bg-gray-800 border w-full"
+            className="display w-full min-w-full border bg-white dark:bg-gray-800"
             ref={(instance: DataTableRef | null) => {
                 tableRef.current = instance;
             }}
@@ -136,9 +130,7 @@ const DataTableWrapperInner = forwardRef<DataTableWrapperRef, DataTableWrapperPr
                 <tr>
                     {processedColumns.map((col, index) => (
                         <th key={index}>
-                            {typeof col.data === 'string'
-                                ? col.data.charAt(0).toUpperCase() + col.data.slice(1)
-                                : col.title || 'Actions'}
+                            {typeof col.data === 'string' ? col.data.charAt(0).toUpperCase() + col.data.slice(1) : col.title || 'Actions'}
                         </th>
                     ))}
                 </tr>
@@ -146,7 +138,6 @@ const DataTableWrapperInner = forwardRef<DataTableWrapperRef, DataTableWrapperPr
         </DataTable>
     );
 });
-
 // Generic wrapper function to handle typed expand configs
 function DataTableWrapper<T = unknown>(props: DataTableWrapperProps<T> & { ref?: React.Ref<DataTableWrapperRef> }) {
     const { ref, ...otherProps } = props;

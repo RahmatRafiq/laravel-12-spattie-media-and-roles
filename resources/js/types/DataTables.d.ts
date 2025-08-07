@@ -5,7 +5,7 @@ export type RenderFunction<T> = (
     data: T[keyof T] | null,
     type: 'display' | 'type' | 'sort' | 'export',
     row: T,
-    meta: { row: number; col: number; settings: object }
+    meta: { row: number; col: number; settings: object },
 ) => string | number;
 
 export interface AjaxConfig {

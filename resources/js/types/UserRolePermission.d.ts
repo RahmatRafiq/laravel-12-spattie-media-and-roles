@@ -3,12 +3,12 @@ export interface Role {
     name: string;
     guard_name: string;
     permissions: Permission[];
-  }
+}
 
 export interface Permission {
     id: number;
     name: string;
-  }
+}
 
 export interface User {
     id: number;
