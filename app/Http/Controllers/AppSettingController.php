@@ -21,11 +21,7 @@ class AppSettingController extends Controller
         return Inertia::render('AppSetting/AppSettings', [
             'settings' => $settings,
             'availableColors' => $availableColors,
-            'themeOptions' => [
-                'light' => 'Light',
-                'dark' => 'Dark', 
-                'system' => 'System',
-            ],
+            
         ]);
     }
 
@@ -48,7 +44,6 @@ class AppSettingController extends Controller
             'primary_color' => 'required|string|regex:/^#[0-9A-F]{6}$/i',
             'secondary_color' => 'required|string|regex:/^#[0-9A-F]{6}$/i',
             'accent_color' => 'required|string|regex:/^#[0-9A-F]{6}$/i',
-            'theme_mode' => 'required|in:light,dark,system',
             
             'contact_email' => 'nullable|email|max:255',
             'contact_phone' => 'nullable|string|max:50',

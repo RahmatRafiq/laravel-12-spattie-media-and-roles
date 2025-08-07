@@ -26,11 +26,9 @@ return new class extends Migration
             $table->text('seo_keywords')->nullable();
             $table->string('seo_og_image')->nullable();
             
-            // Theme & Design
             $table->string('primary_color')->default('#3b82f6');
             $table->string('secondary_color')->default('#6b7280');
             $table->string('accent_color')->default('#10b981');
-            $table->string('theme_mode')->default('light'); // light, dark, system
             
             // Contact & Social
             $table->string('contact_email')->nullable();

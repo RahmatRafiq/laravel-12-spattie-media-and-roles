@@ -20,7 +20,7 @@ interface Props {
     themeOptions: Record<string, string>;
 }
 
-export default function AppSettings({ settings, availableColors, themeOptions }: Props) {
+export default function AppSettings({ settings, availableColors }: Props) {
     const { data, setData, put, processing, errors } = useForm({
         app_name: settings.app_name,
         app_description: settings.app_description,
@@ -33,7 +33,6 @@ export default function AppSettings({ settings, availableColors, themeOptions }:
         primary_color: settings.primary_color || '#3b82f6',
         secondary_color: settings.secondary_color || '#6b7280',
         accent_color: settings.accent_color || '#10b981',
-        theme_mode: settings.theme_mode || 'light',
         contact_email: settings.contact_email,
         contact_phone: settings.contact_phone,
         contact_address: settings.contact_address,
@@ -119,21 +118,6 @@ export default function AppSettings({ settings, availableColors, themeOptions }:
                                             required
                                         />
                                         <InputError message={errors.app_name} />
-                                    </div>
-                                    <div>
-                                        <Label htmlFor="theme_mode">Theme Mode</Label>
-                                        <Select value={data.theme_mode} onValueChange={(value) => setData('theme_mode', value)}>
-                                            <SelectTrigger>
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {Object.entries(themeOptions).map(([value, label]) => (
-                                                    <SelectItem key={value} value={value}>
-                                                        {label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
                                     </div>
                                 </div>
 
@@ -225,7 +209,6 @@ export default function AppSettings({ settings, availableColors, themeOptions }:
                             </CardContent>
                         </Card>
 
-                        {/* Theme Colors */}
                         <Card>
                             <CardHeader>
                                 <CardTitle>Theme Colors</CardTitle>

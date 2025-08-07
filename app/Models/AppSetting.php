@@ -18,7 +18,6 @@ class AppSetting extends Model
         'primary_color',
         'secondary_color',
         'accent_color',
-        'theme_mode',
         'contact_email',
         'contact_phone',
         'contact_address',
@@ -46,7 +45,6 @@ class AppSetting extends Model
                 'primary_color' => '#3b82f6',
                 'secondary_color' => '#6b7280',
                 'accent_color' => '#10b981',
-                'theme_mode' => 'light',
                 'maintenance_mode' => false,
             ]
         );

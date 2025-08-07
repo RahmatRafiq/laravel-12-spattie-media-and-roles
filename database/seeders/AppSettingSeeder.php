@@ -26,7 +26,6 @@ class AppSettingSeeder extends Seeder
                 'primary_color' => '#3b82f6',
                 'secondary_color' => '#6b7280',
                 'accent_color' => '#10b981',
-                'theme_mode' => 'light',
                 'contact_email' => 'admin@example.com',
                 'contact_phone' => '+628123456789',
                 'contact_address' => 'Jl. Contoh No. 123, Jakarta',
