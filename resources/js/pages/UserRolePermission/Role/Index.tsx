@@ -32,7 +32,6 @@ function formatRolePermissions(data: Role): string {
   `;
 }
 
-
 export default function RoleIndexAccordion({ success }: { success?: string }) {
   const dtRef = useRef<DataTableWrapperRef>(null);
 
@@ -78,7 +77,7 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
   const drawCallback = () => {
     document.querySelectorAll('.inertia-link-cell').forEach((cell) => {
       const id = cell.getAttribute('data-id');
-      if (id) {
+      if (id && !cell.querySelector('a')) {
         const root = ReactDOM.createRoot(cell);
         root.render(
           <Link
@@ -93,7 +92,8 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
 
     const table = dtRef.current?.dt();
     if (table) {
-      document.querySelectorAll('.details-control').forEach((cell) => {
+      document.querySelectorAll('.details-control:not([data-listener])').forEach((cell) => {
+        cell.setAttribute('data-listener', 'true');
         cell.addEventListener('click', function () {
           const tr = cell.closest('tr');
           if (!tr) return;
@@ -111,7 +111,8 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
       });
     }
 
-    document.querySelectorAll('.btn-delete').forEach((btn) => {
+    document.querySelectorAll('.btn-delete:not([data-listener])').forEach((btn) => {
+      btn.setAttribute('data-listener', 'true');
       btn.addEventListener('click', () => {
         const id = btn.getAttribute('data-id');
         if (id) handleDelete(Number(id));

@@ -45,10 +45,9 @@ export default function PermissionIndex({ success }: { success?: string }) {
   };
 
   const drawCallback = () => {
-    // Render tombol Edit secara dinamis menggunakan React
     document.querySelectorAll('.inertia-link-cell').forEach((cell) => {
       const id = cell.getAttribute('data-id');
-      if (id) {
+      if (id && !cell.querySelector('a')) {
         const root = ReactDOM.createRoot(cell);
         root.render(
           <Link
@@ -59,6 +58,14 @@ export default function PermissionIndex({ success }: { success?: string }) {
           </Link>
         );
       }
+    });
+
+    document.querySelectorAll('.btn-delete:not([data-listener])').forEach((btn) => {
+      btn.setAttribute('data-listener', 'true');
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        if (id) handleDelete(Number(id));
+      });
     });
   };
 

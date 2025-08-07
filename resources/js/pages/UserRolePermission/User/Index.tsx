@@ -68,7 +68,7 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
   const drawCallback = () => {
     document.querySelectorAll('.inertia-link-cell').forEach((cell) => {
       const id = cell.getAttribute('data-id');
-      if (id) {
+      if (id && !cell.querySelector('a')) {
         const root = ReactDOM.createRoot(cell);
         root.render(
           <Link
@@ -81,26 +81,28 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
       }
     });
 
-    document.querySelectorAll('.btn-delete').forEach((btn) => {
+    document.querySelectorAll('.btn-delete:not([data-listener])').forEach((btn) => {
+      btn.setAttribute('data-listener', 'true');
       btn.addEventListener('click', () => {
         const id = btn.getAttribute('data-id');
         if (id) handleDelete(Number(id));
       });
     });
-    document.querySelectorAll('.btn-restore').forEach((btn) => {
+    document.querySelectorAll('.btn-restore:not([data-listener])').forEach((btn) => {
+      btn.setAttribute('data-listener', 'true');
       btn.addEventListener('click', () => {
         const id = btn.getAttribute('data-id');
         if (id) handleRestore(Number(id));
       });
     });
-    document.querySelectorAll('.btn-force-delete').forEach((btn) => {
+    document.querySelectorAll('.btn-force-delete:not([data-listener])').forEach((btn) => {
+      btn.setAttribute('data-listener', 'true');
       btn.addEventListener('click', () => {
         const id = btn.getAttribute('data-id');
         if (id) handleForceDelete(Number(id));
       });
     });
   };
-
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
