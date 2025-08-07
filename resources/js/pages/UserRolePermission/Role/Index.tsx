@@ -76,14 +76,6 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
                 );
             }
         });
-
-        document.querySelectorAll('.btn-delete:not([data-listener])').forEach((btn) => {
-            btn.setAttribute('data-listener', 'true');
-            btn.addEventListener('click', () => {
-                const id = btn.getAttribute('data-id');
-                if (id) handleDelete(Number(id));
-            });
-        });
     };
 
     return (
@@ -109,6 +101,16 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
                         columns={columns}
                         options={{ drawCallback }}
                         expand={expandConfig}
+                        onRowDelete={handleDelete}
+                        confirmationConfig={{
+                            delete: {
+                                title: 'Konfirmasi Hapus Role',
+                                message: 'Apakah Anda yakin ingin menghapus role ini? Tindakan ini tidak dapat dibatalkan.',
+                                confirmText: 'Hapus',
+                                cancelText: 'Batal',
+                                successMessage: 'Role berhasil dihapus',
+                            },
+                        }}
                     />
                 </div>
             </div>
