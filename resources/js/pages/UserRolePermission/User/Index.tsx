@@ -109,7 +109,7 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
       <Head title="Users" />
       <div className="px-4 py-6">
         <h1 className="text-2xl font-semibold mb-4">User Management</h1>
-        <div className="col-md-12">
+        <div className="w-full">
           <HeadingSmall title="Users" description="Manage application users and their roles" />
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">User List</h2>

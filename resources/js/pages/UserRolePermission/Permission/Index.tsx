@@ -4,7 +4,6 @@ import { Head, Link, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import HeadingSmall from '@/components/heading-small';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import DataTableWrapper, { DataTableWrapperRef, createExpandConfig } from '@/components/datatables';
 import { DataTableColumn } from '@/types/DataTables';
 import { BreadcrumbItem } from '@/types';
@@ -75,30 +74,27 @@ export default function PermissionIndex({ success }: { success?: string }) {
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Permissions" />
       <div className="px-4 py-6">
-        <h1 className="text-2xl font-semibold mb-4">Settings</h1>
-        <div className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-12">
-          <Separator className="my-6 md:hidden" />
-          <div className="col-md-12">
-            <HeadingSmall title="Permissions" description="Manage permissions for your application" />
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">Permission List</h2>
-              <Link href={route('permissions.create')}>
-                <Button>Create Permission</Button>
-              </Link>
-            </div>
-            {success && (
-              <div className="p-2 bg-green-100 text-green-800 rounded">{success}</div>
-            )}
-            <DataTableWrapper<Permission>
-              ref={dtRef}
-              ajax={{
-                url: route('permissions.json'),
-                type: 'POST',
-              }}
-              columns={columns}
-              options={{ drawCallback }}
-            />
+        <h1 className="text-2xl font-semibold mb-4">Permission Management</h1>
+        <div className="w-full">
+          <HeadingSmall title="Permissions" description="Manage permissions for your application" />
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Permission List</h2>
+            <Link href={route('permissions.create')}>
+              <Button>Create Permission</Button>
+            </Link>
           </div>
+          {success && (
+            <div className="p-2 mb-2 bg-green-100 text-green-800 rounded">{success}</div>
+          )}
+          <DataTableWrapper<Permission>
+            ref={dtRef}
+            ajax={{
+              url: route('permissions.json'),
+              type: 'POST',
+            }}
+            columns={columns}
+            options={{ drawCallback }}
+          />
         </div>
       </div>
     </AppLayout>

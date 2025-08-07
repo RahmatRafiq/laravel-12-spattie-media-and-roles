@@ -4,7 +4,6 @@ import { Head, Link, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import HeadingSmall from '@/components/heading-small';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { BreadcrumbItem } from '@/types';
 import { Role } from '@/types/UserRolePermission';
 import DataTableWrapper, { DataTableWrapperRef, createExpandConfig } from '@/components/datatables';
@@ -102,30 +101,27 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
       <Head title="Roles" />
       <div className="px-4 py-6">
         <h1 className="text-2xl font-semibold mb-4">Role Management</h1>
-        <div className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-12">
-          <Separator className="my-6 md:hidden" />
-          <div className="col-md-12">
-            <HeadingSmall title="Roles" description="Manage roles for your application" />
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">Role List</h2>
-              <Link href={route('roles.create')}>
-                <Button>Create Role</Button>
-              </Link>
-            </div>
-            {success && (
-              <div className="p-2 bg-green-100 text-green-800 rounded">{success}</div>
-            )}
-            <DataTableWrapper<Role>
-              ref={dtRef}
-              ajax={{
-                url: route('roles.json'),
-                type: 'POST',
-              }}
-              columns={columns}
-              options={{ drawCallback }}
-              expand={expandConfig}
-            />
+        <div className="w-full">
+          <HeadingSmall title="Roles" description="Manage roles for your application" />
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Role List</h2>
+            <Link href={route('roles.create')}>
+              <Button>Create Role</Button>
+            </Link>
           </div>
+          {success && (
+            <div className="p-2 mb-2 bg-green-100 text-green-800 rounded">{success}</div>
+          )}
+          <DataTableWrapper<Role>
+            ref={dtRef}
+            ajax={{
+              url: route('roles.json'),
+              type: 'POST',
+            }}
+            columns={columns}
+            options={{ drawCallback }}
+            expand={expandConfig}
+          />
         </div>
       </div>
     </AppLayout>
