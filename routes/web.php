@@ -15,6 +15,7 @@ Route::get('auth/{provider}/callback', [SocialAuthController::class, 'handleProv
 
 // Middleware for pages that require authentication
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard/activity-logs', [ActivityLogController::class,'index'])->name('activity-log.index');
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
@@ -40,15 +41,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('logout', [SocialAuthController::class, 'logout'])->name('logout');
 
 });
-Route::get('/dashboard/activity-logs', function () {
-    return Inertia::render('ActivityLogList');
-})->middleware(['auth']);
 
 Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-log.index');
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
-
-// "datatables.net": "^2.2.2",
-// "datatables.net-dt": "^2.2.2",
-// "datatables.net-react": "^1.0.0",
-// "jquery": "^3.7.1",

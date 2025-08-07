@@ -28,10 +28,14 @@ class ActivityLogCreated implements ShouldBroadcast
     {
         return [
             'id'           => $this->log->id,
-            'description'  => $this->log->description,
-            'event'        => $this->log->event,
+            'description'  => $this->log->description ?? 'Unknown activity',
+            'event'        => $this->log->event ?? 'unknown',
+            'causer_type'  => $this->log->causer_type,
             'causer_id'    => $this->log->causer_id,
+            'causer_name'  => $this->log->causer ? $this->log->causer->name : null,
             'subject_type' => $this->log->subject_type,
+            'subject_id'   => $this->log->subject_id,
+            'properties'   => $this->log->properties,
             'created_at'   => $this->log->created_at,
         ];
     }
