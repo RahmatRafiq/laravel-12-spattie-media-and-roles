@@ -3,6 +3,9 @@ import DT from 'datatables.net-dt';
 import 'datatables.net-dt/css/dataTables.dataTables.css';
 import DataTable, { DataTableRef } from 'datatables.net-react';
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+import { useConfirmation } from '@/hooks/use-confirmation';
+import ConfirmationDialog from '@/components/confirmation-dialog';
+import { toast } from '@/utils/toast';
 
 export type { AjaxConfig, DataTableOptions, DataTableWrapperProps, DataTableWrapperRef, ExpandConfig };
 
@@ -11,11 +14,12 @@ export function createExpandConfig<T>(config: ExpandConfig<T>): ExpandConfig<T> 
 }
 
 const DataTableWrapperInner = forwardRef<DataTableWrapperRef, DataTableWrapperProps<unknown>>(function DataTableWrapper(
-    { ajax, columns, options, onRowDelete, expand },
+    { ajax, columns, options, onRowDelete, onRowRestore, onRowForceDelete, expand, confirmationConfig },
     ref,
 ) {
     DataTable.use(DT);
     const tableRef = useRef<DataTableRef | null>(null);
+    const { confirmationState, openConfirmation, handleConfirm, handleCancel } = useConfirmation();
 
     const processedColumns = expand?.enabled
         ? [
@@ -53,8 +57,67 @@ const DataTableWrapperInner = forwardRef<DataTableWrapperRef, DataTableWrapperPr
             const target = event.target as HTMLElement;
             if (target.matches('.btn-delete')) {
                 const id = target.getAttribute('data-id');
-                if (id && confirm('Are you sure to delete this item?')) {
-                    onRowDelete?.(Number(id));
+                if (id && onRowDelete) {
+                    const config = confirmationConfig?.delete || {};
+                    openConfirmation({
+                        title: config.title || 'Konfirmasi Hapus',
+                        message: config.message || 'Apakah Anda yakin ingin menghapus item ini?',
+                        confirmText: config.confirmText || 'Hapus',
+                        cancelText: config.cancelText || 'Batal',
+                        variant: 'destructive',
+                        onConfirm: () => {
+                            onRowDelete(Number(id));
+                            if (config.successMessage) {
+                                toast.success(config.successMessage);
+                            }
+                        },
+                    });
+                }
+            }
+        };
+
+        const handleRestore = (event: Event) => {
+            const target = event.target as HTMLElement;
+            if (target.matches('.btn-restore')) {
+                const id = target.getAttribute('data-id');
+                if (id && onRowRestore) {
+                    const config = confirmationConfig?.restore || {};
+                    openConfirmation({
+                        title: config.title || 'Konfirmasi Restore',
+                        message: config.message || 'Apakah Anda yakin ingin mengembalikan item ini?',
+                        confirmText: config.confirmText || 'Restore',
+                        cancelText: config.cancelText || 'Batal',
+                        variant: 'default',
+                        onConfirm: () => {
+                            onRowRestore(Number(id));
+                            if (config.successMessage) {
+                                toast.success(config.successMessage);
+                            }
+                        },
+                    });
+                }
+            }
+        };
+
+        const handleForceDelete = (event: Event) => {
+            const target = event.target as HTMLElement;
+            if (target.matches('.btn-force-delete')) {
+                const id = target.getAttribute('data-id');
+                if (id && onRowForceDelete) {
+                    const config = confirmationConfig?.forceDelete || {};
+                    openConfirmation({
+                        title: config.title || 'Konfirmasi Hapus Permanen',
+                        message: config.message || 'Apakah Anda yakin ingin menghapus item ini secara permanen? Tindakan ini tidak dapat dibatalkan!',
+                        confirmText: config.confirmText || 'Hapus Permanen',
+                        cancelText: config.cancelText || 'Batal',
+                        variant: 'destructive',
+                        onConfirm: () => {
+                            onRowForceDelete(Number(id));
+                            if (config.successMessage) {
+                                toast.success(config.successMessage);
+                            }
+                        },
+                    });
                 }
             }
         };
@@ -87,13 +150,17 @@ const DataTableWrapperInner = forwardRef<DataTableWrapperRef, DataTableWrapperPr
         };
 
         document.addEventListener('click', handleDelete);
+        document.addEventListener('click', handleRestore);
+        document.addEventListener('click', handleForceDelete);
         document.addEventListener('click', handleExpand);
 
         return () => {
             document.removeEventListener('click', handleDelete);
+            document.removeEventListener('click', handleRestore);
+            document.removeEventListener('click', handleForceDelete);
             document.removeEventListener('click', handleExpand);
         };
-    }, [onRowDelete, expand]);
+    }, [expand, onRowDelete, onRowRestore, onRowForceDelete, confirmationConfig, openConfirmation]);
 
     const defaultHeaders: Record<string, string> = {
         'X-Requested-With': 'XMLHttpRequest',
@@ -114,28 +181,35 @@ const DataTableWrapperInner = forwardRef<DataTableWrapperRef, DataTableWrapperPr
     const tableOptions: DataTableOptions = { ...defaultOptions, ...options };
 
     return (
-        <DataTable
-            ajax={{
-                ...ajax,
-                headers: mergedHeaders,
-            }}
-            columns={processedColumns}
-            options={tableOptions}
-            className="display w-full min-w-full border bg-white dark:bg-gray-800"
-            ref={(instance: DataTableRef | null) => {
-                tableRef.current = instance;
-            }}
-        >
-            <thead>
-                <tr>
-                    {processedColumns.map((col, index) => (
-                        <th key={index}>
-                            {typeof col.data === 'string' ? col.data.charAt(0).toUpperCase() + col.data.slice(1) : col.title || 'Actions'}
-                        </th>
-                    ))}
-                </tr>
-            </thead>
-        </DataTable>
+        <>
+            <DataTable
+                ajax={{
+                    ...ajax,
+                    headers: mergedHeaders,
+                }}
+                columns={processedColumns}
+                options={tableOptions}
+                className="display w-full min-w-full border bg-white dark:bg-gray-800"
+                ref={(instance: DataTableRef | null) => {
+                    tableRef.current = instance;
+                }}
+            >
+                <thead>
+                    <tr>
+                        {processedColumns.map((col, index) => (
+                            <th key={index}>
+                                {typeof col.data === 'string' ? col.data.charAt(0).toUpperCase() + col.data.slice(1) : col.title || 'Actions'}
+                            </th>
+                        ))}
+                    </tr>
+                </thead>
+            </DataTable>
+            <ConfirmationDialog
+                state={confirmationState}
+                onConfirm={handleConfirm}
+                onCancel={handleCancel}
+            />
+        </>
     );
 });
 // Generic wrapper function to handle typed expand configs
