@@ -5,11 +5,12 @@ import AppLayout from '@/layouts/app-layout';
 import HeadingSmall from '@/components/heading-small';
 import { Button } from '@/components/ui/button';
 import DataTableWrapper, { DataTableWrapperRef } from '@/components/datatables';
+import { DataTableColumn } from '@/types/DataTables';
 import { BreadcrumbItem } from '@/types';
 import { User } from '@/types/UserRolePermission';
 import ToggleTabs from '@/components/toggle-tabs';
 
-const columns = (filter: string) => [
+const columns: DataTableColumn<User>[] = [
   { data: 'id', title: 'ID' },
   { data: 'name', title: 'Name' },
   { data: 'email', title: 'Email' },
@@ -19,15 +20,14 @@ const columns = (filter: string) => [
     title: 'Actions',
     orderable: false,
     searchable: false,
-    render: (_: null, __: string, row: unknown) => {
-      const user = row as User;
+    render: (data: User[keyof User] | null, type: 'display' | 'type' | 'sort' | 'export', row: User) => {
       let html = '';
-      if (filter === 'trashed' || (filter === 'all' && user.trashed)) {
-        html += `<button class="btn-restore ml-2 px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700" data-id="${user.id}">Restore</button>`;
-        html += `<button class="btn-force-delete ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" data-id="${user.id}">Force Delete</button>`;
+      if (row.trashed) {
+        html += `<button class="btn-restore ml-2 px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700" data-id="${row.id}">Restore</button>`;
+        html += `<button class="btn-force-delete ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" data-id="${row.id}">Force Delete</button>`;
       } else {
-        html += `<span class="inertia-link-cell" data-id="${user.id}"></span>`;
-        html += `<button class="btn-delete ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" data-id="${user.id}">Delete</button>`;
+        html += `<span class="inertia-link-cell" data-id="${row.id}"></span>`;
+        html += `<button class="btn-delete ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" data-id="${row.id}">Delete</button>`;
       }
       return html;
     },
@@ -57,10 +57,18 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
     });
   };
 
+  const handleFilterChange = (newFilter: string) => {
+    setFilter(newFilter);
+    if (dtRef.current) {
+      const newUrl = route('users.json') + '?filter=' + newFilter;
+      dtRef.current.updateUrl(newUrl);
+    }
+  };
+
   const drawCallback = () => {
     document.querySelectorAll('.inertia-link-cell').forEach((cell) => {
       const id = cell.getAttribute('data-id');
-      if (id) {
+      if (id && !cell.querySelector('a')) {
         const root = ReactDOM.createRoot(cell);
         root.render(
           <Link
@@ -73,20 +81,22 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
       }
     });
 
-    // Attach event listener untuk tombol Delete, Restore, dan Force Delete
-    document.querySelectorAll('.btn-delete').forEach((btn) => {
+    document.querySelectorAll('.btn-delete:not([data-listener])').forEach((btn) => {
+      btn.setAttribute('data-listener', 'true');
       btn.addEventListener('click', () => {
         const id = btn.getAttribute('data-id');
         if (id) handleDelete(Number(id));
       });
     });
-    document.querySelectorAll('.btn-restore').forEach((btn) => {
+    document.querySelectorAll('.btn-restore:not([data-listener])').forEach((btn) => {
+      btn.setAttribute('data-listener', 'true');
       btn.addEventListener('click', () => {
         const id = btn.getAttribute('data-id');
         if (id) handleRestore(Number(id));
       });
     });
-    document.querySelectorAll('.btn-force-delete').forEach((btn) => {
+    document.querySelectorAll('.btn-force-delete:not([data-listener])').forEach((btn) => {
+      btn.setAttribute('data-listener', 'true');
       btn.addEventListener('click', () => {
         const id = btn.getAttribute('data-id');
         if (id) handleForceDelete(Number(id));
@@ -94,13 +104,12 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
     });
   };
 
-
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Users" />
       <div className="px-4 py-6">
         <h1 className="text-2xl font-semibold mb-4">User Management</h1>
-        <div className="col-md-12">
+        <div className="w-full">
           <HeadingSmall title="Users" description="Manage application users and their roles" />
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">User List</h2>
@@ -109,19 +118,18 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
             </Link>
           </div>
 
-          <ToggleTabs tabs={['active', 'trashed', 'all']} active={filter} onChange={setFilter} />
+          <ToggleTabs tabs={['active', 'trashed', 'all']} active={filter} onChange={handleFilterChange} />
 
           {success && (
             <div className="p-2 mb-2 bg-green-100 text-green-800 rounded">{success}</div>
           )}
-          <DataTableWrapper
-            key={filter}
+          <DataTableWrapper<User>
             ref={dtRef}
             ajax={{
               url: route('users.json') + '?filter=' + filter,
               type: 'POST',
             }}
-            columns={columns(filter)}
+            columns={columns}
             options={{ drawCallback }}
           />
         </div>

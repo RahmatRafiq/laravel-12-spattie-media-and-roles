@@ -14,14 +14,8 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $filter = $request->query('filter', 'active');
-        $users  = match ($filter) {
-            'trashed' => User::onlyTrashed()->with('roles')->get(),
-            'all' => User::withTrashed()->with('roles')->get(),
-            default => User::with('roles')->get(),
-        };
-
+        
         return Inertia::render('UserRolePermission/User/Index', [
-            'users'  => $users,
             'filter' => $filter,
             'roles'  => Role::all(),
         ]);
@@ -30,16 +24,30 @@ class UserController extends Controller
     public function json(Request $request)
     {
         $search = $request->input('search.value', '');
-        $filter = $request->input('filter', 'active');
+        $filter = $request->query('filter') ?? $request->input('filter', 'active');
 
-        $query = match ($filter) {
+        // Create base query for filtering
+        $baseQuery = match ($filter) {
             'trashed' => User::onlyTrashed()->with('roles'),
             'all' => User::withTrashed()->with('roles'),
             default => User::with('roles'),
         };
 
+        // Only create callback if we might have search filters
+        $recordsTotalCallback = null;
         if ($search) {
-            $query->where(function ($q) use ($search) {
+            // Only create callback when we have search (to avoid duplicate queries when no search)
+            $recordsTotalCallback = function() use ($filter) {
+                return match ($filter) {
+                    'trashed' => User::onlyTrashed()->count(),
+                    'all' => User::withTrashed()->count(),
+                    default => User::count(),
+                };
+            };
+        }
+
+        if ($search) {
+            $baseQuery->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%");
             });
@@ -48,10 +56,10 @@ class UserController extends Controller
         $columns = ['id', 'name', 'email', 'created_at', 'updated_at'];
         if ($request->filled('order')) {
             $orderColumn = $columns[$request->order[0]['column']] ?? 'id';
-            $query->orderBy($orderColumn, $request->order[0]['dir']);
+            $baseQuery->orderBy($orderColumn, $request->order[0]['dir']);
         }
 
-        $data = DataTable::paginate($query, $request);
+        $data = DataTable::paginate($baseQuery, $request, $recordsTotalCallback);
 
         $data['data'] = collect($data['data'])->map(function ($user) {
             return [
@@ -59,7 +67,7 @@ class UserController extends Controller
                 'name'    => $user->name,
                 'email'   => $user->email,
                 'roles'   => $user->roles->pluck('name')->toArray(),
-                'trashed' => $user->trashed(),
+                'trashed' => !is_null($user->deleted_at),
                 'actions' => '',
             ];
         });
@@ -132,7 +140,6 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-
         $user->delete();
         return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
     }

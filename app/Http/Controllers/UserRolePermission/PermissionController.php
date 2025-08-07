@@ -9,9 +9,6 @@ use Inertia\Inertia;
 
 class PermissionController extends Controller
 {
-    /**
-     * Tampilkan daftar permission.
-     */
     public function index()
     {
         $permissions = Permission::all();
@@ -22,10 +19,9 @@ class PermissionController extends Controller
 
     public function json(Request $request)
     {
-        $search = $request->search['value'];
+        $search = $request->input('search.value', '');
         $query  = Permission::query();
 
-        // columns
         $columns = [
             'id',
             'name',
@@ -33,17 +29,23 @@ class PermissionController extends Controller
             'updated_at',
         ];
 
-        // search
-        if ($request->filled('search')) {
+        $recordsTotalCallback = null;
+        if ($search) {
+            $recordsTotalCallback = function() {
+                return Permission::count();
+            };
+        }
+
+        if ($search) {
             $query->where('name', 'like', "%{$search}%");
         }
 
-        // order
         if ($request->filled('order')) {
-            $query->orderBy($columns[$request->order[0]['column']], $request->order[0]['dir']);
+            $orderColumn = $columns[$request->order[0]['column']] ?? 'id';
+            $query->orderBy($orderColumn, $request->order[0]['dir']);
         }
 
-        $data = DataTable::paginate($query, $request);
+        $data = DataTable::paginate($query, $request, $recordsTotalCallback);
 
         $data['data'] = collect($data['data'])->map(function ($permission) {
             return [
@@ -58,17 +60,11 @@ class PermissionController extends Controller
         return response()->json($data);
     }
 
-    /**
-     * Tampilkan form untuk membuat permission baru.
-     */
     public function create()
     {
         return Inertia::render('UserRolePermission/Permission/Form');
     }
 
-    /**
-     * Simpan permission baru ke database.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -82,9 +78,6 @@ class PermissionController extends Controller
         return redirect()->route('permissions.index')->with('success', 'Permission berhasil dibuat.');
     }
 
-    /**
-     * Tampilkan form untuk mengedit permission.
-     */
     public function edit($id)
     {
         $permission = Permission::findOrFail($id);
@@ -93,9 +86,6 @@ class PermissionController extends Controller
         ]);
     }
 
-    /**
-     * Update permission di database.
-     */
     public function update(Request $request, $id)
     {
         $permission = Permission::findOrFail($id);
@@ -110,9 +100,6 @@ class PermissionController extends Controller
         return redirect()->route('permissions.index')->with('success', 'Permission berhasil diperbarui.');
     }
 
-    /**
-     * Hapus permission dari database.
-     */
     public function destroy($id)
     {
         $permission = Permission::findOrFail($id);
