@@ -2,51 +2,21 @@ import { useEffect, forwardRef, useImperativeHandle, useRef } from 'react';
 import DataTable, { DataTableRef } from 'datatables.net-react';
 import DT, { ObjectColumnData, Api } from 'datatables.net-dt';
 import 'datatables.net-dt/css/dataTables.dataTables.css';
+import { 
+    AjaxConfig, 
+    ExpandConfig, 
+    DataTableWrapperProps, 
+    DataTableWrapperRef
+} from '@/types/DataTables';
 
-interface AjaxConfig {
-    url: string;
-    type: string;
-    data?: (d: Record<string, unknown>) => void;
-    headers?: Record<string, string>;
-}
-
-interface ExpandConfig<T> {
-    enabled: boolean;
-    renderContent: (rowData: T) => string;
-    expandIcon?: string;
-    collapseIcon?: string;
-    columnTitle?: string;
-}
-
-interface DataTableWrapperProps<T> {
-    ajax: AjaxConfig;
-    columns: Array<{
-        data: string | number | ObjectColumnData | null;
-        title: string;
-        render?: (data: T[keyof T] | null, type: string, row: T, meta: unknown) => string;
-        orderable?: boolean;
-        searchable?: boolean;
-        className?: string;
-    }>;
-    options?: object;
-    onRowDelete?: (id: number) => void;
-    expand?: ExpandConfig<T>;
-}
-
-export interface DataTableWrapperRef {
-    reload: () => void;
-    dt: () => Api | null;
-    updateUrl: (newUrl: string) => void;
-}
+export type { DataTableWrapperRef, ExpandConfig, AjaxConfig, DataTableWrapperProps };
 
 export function createExpandConfig<T>(config: ExpandConfig<T>): ExpandConfig<any> {
     return config as ExpandConfig<any>;
 }
 
-const DataTableWrapper = forwardRef(function DataTableWrapper(
-    { ajax, columns, options, onRowDelete, expand }: DataTableWrapperProps<any>,
-    ref: React.Ref<DataTableWrapperRef>
-) {
+const DataTableWrapper = forwardRef<DataTableWrapperRef, DataTableWrapperProps<any>>(
+    function DataTableWrapper({ ajax, columns, options, onRowDelete, expand }, ref) {
     DataTable.use(DT);
     const tableRef = useRef<DataTableRef | null>(null);
 
