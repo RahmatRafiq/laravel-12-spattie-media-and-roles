@@ -10,7 +10,9 @@ use Inertia\Response;
 
 class AppSettingController extends Controller
 {
-    
+    /**
+     * Display app settings.
+     */
     public function index(): Response
     {
         $settings = AppSetting::getInstance();
@@ -27,10 +29,12 @@ class AppSettingController extends Controller
         ]);
     }
 
-   
+    /**
+     * Update app settings.
+     */
     public function update(Request $request): RedirectResponse
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'app_name' => 'required|string|max:255',
             'app_description' => 'nullable|string|max:1000',
             'app_logo' => 'nullable|string|max:500',
@@ -51,21 +55,18 @@ class AppSettingController extends Controller
             'contact_address' => 'nullable|string|max:1000',
             
             'social_links' => 'nullable|array',
-            'social_links.facebook' => 'nullable|url',
-            'social_links.twitter' => 'nullable|url',
-            'social_links.instagram' => 'nullable|url',
-            'social_links.linkedin' => 'nullable|url',
-            'social_links.youtube' => 'nullable|url',
+            'social_links.facebook' => 'nullable|string|max:255',
+            'social_links.twitter' => 'nullable|string|max:255',
+            'social_links.instagram' => 'nullable|string|max:255',
+            'social_links.linkedin' => 'nullable|string|max:255',
+            'social_links.youtube' => 'nullable|string|max:255',
             
             'maintenance_mode' => 'boolean',
             'maintenance_message' => 'nullable|string|max:1000',
         ]);
 
-        AppSetting::updateSettings($request->all());
+        AppSetting::updateSettings($validatedData);
 
-        // Clear settings cache to reflect changes immediately
-        \Illuminate\Support\Facades\Cache::forget('app_settings');
-
-        return redirect()->back()->with('success', 'App settings updated successfully!');
+        return redirect()->route('app-settings.index')->with('success', 'App settings berhasil diperbarui.');
     }
 }

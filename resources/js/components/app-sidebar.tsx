@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { Activity, FileText, Github, Key, LayoutDashboard, Shield, UserCheck, Users } from 'lucide-react';
+import { Activity, FileText, Github, Key, LayoutDashboard, Settings, Shield, UserCheck, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -15,7 +15,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Log Activity',
-        href: '/activity-logs',
+        href: '/dashboard/activity-logs',
         icon: Activity,
     },
     {
@@ -25,20 +25,25 @@ const mainNavItems: NavItem[] = [
         children: [
             {
                 title: 'Roles',
-                href: '/roles',
+                href: '/dashboard/roles',
                 icon: Shield,
             },
             {
                 title: 'Permissions',
-                href: '/permissions',
+                href: '/dashboard/permissions',
                 icon: Key,
             },
             {
                 title: 'User',
-                href: '/users',
+                href: '/dashboard/users',
                 icon: UserCheck,
             },
         ],
+    },
+    {
+        title: 'App Settings',
+        href: '/dashboard/app-settings',
+        icon: Settings,
     },
 ];
 

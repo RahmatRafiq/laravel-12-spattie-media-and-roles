@@ -39,7 +39,7 @@ class AppSetting extends Model
      */
     public static function getInstance(): self
     {
-        return static::firstOrCreate(
+        $settings = static::firstOrCreate(
             ['id' => 1],
             [
                 'app_name' => 'Laravel App',
@@ -50,6 +50,7 @@ class AppSetting extends Model
                 'maintenance_mode' => false,
             ]
         );
+        return $settings;
     }
 
     /**

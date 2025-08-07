@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('app_settings', function (Blueprint $table) {
-            $table->id();
+            $table->integer('id')->primary();
             
             // Basic App Info
             $table->string('app_name')->default('Laravel App');

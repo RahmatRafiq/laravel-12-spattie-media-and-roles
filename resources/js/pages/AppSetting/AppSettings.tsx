@@ -4,10 +4,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 import RichTextEditor from '@/components/ui/rich-text-editor';
-import { DynamicButton } from '@/components/dynamic-theme';
-import { useForm } from '@inertiajs/react';
-import { FormEventHandler, ChangeEvent } from 'react';
+import InputError from '@/components/input-error';
+import { BreadcrumbItem } from '@/types';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { FormEvent, ChangeEvent } from 'react';
 import { toast } from '@/utils/toast';
 import { AppSetting } from '../../types';
 
@@ -20,21 +22,21 @@ interface Props {
 
 export default function AppSettings({ settings, availableColors, themeOptions }: Props) {
     const { data, setData, put, processing, errors } = useForm({
-        app_name: settings.app_name || '',
-        app_description: settings.app_description || '',
-        app_logo: settings.app_logo || '',
-        app_favicon: settings.app_favicon || '',
-        seo_title: settings.seo_title || '',
-        seo_description: settings.seo_description || '',
-        seo_keywords: settings.seo_keywords || '',
-        seo_og_image: settings.seo_og_image || '',
+        app_name: settings.app_name,
+        app_description: settings.app_description,
+        app_logo: settings.app_logo,
+        app_favicon: settings.app_favicon,
+        seo_title: settings.seo_title,
+        seo_description: settings.seo_description,
+        seo_keywords: settings.seo_keywords,
+        seo_og_image: settings.seo_og_image,
         primary_color: settings.primary_color || '#3b82f6',
         secondary_color: settings.secondary_color || '#6b7280',
         accent_color: settings.accent_color || '#10b981',
         theme_mode: settings.theme_mode || 'light',
-        contact_email: settings.contact_email || '',
-        contact_phone: settings.contact_phone || '',
-        contact_address: settings.contact_address || '',
+        contact_email: settings.contact_email,
+        contact_phone: settings.contact_phone,
+        contact_address: settings.contact_address,
         social_links: {
             facebook: settings.social_links?.facebook || '',
             twitter: settings.social_links?.twitter || '',
@@ -43,18 +45,22 @@ export default function AppSettings({ settings, availableColors, themeOptions }:
             youtube: settings.social_links?.youtube || '',
         },
         maintenance_mode: settings.maintenance_mode || false,
-        maintenance_message: settings.maintenance_message || '',
+        maintenance_message: settings.maintenance_message,
     });
 
-    const submit: FormEventHandler = (e) => {
+    const breadcrumbs: BreadcrumbItem[] = [
+        { title: 'App Settings', href: '/dashboard/app-settings' },
+    ];
+
+    const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
 
         put(route('app-settings.update'), {
             onSuccess: () => {
-                toast.success('App settings updated successfully!');
+                toast.success('App settings berhasil diperbarui!');
             },
             onError: () => {
-                toast.error('Failed to update app settings');
+                toast.error('Gagal memperbarui app settings');
             },
         });
     };
@@ -90,15 +96,12 @@ export default function AppSettings({ settings, availableColors, themeOptions }:
     );
 
     return (
-        <AppLayout>
-            <div className="py-6">
-                <div className="max-w-4xl mx-auto sm:px-6 lg:px-8">
-                    <div className="mb-6">
-                        <h2 className="text-xl font-semibold leading-tight text-gray-800">App Settings</h2>
-                        <p className="text-gray-600">Configure your application's basic settings and preferences</p>
-                    </div>
-
-                    <form onSubmit={submit} className="space-y-6">
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="App Settings" />
+            <div className="px-4 py-6">
+                <h1 className="mb-4 text-2xl font-semibold">App Settings</h1>
+                <div className="max-w-4xl mx-auto">
+                    <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Basic App Info */}
                         <Card>
                             <CardHeader>
@@ -111,11 +114,11 @@ export default function AppSettings({ settings, availableColors, themeOptions }:
                                         <Label htmlFor="app_name">App Name *</Label>
                                         <Input
                                             id="app_name"
-                                            value={data.app_name}
+                                            value={data.app_name || ''}
                                             onChange={(e) => setData('app_name', e.target.value)}
-                                            error={errors.app_name}
                                             required
                                         />
+                                        <InputError message={errors.app_name} />
                                     </div>
                                     <div>
                                         <Label htmlFor="theme_mode">Theme Mode</Label>
@@ -137,8 +140,8 @@ export default function AppSettings({ settings, availableColors, themeOptions }:
                                 <div>
                                     <Label htmlFor="app_description">App Description</Label>
                                     <RichTextEditor
-                                        value={data.app_description}
-                                        onChange={(value) => setData('app_description', value || '')}
+                                        value={data.app_description || ''}
+                                        onChange={(value) => setData('app_description', value || undefined)}
                                         error={errors.app_description}
                                         placeholder="Describe your application in detail..."
                                         height={150}
@@ -151,9 +154,8 @@ export default function AppSettings({ settings, availableColors, themeOptions }:
                                         <Label htmlFor="app_logo">App Logo Path</Label>
                                         <Input
                                             id="app_logo"
-                                            value={data.app_logo}
-                                            onChange={(e) => setData('app_logo', e.target.value)}
-                                            error={errors.app_logo}
+                                            value={data.app_logo || ''}
+                                            onChange={(e) => setData('app_logo', e.target.value || undefined)}
                                             placeholder="/logo.svg"
                                         />
                                     </div>
@@ -161,9 +163,8 @@ export default function AppSettings({ settings, availableColors, themeOptions }:
                                         <Label htmlFor="app_favicon">Favicon Path</Label>
                                         <Input
                                             id="app_favicon"
-                                            value={data.app_favicon}
-                                            onChange={(e) => setData('app_favicon', e.target.value)}
-                                            error={errors.app_favicon}
+                                            value={data.app_favicon || ''}
+                                            onChange={(e) => setData('app_favicon', e.target.value || undefined)}
                                             placeholder="/favicon.ico"
                                         />
                                     </div>
@@ -182,9 +183,8 @@ export default function AppSettings({ settings, availableColors, themeOptions }:
                                     <Label htmlFor="seo_title">SEO Title</Label>
                                     <Input
                                         id="seo_title"
-                                        value={data.seo_title}
-                                        onChange={(e) => setData('seo_title', e.target.value)}
-                                        error={errors.seo_title}
+                                        value={data.seo_title || ''}
+                                        onChange={(e) => setData('seo_title', e.target.value || undefined)}
                                         placeholder="Your app title for search engines"
                                     />
                                 </div>
@@ -192,8 +192,8 @@ export default function AppSettings({ settings, availableColors, themeOptions }:
                                 <div>
                                     <Label htmlFor="seo_description">SEO Description</Label>
                                     <RichTextEditor
-                                        value={data.seo_description}
-                                        onChange={(value) => setData('seo_description', value || '')}
+                                        value={data.seo_description || ''}
+                                        onChange={(value) => setData('seo_description', value || undefined)}
                                         error={errors.seo_description}
                                         placeholder="Brief description for search engines and social media..."
                                         height={120}
@@ -205,8 +205,8 @@ export default function AppSettings({ settings, availableColors, themeOptions }:
                                     <Label htmlFor="seo_keywords">SEO Keywords</Label>
                                     <Textarea
                                         id="seo_keywords"
-                                        value={data.seo_keywords}
-                                        onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setData('seo_keywords', e.target.value)}
+                                        value={data.seo_keywords || ''}
+                                        onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setData('seo_keywords', e.target.value || undefined)}
                                         error={errors.seo_keywords}
                                         rows={2}
                                         placeholder="keyword1, keyword2, keyword3"
@@ -217,9 +217,8 @@ export default function AppSettings({ settings, availableColors, themeOptions }:
                                     <Label htmlFor="seo_og_image">Open Graph Image</Label>
                                     <Input
                                         id="seo_og_image"
-                                        value={data.seo_og_image}
-                                        onChange={(e) => setData('seo_og_image', e.target.value)}
-                                        error={errors.seo_og_image}
+                                        value={data.seo_og_image || ''}
+                                        onChange={(e) => setData('seo_og_image', e.target.value || undefined)}
                                         placeholder="/og-image.jpg"
                                     />
                                 </div>
@@ -266,18 +265,16 @@ export default function AppSettings({ settings, availableColors, themeOptions }:
                                         <Input
                                             id="contact_email"
                                             type="email"
-                                            value={data.contact_email}
-                                            onChange={(e) => setData('contact_email', e.target.value)}
-                                            error={errors.contact_email}
+                                            value={data.contact_email || ''}
+                                            onChange={(e) => setData('contact_email', e.target.value || undefined)}
                                         />
                                     </div>
                                     <div>
                                         <Label htmlFor="contact_phone">Contact Phone</Label>
                                         <Input
                                             id="contact_phone"
-                                            value={data.contact_phone}
-                                            onChange={(e) => setData('contact_phone', e.target.value)}
-                                            error={errors.contact_phone}
+                                            value={data.contact_phone || ''}
+                                            onChange={(e) => setData('contact_phone', e.target.value || undefined)}
                                         />
                                     </div>
                                 </div>
@@ -286,8 +283,8 @@ export default function AppSettings({ settings, availableColors, themeOptions }:
                                     <Label htmlFor="contact_address">Contact Address</Label>
                                     <Textarea
                                         id="contact_address"
-                                        value={data.contact_address}
-                                        onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setData('contact_address', e.target.value)}
+                                        value={data.contact_address || ''}
+                                        onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setData('contact_address', e.target.value || undefined)}
                                         error={errors.contact_address}
                                         rows={3}
                                     />
@@ -308,7 +305,7 @@ export default function AppSettings({ settings, availableColors, themeOptions }:
                                         <Input
                                             id="facebook"
                                             value={data.social_links.facebook}
-                                            onChange={(e) => setData('social_links', { ...data.social_links, facebook: e.target.value })}
+                                            onChange={(e) => setData('social_links', { ...data.social_links, facebook: e.target.value || '' })}
                                             placeholder="https://facebook.com/yourpage"
                                         />
                                     </div>
@@ -374,8 +371,8 @@ export default function AppSettings({ settings, availableColors, themeOptions }:
                                     <div>
                                         <Label htmlFor="maintenance_message">Maintenance Message</Label>
                                         <RichTextEditor
-                                            value={data.maintenance_message}
-                                            onChange={(value) => setData('maintenance_message', value || '')}
+                                            value={data.maintenance_message || ''}
+                                            onChange={(value) => setData('maintenance_message', value || undefined)}
                                             error={errors.maintenance_message}
                                             placeholder="Message to display during maintenance (supports Markdown)..."
                                             height={150}
@@ -386,10 +383,13 @@ export default function AppSettings({ settings, availableColors, themeOptions }:
                         </Card>
 
                         {/* Submit Button */}
-                        <div className="flex justify-end">
-                            <DynamicButton type="submit" disabled={processing} variant="primary">
-                                {processing ? 'Saving...' : 'Save Settings'}
-                            </DynamicButton>
+                        <div className="flex items-center space-x-4">
+                            <Button disabled={processing}>
+                                {processing ? 'Menyimpan...' : 'Simpan Pengaturan'}
+                            </Button>
+                            <Link href={route('dashboard')} className="rounded bg-gray-300 px-4 py-2 text-gray-800 hover:bg-gray-400">
+                                Cancel
+                            </Link>
                         </div>
                     </form>
                 </div>
