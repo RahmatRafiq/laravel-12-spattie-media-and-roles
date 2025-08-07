@@ -27,16 +27,29 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/temp/storage/{path}', [\App\Http\Controllers\StorageController::class, 'show'])->name('storage.show');
 
     Route::post('roles/json', [\App\Http\Controllers\UserRolePermission\RoleController::class, 'json'])->name('roles.json');
-    Route::resource('roles', \App\Http\Controllers\UserRolePermission\RoleController::class);
+    Route::resource('roles', \App\Http\Controllers\UserRolePermission\RoleController::class)
+        ->middleware('permission:view-roles|create-roles|edit-roles|delete-roles');
 
     Route::post('permissions/json', [\App\Http\Controllers\UserRolePermission\PermissionController::class, 'json'])->name('permissions.json');
-    Route::resource('permissions', \App\Http\Controllers\UserRolePermission\PermissionController::class);
+    Route::resource('permissions', \App\Http\Controllers\UserRolePermission\PermissionController::class)
+        ->middleware('permission:view-permissions|assign-permissions');
 
     Route::post('users/json', [\App\Http\Controllers\UserRolePermission\UserController::class, 'json'])->name('users.json');
-    Route::resource('users', \App\Http\Controllers\UserRolePermission\UserController::class);
+    Route::resource('users', \App\Http\Controllers\UserRolePermission\UserController::class)
+        ->middleware('permission:view-users|create-users|edit-users|delete-users');
     Route::get('users/trashed', [\App\Http\Controllers\UserRolePermission\UserController::class, 'trashed'])->name('users.trashed');
     Route::post('users/{user}/restore', [\App\Http\Controllers\UserRolePermission\UserController::class, 'restore'])->name('users.restore');
     Route::delete('users/{user}/force-delete', [\App\Http\Controllers\UserRolePermission\UserController::class, 'forceDelete'])->name('users.force-delete');
+
+    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', function () {
+            return Inertia::render('Admin/Dashboard');
+        })->name('dashboard');
+        
+        Route::get('/settings', function () {
+            return Inertia::render('Admin/Settings');
+        })->name('settings')->middleware('permission:manage-settings');
+    });
 
     Route::post('logout', [SocialAuthController::class, 'logout'])->name('logout');
 
