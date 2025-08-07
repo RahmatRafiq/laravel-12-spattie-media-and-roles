@@ -27,6 +27,7 @@ interface DataTableWrapperProps<T> {
 export interface DataTableWrapperRef {
   reload: () => void;
   dt: () => Api | null;
+  updateUrl: (newUrl: string) => void;
 }
 
 const DataTableWrapper = forwardRef(function DataTableWrapper<T>(
@@ -43,6 +44,14 @@ const DataTableWrapper = forwardRef(function DataTableWrapper<T>(
       }
     },
     dt: () => (tableRef.current ? tableRef.current.dt() : null),
+    updateUrl: (newUrl: string) => {
+      if (tableRef.current) {
+        const dt = tableRef.current.dt();
+        if (dt) {
+          dt.ajax.url(newUrl).load();
+        }
+      }
+    },
   }));
 
   useEffect(() => {

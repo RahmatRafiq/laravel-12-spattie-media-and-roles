@@ -11,9 +11,18 @@ class DataTable {
         $length = $request->length;
         $start = $request->start;
 
+        // Clone query untuk menghitung total records tanpa filter search
+        $totalQuery = clone $query;
+        
+        // Hitung total records tanpa filter search
+        $recordsTotal = $totalQuery->count();
+        
+        // Hitung filtered records (dengan search jika ada)
+        $recordsFiltered = $query->count();
+
         return [
-            'recordsTotal' => $query->count(),
-            'recordsFiltered' => $query->count(),
+            'recordsTotal' => $recordsTotal,
+            'recordsFiltered' => $recordsFiltered,
             'data' => $query
                 ->offset($start)
                 ->limit($length)

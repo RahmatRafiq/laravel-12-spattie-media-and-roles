@@ -9,7 +9,8 @@ import { BreadcrumbItem } from '@/types';
 import { User } from '@/types/UserRolePermission';
 import ToggleTabs from '@/components/toggle-tabs';
 
-const columns = (filter: string) => [
+// Definisi kolom yang statis - logic untuk tombol akan ditentukan di drawCallback
+const columns = [
   { data: 'id', title: 'ID' },
   { data: 'name', title: 'Name' },
   { data: 'email', title: 'Email' },
@@ -22,7 +23,7 @@ const columns = (filter: string) => [
     render: (_: null, __: string, row: unknown) => {
       const user = row as User;
       let html = '';
-      if (filter === 'trashed' || (filter === 'all' && user.trashed)) {
+      if (user.trashed) {
         html += `<button class="btn-restore ml-2 px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700" data-id="${user.id}">Restore</button>`;
         html += `<button class="btn-force-delete ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" data-id="${user.id}">Force Delete</button>`;
       } else {
@@ -55,6 +56,15 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
     router.delete(route('users.force-delete', id), {
       onSuccess: () => dtRef.current?.reload(),
     });
+  };
+
+  const handleFilterChange = (newFilter: string) => {
+    setFilter(newFilter);
+    // Update DataTable dengan filter baru tanpa recreate
+    if (dtRef.current) {
+      const newUrl = route('users.json') + '?filter=' + newFilter;
+      dtRef.current.updateUrl(newUrl);
+    }
   };
 
   const drawCallback = () => {
@@ -109,19 +119,18 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
             </Link>
           </div>
 
-          <ToggleTabs tabs={['active', 'trashed', 'all']} active={filter} onChange={setFilter} />
+          <ToggleTabs tabs={['active', 'trashed', 'all']} active={filter} onChange={handleFilterChange} />
 
           {success && (
             <div className="p-2 mb-2 bg-green-100 text-green-800 rounded">{success}</div>
           )}
           <DataTableWrapper
-            key={filter}
             ref={dtRef}
             ajax={{
               url: route('users.json') + '?filter=' + filter,
               type: 'POST',
             }}
-            columns={columns(filter)}
+            columns={columns}
             options={{ drawCallback }}
           />
         </div>

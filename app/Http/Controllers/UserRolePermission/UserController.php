@@ -14,14 +14,8 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $filter = $request->query('filter', 'active');
-        $users  = match ($filter) {
-            'trashed' => User::onlyTrashed()->with('roles')->get(),
-            'all' => User::withTrashed()->with('roles')->get(),
-            default => User::with('roles')->get(),
-        };
-
+        
         return Inertia::render('UserRolePermission/User/Index', [
-            'users'  => $users,
             'filter' => $filter,
             'roles'  => Role::all(),
         ]);
@@ -30,39 +24,59 @@ class UserController extends Controller
     public function json(Request $request)
     {
         $search = $request->input('search.value', '');
-        $filter = $request->input('filter', 'active');
+        // Ambil filter dari query parameter atau dari request body
+        $filter = $request->query('filter') ?? $request->input('filter', 'active');
 
-        $query = match ($filter) {
+        $baseQuery = match ($filter) {
             'trashed' => User::onlyTrashed()->with('roles'),
             'all' => User::withTrashed()->with('roles'),
             default => User::with('roles'),
         };
 
+        // Count total records tanpa search filter
+        $recordsTotal = $baseQuery->count();
+
+        // Apply search filter jika ada
         if ($search) {
-            $query->where(function ($q) use ($search) {
+            $baseQuery->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
+        // Count filtered records
+        $recordsFiltered = $baseQuery->count();
+
         $columns = ['id', 'name', 'email', 'created_at', 'updated_at'];
         if ($request->filled('order')) {
             $orderColumn = $columns[$request->order[0]['column']] ?? 'id';
-            $query->orderBy($orderColumn, $request->order[0]['dir']);
+            $baseQuery->orderBy($orderColumn, $request->order[0]['dir']);
         }
 
-        $data = DataTable::paginate($query, $request);
+        // Get paginated data
+        $length = $request->input('length', 10);
+        $start = $request->input('start', 0);
+        
+        $users = $baseQuery
+            ->offset($start)
+            ->limit($length)
+            ->get();
 
-        $data['data'] = collect($data['data'])->map(function ($user) {
-            return [
-                'id'      => $user->id,
-                'name'    => $user->name,
-                'email'   => $user->email,
-                'roles'   => $user->roles->pluck('name')->toArray(),
-                'trashed' => $user->trashed(),
-                'actions' => '',
-            ];
-        });
+        $data = [
+            'recordsTotal' => $recordsTotal,
+            'recordsFiltered' => $recordsFiltered,
+            'data' => $users->map(function ($user) {
+                return [
+                    'id'      => $user->id,
+                    'name'    => $user->name,
+                    'email'   => $user->email,
+                    'roles'   => $user->roles->pluck('name')->toArray(),
+                    'trashed' => !is_null($user->deleted_at),
+                    'actions' => '',
+                ];
+            }),
+            'draw' => $request->input('draw', 1),
+        ];
 
         return response()->json($data);
     }
