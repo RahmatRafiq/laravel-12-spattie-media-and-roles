@@ -62,12 +62,14 @@ npm run dev
 After running the seeders, you can login with:
 
 **Admin User:**
+
 - Email: `admin@example.com`
 - Password: `password`
 - Permissions: Full access to all features
 
 **Regular User:**
-- Email: `user@example.com`  
+
+- Email: `user@example.com`
 - Password: `password`
 - Permissions: Limited dashboard access
 
@@ -78,7 +80,7 @@ After running the seeders, you can login with:
 For detailed setup, features, and deployment instructions, see our comprehensive documentation:
 
 - **[🐳 Docker Setup](documentation/docker-setup.md)** - Docker installation and configuration
-- **[📦 Traditional Installation](documentation/installation.md)** - Non-Docker setup guide  
+- **[📦 Traditional Installation](documentation/installation.md)** - Non-Docker setup guide
 - **[✨ Features Guide](documentation/features.md)** - Media Library, DataTables, and Dropzone usage
 - **[🐛 Troubleshooting](documentation/troubleshooting.md)** - Common issues and solutions
 - **[🚀 Deployment Guide](documentation/deployment.md)** - Production deployment strategies
@@ -102,7 +104,7 @@ make migrate        # Run database migrations
 make seed           # Run database seeders
 make fresh          # Fresh migration with seeding
 
-# Asset Commands  
+# Asset Commands
 make build          # Build frontend assets for production
 make dev-assets     # Build assets for development
 make watch          # Watch assets for changes
@@ -118,12 +120,14 @@ make clear-cache    # Clear all Laravel caches
 ## 🌐 Access URLs
 
 ### Development Environment
+
 - **Main Application**: http://localhost:8000
-- **Mailpit (Email Testing)**: http://localhost:8026  
+- **Mailpit (Email Testing)**: http://localhost:8026
 - **Database**: localhost:3308 (user: sail, password: password)
 - **Redis**: localhost:6380
 
-### Production Environment  
+### Production Environment
+
 - **Main Application**: http://localhost:8080
 - **Database**: localhost:3306 (configure in .env.production)
 
@@ -132,12 +136,14 @@ make clear-cache    # Clear all Laravel caches
 ## 🔧 Port Configuration
 
 The development environment uses non-conflicting ports:
+
 - **App**: 8000 (instead of default 80)
 - **Database**: 3308 (instead of default 3306)
-- **Redis**: 6380 (instead of default 6379)  
+- **Redis**: 6380 (instead of default 6379)
 - **Mailpit**: 8026 (instead of default 8025)
 
 To change the app port:
+
 ```bash
 # Edit .env
 APP_PORT=9000
@@ -152,11 +158,13 @@ make restart
 ## 🐛 Common Issues
 
 **Missing APP_KEY error:**
+
 ```bash
 make key-generate
 ```
 
 **Port conflicts:**
+
 ```bash
 make stop
 # Edit .env to change ports
@@ -164,6 +172,7 @@ make dev
 ```
 
 **Database connection issues:**
+
 ```bash
 make restart
 ```
@@ -175,15 +184,17 @@ For more troubleshooting, see [Troubleshooting Guide](documentation/troubleshoot
 ## 🔐 Role & Permission Usage
 
 ### Available Roles
+
 - **Admin**: Full system access with all permissions
 - **User**: Limited access to dashboard and basic features
 
 ### Available Permissions
+
 ```php
 // User Management
 'view-users', 'create-users', 'edit-users', 'delete-users'
 
-// Role Management  
+// Role Management
 'view-roles', 'create-roles', 'edit-roles', 'delete-roles'
 
 // Permission Management
@@ -194,6 +205,7 @@ For more troubleshooting, see [Troubleshooting Guide](documentation/troubleshoot
 ```
 
 ### Middleware Usage in Routes
+
 ```php
 // Single permission check
 Route::get('/users', [UserController::class, 'index'])
@@ -215,6 +227,7 @@ Route::get('/admin/settings', [AdminController::class, 'settings'])
 ```
 
 ### Controller Usage
+
 ```php
 // Check permissions in controller
 public function index()
@@ -222,7 +235,7 @@ public function index()
     if (!auth()->user()->can('view-users')) {
         abort(403, 'You cannot view users.');
     }
-    
+
     // Check roles
     if (!auth()->user()->hasRole('admin')) {
         abort(403, 'Admin access required.');
@@ -231,6 +244,7 @@ public function index()
 ```
 
 ### Blade/React Usage
+
 ```php
 // In Blade templates
 @can('edit-users')
@@ -244,13 +258,13 @@ public function index()
 
 ```tsx
 // In React components (passed from backend)
-{user.permissions.includes('edit-users') && (
-    <button>Edit User</button>
-)}
+{
+    user.permissions.includes('edit-users') && <button>Edit User</button>;
+}
 
-{user.roles.includes('admin') && (
-    <Link href="/admin">Admin Panel</Link>
-)}
+{
+    user.roles.includes('admin') && <Link href="/admin">Admin Panel</Link>;
+}
 ```
 
 ---
@@ -258,12 +272,14 @@ public function index()
 ## 📋 What's Included
 
 ### 🔐 Role & Permission System
+
 - **2 Pre-configured Roles**: Admin and User
 - **14 Granular Permissions**: User management, role management, dashboard access, etc.
 - **Middleware Integration**: Route-level permission checking
 - **Flexible Access Control**: Role-based and permission-based restrictions
 
 ### 🛠️ Technical Stack
+
 - **Laravel 12** with latest features and best practices
 - **Spatie Media Library** for advanced file management
 - **Spatie Permissions** for role-based access control
@@ -274,6 +290,7 @@ public function index()
 - **Dropzone JS** for drag-and-drop file uploads
 
 ### 🐳 DevOps & Deployment
+
 - **Docker & Docker Compose** for containerization
 - **Laravel Sail** for development environment
 - **Production-ready setup** with Nginx + Supervisor
@@ -281,12 +298,14 @@ public function index()
 - **Mailpit** for email testing in development
 
 ### 📊 Database & Seeders
+
 - **Pre-configured migrations** for roles, permissions, and users
 - **Smart seeders** with realistic test data
 - **Soft delete support** throughout the application
 - **Activity logging** with Spatie ActivityLog
 
 ### 🎨 Frontend Features
+
 - **Responsive design** that works on all devices
 - **Dark/Light theme** support
 - **Modern UI components** with shadcn/ui
@@ -298,6 +317,7 @@ public function index()
 ## 🚀 Production Deployment
 
 ### Quick Production Setup
+
 ```bash
 # Clone and prepare for production
 git clone https://github.com/RahmatRafiq/laravel-12-spattie-media-and-roles.git
@@ -321,6 +341,7 @@ php artisan view:cache
 ```
 
 ### Environment Variables for Production
+
 ```bash
 APP_ENV=production
 APP_DEBUG=false
@@ -360,6 +381,7 @@ This project is open-source and available under the [MIT License](LICENSE).
 Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
 
 ### Development Setup
+
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
 3. Make your changes
