@@ -5,45 +5,18 @@ import AppLayout from '@/layouts/app-layout';
 import HeadingSmall from '@/components/heading-small';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import DataTableWrapper, { DataTableWrapperRef } from '@/components/datatables';
 import { BreadcrumbItem } from '@/types';
 import { Role } from '@/types/UserRolePermission';
+import DataTableWrapper, { DataTableWrapperRef, createExpandConfig } from '@/components/datatables';
 
 const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Role Management', href: '/roles' },
 ];
 
-function formatRolePermissions(data: Role): string {
-  const role = data as Role;
-  if (!role.permissions || role.permissions.length === 0) {
-    return '<div class="p-3 text-gray-500">No permissions assigned.</div>';
-  }
-  const listItems = role.permissions
-    .map(
-      (permission) =>
-        `<li class="ml-4 list-disc text-gray-700">${permission.name}</li>`
-    )
-    .join('');
-  return `
-    <div class="p-4 bg-gray-50 border border-gray-200 rounded shadow-sm">
-      <strong class="block text-gray-800 mb-2">Permissions:</strong>
-      <ul>${listItems}</ul>
-    </div>
-  `;
-}
-
 export default function RoleIndexAccordion({ success }: { success?: string }) {
   const dtRef = useRef<DataTableWrapperRef>(null);
 
   const columns = [
-    {
-      data: null,
-      title: '',
-      orderable: false,
-      searchable: false,
-      className: 'details-control',
-      render: () => '<span style="cursor: pointer;">+</span>',
-    },
     { data: 'id', title: 'ID' },
     { data: 'name', title: 'Name' },
     { data: 'guard_name', title: 'Guard Name' },
@@ -65,6 +38,31 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
       },
     },
   ];
+
+  // Expand configuration
+  const expandConfig = createExpandConfig<Role>({
+    enabled: true,
+    expandIcon: '+',
+    collapseIcon: '-',
+    columnTitle: '',
+    renderContent: (rowData: Role) => {
+      if (!rowData.permissions || rowData.permissions.length === 0) {
+        return '<div class="p-3 text-gray-500">No permissions assigned.</div>';
+      }
+      const listItems = rowData.permissions
+        .map(
+          (permission) =>
+            `<li class="ml-4 list-disc text-gray-700">${permission.name}</li>`
+        )
+        .join('');
+      return `
+        <div class="p-4 bg-gray-50 border border-gray-200 rounded shadow-sm">
+          <strong class="block text-gray-800 mb-2">Permissions:</strong>
+          <ul>${listItems}</ul>
+        </div>
+      `;
+    },
+  });
 
   const handleDelete = (id: number) => {
     router.delete(route('roles.destroy', id), {
@@ -89,27 +87,6 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
         );
       }
     });
-
-    const table = dtRef.current?.dt();
-    if (table) {
-      document.querySelectorAll('.details-control:not([data-listener])').forEach((cell) => {
-        cell.setAttribute('data-listener', 'true');
-        cell.addEventListener('click', function () {
-          const tr = cell.closest('tr');
-          if (!tr) return;
-          const row = table.row(tr);
-          if (row.child.isShown()) {
-            row.child.hide();
-            tr.classList.remove('shown');
-            cell.innerHTML = '<span style="cursor: pointer;">+</span>';
-          } else {
-            row.child(formatRolePermissions(row.data())).show();
-            tr.classList.add('shown');
-            cell.innerHTML = '<span style="cursor: pointer;">-</span>';
-          }
-        });
-      });
-    }
 
     document.querySelectorAll('.btn-delete:not([data-listener])').forEach((btn) => {
       btn.setAttribute('data-listener', 'true');
@@ -147,6 +124,7 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
               columns={columns}
               options={{ drawCallback }}
               onRowDelete={handleDelete}
+              expand={expandConfig}
             />
           </div>
         </div>

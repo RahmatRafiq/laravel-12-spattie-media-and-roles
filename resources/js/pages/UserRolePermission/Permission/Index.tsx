@@ -5,7 +5,7 @@ import AppLayout from '@/layouts/app-layout';
 import HeadingSmall from '@/components/heading-small';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import DataTableWrapper, { DataTableWrapperRef } from '@/components/datatables';
+import DataTableWrapper, { DataTableWrapperRef, createExpandConfig } from '@/components/datatables';
 import { BreadcrumbItem } from '@/types';
 import { Permission } from '@/types/UserRolePermission';
 
@@ -35,6 +35,8 @@ export default function PermissionIndex({ success }: { success?: string }) {
       },
     },
   ];
+
+
 
   const handleDelete = (id: number) => {
     router.delete(route('permissions.destroy', id), {
