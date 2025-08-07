@@ -6,6 +6,7 @@ import HeadingSmall from '@/components/heading-small';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import DataTableWrapper, { DataTableWrapperRef, createExpandConfig } from '@/components/datatables';
+import { DataTableColumn } from '@/types/DataTables';
 import { BreadcrumbItem } from '@/types';
 import { Permission } from '@/types/UserRolePermission';
 
@@ -16,7 +17,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function PermissionIndex({ success }: { success?: string }) {
   const dtRef = useRef<DataTableWrapperRef>(null);
 
-  const columns = [
+  const columns: DataTableColumn<Permission>[] = [
     { data: 'id', title: 'ID' },
     { data: 'name', title: 'Name' },
     {
@@ -24,11 +25,10 @@ export default function PermissionIndex({ success }: { success?: string }) {
       title: 'Actions',
       orderable: false,
       searchable: false,
-      render: (_: null, __: string, row: unknown) => {
-        const permission = row as Permission;
+      render: (data: Permission[keyof Permission] | null, type: 'display' | 'type' | 'sort' | 'export', row: Permission) => {
         return `
-                <span class="inertia-link-cell" data-id="${permission.id}"></span>
-                <button data-id="${permission.id}" class="ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 btn-delete">
+                <span class="inertia-link-cell" data-id="${row.id}"></span>
+                <button data-id="${row.id}" class="ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 btn-delete">
                   Delete
                 </button>
                `;
@@ -89,7 +89,7 @@ export default function PermissionIndex({ success }: { success?: string }) {
             {success && (
               <div className="p-2 bg-green-100 text-green-800 rounded">{success}</div>
             )}
-            <DataTableWrapper
+            <DataTableWrapper<Permission>
               ref={dtRef}
               ajax={{
                 url: route('permissions.json'),
@@ -97,7 +97,6 @@ export default function PermissionIndex({ success }: { success?: string }) {
               }}
               columns={columns}
               options={{ drawCallback }}
-              onRowDelete={handleDelete}
             />
           </div>
         </div>

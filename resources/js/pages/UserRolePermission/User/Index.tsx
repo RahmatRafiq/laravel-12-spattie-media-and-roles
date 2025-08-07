@@ -5,11 +5,12 @@ import AppLayout from '@/layouts/app-layout';
 import HeadingSmall from '@/components/heading-small';
 import { Button } from '@/components/ui/button';
 import DataTableWrapper, { DataTableWrapperRef } from '@/components/datatables';
+import { DataTableColumn } from '@/types/DataTables';
 import { BreadcrumbItem } from '@/types';
 import { User } from '@/types/UserRolePermission';
 import ToggleTabs from '@/components/toggle-tabs';
 
-const columns = [
+const columns: DataTableColumn<User>[] = [
   { data: 'id', title: 'ID' },
   { data: 'name', title: 'Name' },
   { data: 'email', title: 'Email' },
@@ -19,15 +20,14 @@ const columns = [
     title: 'Actions',
     orderable: false,
     searchable: false,
-    render: (_: null, __: string, row: unknown) => {
-      const user = row as User;
+    render: (data: User[keyof User] | null, type: 'display' | 'type' | 'sort' | 'export', row: User) => {
       let html = '';
-      if (user.trashed) {
-        html += `<button class="btn-restore ml-2 px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700" data-id="${user.id}">Restore</button>`;
-        html += `<button class="btn-force-delete ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" data-id="${user.id}">Force Delete</button>`;
+      if (row.trashed) {
+        html += `<button class="btn-restore ml-2 px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700" data-id="${row.id}">Restore</button>`;
+        html += `<button class="btn-force-delete ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" data-id="${row.id}">Force Delete</button>`;
       } else {
-        html += `<span class="inertia-link-cell" data-id="${user.id}"></span>`;
-        html += `<button class="btn-delete ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" data-id="${user.id}">Delete</button>`;
+        html += `<span class="inertia-link-cell" data-id="${row.id}"></span>`;
+        html += `<button class="btn-delete ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" data-id="${row.id}">Delete</button>`;
       }
       return html;
     },
@@ -123,7 +123,7 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
           {success && (
             <div className="p-2 mb-2 bg-green-100 text-green-800 rounded">{success}</div>
           )}
-          <DataTableWrapper
+          <DataTableWrapper<User>
             ref={dtRef}
             ajax={{
               url: route('users.json') + '?filter=' + filter,

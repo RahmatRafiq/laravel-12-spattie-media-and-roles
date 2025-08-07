@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { BreadcrumbItem } from '@/types';
 import { Role } from '@/types/UserRolePermission';
 import DataTableWrapper, { DataTableWrapperRef, createExpandConfig } from '@/components/datatables';
+import { DataTableColumn } from '@/types/DataTables';
 
 const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Role Management', href: '/roles' },
@@ -16,7 +17,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function RoleIndexAccordion({ success }: { success?: string }) {
   const dtRef = useRef<DataTableWrapperRef>(null);
 
-  const columns = [
+  const columns: DataTableColumn<Role>[] = [
     { data: 'id', title: 'ID' },
     { data: 'name', title: 'Name' },
     { data: 'guard_name', title: 'Guard Name' },
@@ -27,11 +28,10 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
       title: 'Actions',
       orderable: false,
       searchable: false,
-      render: (_: null, __: string, row: unknown) => {
-        const role = row as Role;
+      render: (data: Role[keyof Role] | null, type: 'display' | 'type' | 'sort' | 'export', row: Role) => {
         return `
-          <span class="inertia-link-cell" data-id="${role.id}"></span>
-          <button data-id="${role.id}" class="ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 btn-delete">
+          <span class="inertia-link-cell" data-id="${row.id}"></span>
+          <button data-id="${row.id}" class="ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 btn-delete">
             Delete
           </button>
         `;
@@ -115,7 +115,7 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
             {success && (
               <div className="p-2 bg-green-100 text-green-800 rounded">{success}</div>
             )}
-            <DataTableWrapper
+            <DataTableWrapper<Role>
               ref={dtRef}
               ajax={{
                 url: route('roles.json'),
@@ -123,7 +123,6 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
               }}
               columns={columns}
               options={{ drawCallback }}
-              onRowDelete={handleDelete}
               expand={expandConfig}
             />
           </div>
