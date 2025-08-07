@@ -53,14 +53,6 @@ export default function PermissionIndex({ success }: { success?: string }) {
                 );
             }
         });
-
-        document.querySelectorAll('.btn-delete:not([data-listener])').forEach((btn) => {
-            btn.setAttribute('data-listener', 'true');
-            btn.addEventListener('click', () => {
-                const id = btn.getAttribute('data-id');
-                if (id) handleDelete(Number(id));
-            });
-        });
     };
 
     return (
@@ -85,6 +77,16 @@ export default function PermissionIndex({ success }: { success?: string }) {
                         }}
                         columns={columns}
                         options={{ drawCallback }}
+                        onRowDelete={handleDelete}
+                        confirmationConfig={{
+                            delete: {
+                                title: 'Konfirmasi Hapus Permission',
+                                message: 'Apakah Anda yakin ingin menghapus permission ini? Tindakan ini tidak dapat dibatalkan.',
+                                confirmText: 'Hapus',
+                                cancelText: 'Batal',
+                                successMessage: 'Permission berhasil dihapus',
+                            },
+                        }}
                     />
                 </div>
             </div>

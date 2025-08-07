@@ -81,28 +81,6 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
                 );
             }
         });
-
-        document.querySelectorAll('.btn-delete:not([data-listener])').forEach((btn) => {
-            btn.setAttribute('data-listener', 'true');
-            btn.addEventListener('click', () => {
-                const id = btn.getAttribute('data-id');
-                if (id) handleDelete(Number(id));
-            });
-        });
-        document.querySelectorAll('.btn-restore:not([data-listener])').forEach((btn) => {
-            btn.setAttribute('data-listener', 'true');
-            btn.addEventListener('click', () => {
-                const id = btn.getAttribute('data-id');
-                if (id) handleRestore(Number(id));
-            });
-        });
-        document.querySelectorAll('.btn-force-delete:not([data-listener])').forEach((btn) => {
-            btn.setAttribute('data-listener', 'true');
-            btn.addEventListener('click', () => {
-                const id = btn.getAttribute('data-id');
-                if (id) handleForceDelete(Number(id));
-            });
-        });
     };
 
     return (
@@ -130,6 +108,32 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
                         }}
                         columns={columns}
                         options={{ drawCallback }}
+                        onRowDelete={handleDelete}
+                        onRowRestore={handleRestore}
+                        onRowForceDelete={handleForceDelete}
+                        confirmationConfig={{
+                            delete: {
+                                title: 'Konfirmasi Hapus User',
+                                message: 'Apakah Anda yakin ingin menghapus user ini? User akan dipindahkan ke trash.',
+                                confirmText: 'Hapus',
+                                cancelText: 'Batal',
+                                successMessage: 'User berhasil dihapus',
+                            },
+                            restore: {
+                                title: 'Konfirmasi Restore User',
+                                message: 'Apakah Anda yakin ingin mengembalikan user ini dari trash?',
+                                confirmText: 'Restore',
+                                cancelText: 'Batal',
+                                successMessage: 'User berhasil direstore',
+                            },
+                            forceDelete: {
+                                title: 'Konfirmasi Hapus Permanen',
+                                message: 'Apakah Anda yakin ingin menghapus user ini secara permanen? Tindakan ini tidak dapat dibatalkan!',
+                                confirmText: 'Hapus Permanen',
+                                cancelText: 'Batal',
+                                successMessage: 'User berhasil dihapus secara permanen',
+                            },
+                        }}
                     />
                 </div>
             </div>
