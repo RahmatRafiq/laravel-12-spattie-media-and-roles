@@ -4,17 +4,39 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
-use Faker\Factory as Faker;
 
 class PermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        $faker = Faker::create();
+        // User management permissions
+        $permissions = [
+            'view-users',
+            'create-users',
+            'edit-users',
+            'delete-users',
+            
+            // Role management permissions
+            'view-roles',
+            'create-roles',
+            'edit-roles',
+            'delete-roles',
+            
+            // Permission management
+            'view-permissions',
+            'assign-permissions',
+            
+            // General permissions
+            'view-dashboard',
+            'access-admin-panel',
+            'manage-settings',
+            'view-activity-logs',
+        ];
 
-        for ($i = 0; $i < 100; $i++) {
+        foreach ($permissions as $permission) {
             Permission::firstOrCreate([
-                'name' => $faker->unique()->bs(), // Misal: "optimize seamless functionalities"
+                'name' => $permission,
+                'guard_name' => 'web'
             ]);
         }
     }

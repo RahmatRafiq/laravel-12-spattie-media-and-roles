@@ -4,20 +4,13 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
-use Faker\Factory as Faker;
 
 class RoleSeeder extends Seeder
 {
     public function run(): void
     {
+        // Create only 2 roles
         Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
-
-        $faker = Faker::create();
-
-        for ($i = 0; $i < 20; $i++) {
-            Role::firstOrCreate([
-                'name' => $faker->unique()->jobTitle(),
-            ]);
-        }
+        Role::firstOrCreate(['name' => 'user', 'guard_name' => 'web']);
     }
 }

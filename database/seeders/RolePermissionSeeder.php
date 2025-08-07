@@ -10,12 +10,49 @@ class RolePermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        $permissions = Permission::all();
+        // Admin gets all permissions
+        $adminRole = Role::where('name', 'admin')->first();
+        $userRole = Role::where('name', 'user')->first();
 
-        Role::all()->each(function ($role) use ($permissions) {
-            // setiap role dapat 5 sampai 15 permission random
-            $randomPermissions = $permissions->random(rand(5, 15));
-            $role->syncPermissions($randomPermissions);
-        });
+        if ($adminRole) {
+            // Admin gets all permissions
+            $adminPermissions = [
+                'view-users',
+                'create-users',
+                'edit-users',
+                'delete-users',
+                'view-roles',
+                'create-roles',
+                'edit-roles',
+                'delete-roles',
+                'view-permissions',
+                'assign-permissions',
+                'view-dashboard',
+                'access-admin-panel',
+                'manage-settings',
+                'view-activity-logs',
+            ];
+
+            foreach ($adminPermissions as $permission) {
+                $perm = Permission::where('name', $permission)->first();
+                if ($perm) {
+                    $adminRole->givePermissionTo($perm);
+                }
+            }
+        }
+
+        if ($userRole) {
+            // User gets limited permissions
+            $userPermissions = [
+                'view-dashboard',
+            ];
+
+            foreach ($userPermissions as $permission) {
+                $perm = Permission::where('name', $permission)->first();
+                if ($perm) {
+                    $userRole->givePermissionTo($perm);
+                }
+            }
+        }
     }
 }
