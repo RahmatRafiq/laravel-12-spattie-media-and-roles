@@ -8,10 +8,10 @@ export interface ToastOptions {
 }
 
 export function showToast({ text, type = 'info', duration = 3000 }: ToastOptions) {
-    const className = type === 'success' ? 'success' : 
-                     type === 'error' ? 'error' : 
-                     type === 'warning' ? 'warning' : 
-                     'info';
+    const className = type === 'success' ? 'success' :
+        type === 'error' ? 'error' :
+            type === 'warning' ? 'warning' :
+                'info';
 
     Toastify({
         text,
@@ -21,9 +21,9 @@ export function showToast({ text, type = 'info', duration = 3000 }: ToastOptions
         position: 'right',
         style: {
             background: type === 'success' ? '#10b981' :
-                       type === 'error' ? '#ef4444' :
-                       type === 'warning' ? '#f59e0b' :
-                       '#3b82f6'
+                type === 'error' ? '#ef4444' :
+                    type === 'warning' ? '#f59e0b' :
+                        '#3b82f6'
         }
     }).showToast();
 }
