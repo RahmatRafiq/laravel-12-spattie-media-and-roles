@@ -1,11 +1,14 @@
 <?php
 namespace App\Providers;
 
+
 use App\Observers\ActivityObserver;
 use Illuminate\Support\ServiceProvider;
 use Spatie\Activitylog\Models\Activity;
 use Illuminate\Support\Facades\Broadcast;
 use Spatie\Permission\PermissionRegistrar;
+use Inertia\Inertia;
+use App\Models\AppSetting;
 
 
 class AppServiceProvider extends ServiceProvider
@@ -26,6 +29,11 @@ class AppServiceProvider extends ServiceProvider
         Activity::observe(ActivityObserver::class);
         Activity::created(function ($activity) {
             broadcast(new \App\Events\ActivityLogCreated($activity));
+        });
+
+        // Share AppSetting globally to all Inertia responses
+        Inertia::share('appSettings', function () {
+            return AppSetting::getInstance();
         });
     }
 }

@@ -1,12 +1,17 @@
-import { type SharedData } from '@/types';
+import { AppSetting, type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 
 export default function Welcome() {
-    const { auth } = usePage<SharedData>().props;
+    const { auth, settings } = usePage<{ auth: SharedData['auth']; settings?: AppSetting }>().props;
 
     return (
         <>
-            <Head title="Welcome">
+            <Head>
+                <title>{settings?.seo_title || settings?.app_name || 'Welcome'}</title>
+                {settings?.seo_description && <meta name="description" content={settings.seo_description} />}
+                {settings?.seo_keywords && <meta name="keywords" content={settings.seo_keywords} />}
+                {settings?.seo_og_image && <meta property="og:image" content={settings.seo_og_image} />}
+                {settings?.app_favicon && <link rel="icon" href={settings.app_favicon} />}
                 <link rel="preconnect" href="https://fonts.bunny.net" />
                 <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
             </Head>
