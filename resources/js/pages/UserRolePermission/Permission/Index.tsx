@@ -47,7 +47,7 @@ export default function PermissionIndex({ success }: { success?: string }) {
             if (id && !cell.querySelector('a')) {
                 const root = ReactDOM.createRoot(cell);
                 root.render(
-                    <Link href={`/permissions/${id}/edit`} className="rounded bg-yellow-500 px-2 py-1 text-white hover:bg-yellow-600">
+                    <Link href={route('permissions.edit', id)} className="rounded bg-yellow-500 px-2 py-1 text-white hover:bg-yellow-600">
                         Edit
                     </Link>,
                 );

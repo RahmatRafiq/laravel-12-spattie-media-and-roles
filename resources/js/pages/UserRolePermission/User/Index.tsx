@@ -75,7 +75,7 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
             if (id && !cell.querySelector('a')) {
                 const root = ReactDOM.createRoot(cell);
                 root.render(
-                    <Link href={`/users/${id}/edit`} className="rounded bg-yellow-500 px-2 py-1 text-white hover:bg-yellow-600">
+                    <Link href={route('users.edit', id)} className="rounded bg-yellow-500 px-2 py-1 text-white hover:bg-yellow-600">
                         Edit
                     </Link>,
                 );
