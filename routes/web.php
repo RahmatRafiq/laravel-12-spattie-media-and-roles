@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\SocialAuthController;
-use App\Http\Controllers\GalleryController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -44,6 +43,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/storage', [\App\Http\Controllers\StorageController::class, 'store'])->name('storage.store');
         Route::delete('/storage', [\App\Http\Controllers\StorageController::class, 'destroy'])->name('storage.destroy');
         Route::get('/storage/{path}', [\App\Http\Controllers\StorageController::class, 'show'])->name('storage.show');
+        Route::get('gallery', [\App\Http\Controllers\GalleryController::class, 'index'])->name('gallery.index');
+        Route::post('gallery', [\App\Http\Controllers\GalleryController::class, 'store'])->name('gallery.store');
+        Route::delete('gallery/{id}', [\App\Http\Controllers\GalleryController::class, 'destroy'])->name('gallery.destroy');
+        Route::get('gallery/file/{id}', [\App\Http\Controllers\GalleryController::class, 'file'])->name('gallery.file');
     });
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
@@ -55,10 +58,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         })->name('settings')->middleware('permission:manage-settings');
     });
 
-    Route::get('gallery', [GalleryController::class, 'index'])->name('gallery.index');
-    Route::post('gallery', [GalleryController::class, 'store'])->name('gallery.store');
-    Route::delete('gallery/{id}', [GalleryController::class, 'destroy'])->name('gallery.destroy');
-    Route::get('gallery/file/{id}', [GalleryController::class, 'file'])->name('gallery.file');
 
     Route::post('logout', [SocialAuthController::class, 'logout'])->name('logout');
 
