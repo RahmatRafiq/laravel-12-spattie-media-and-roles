@@ -1,18 +1,26 @@
-
 import * as React from 'react';
-import { router, Head, Link } from '@inertiajs/react';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle, AlertDialogTrigger } from '@radix-ui/react-alert-dialog';
+import { router, Head, Link, useForm } from '@inertiajs/react';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogTitle,
+    AlertDialogTrigger
+} from '@radix-ui/react-alert-dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { Lock, Globe2 } from 'lucide-react';
+import CustomSelect from '../components/select';
 
 interface MediaItem {
     id: number;
     file_name: string;
     name: string;
     original_url: string;
-    disk: 'public' | 'local';
+    disk: 'public' | 'private';
 }
 
 interface PaginationLink {
@@ -33,6 +41,11 @@ export default function Gallery({ media, visibility }: GalleryProps) {
     const [deleteId, setDeleteId] = React.useState<number | null>(null);
     const [open, setOpen] = React.useState(false);
 
+    const { data, setData, post, processing, reset } = useForm({
+        file: null as File | null,
+        visibility: visibility
+    });
+
     const handleDelete = (id: number) => {
         setDeleteId(id);
         setOpen(true);
@@ -40,15 +53,34 @@ export default function Gallery({ media, visibility }: GalleryProps) {
 
     const confirmDelete = () => {
         if (deleteId !== null) {
-            router.delete(route('admin.gallery.destroy', deleteId));
-            setOpen(false);
-            setDeleteId(null);
+            router.delete(route('gallery.destroy', deleteId), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setOpen(false);
+                    setDeleteId(null);
+                    router.reload();
+                }
+            });
+        }
+    };
+
+    const submitUpload = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (data.file) {
+            post(route('gallery.store'), {
+                forceFormData: true,
+                preserveScroll: true,
+                onSuccess: () => {
+                    reset();
+                    router.reload();
+                },
+            });
         }
     };
 
     const breadcrumbs = [
-        { title: 'Dashboard', href: '/admin/dashboard' },
-        { title: 'File Manager', href: '/admin/gallery' },
+        { title: 'Dashboard', href: '/dashboard' },
+        { title: 'File Manager', href: '/dashboard/gallery' },
     ];
 
     return (
@@ -62,13 +94,32 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                     </div>
                     <div className="flex gap-2">
                         <Button asChild variant={visibility === 'public' ? 'default' : 'secondary'} size="sm">
-                            <Link href={route('admin.gallery.index', { visibility: 'public' })} preserveScroll>Publik</Link>
+                            <Link href={route('gallery.index', { visibility: 'public' })} preserveScroll>Publik</Link>
                         </Button>
                         <Button asChild variant={visibility === 'private' ? 'default' : 'secondary'} size="sm">
-                            <Link href={route('admin.gallery.index', { visibility: 'private' })} preserveScroll>Privat</Link>
+                            <Link href={route('gallery.index', { visibility: 'private' })} preserveScroll>Privat</Link>
                         </Button>
                     </div>
                 </div>
+
+                <form onSubmit={submitUpload} className="flex items-center gap-2 mb-4">
+                    <input
+                        type="file"
+                        onChange={(e) => setData('file', e.target.files ? e.target.files[0] : null)}
+                        required
+                    />
+                    <CustomSelect
+                        value={{ value: data.visibility, label: data.visibility === 'public' ? 'Publik' : 'Privat' }}
+
+                        className="rounded border px-2 py-1"
+                        options={[
+                            { value: 'public', label: 'Publik' },
+                            { value: 'private', label: 'Privat' }
+                        ]}
+                    />
+                    <Button type="submit" disabled={processing}>Upload</Button>
+                </form>
+
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">
                     {media.data.length === 0 ? (
                         <Card className="col-span-full flex items-center justify-center h-40">
@@ -84,7 +135,9 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                                         ) : (
                                             <Lock className="h-4 w-4 text-gray-500" />
                                         )}
-                                        <span className="text-xs font-semibold text-muted-foreground">{item.disk === 'public' ? 'Publik' : 'Privat'}</span>
+                                        <span className="text-xs font-semibold text-muted-foreground">
+                                            {item.disk === 'public' ? 'Publik' : 'Privat'}
+                                        </span>
                                     </div>
                                     <CardTitle className="text-xs break-all text-center w-full">{item.file_name}</CardTitle>
                                 </CardHeader>
@@ -98,8 +151,9 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                                     <div className="mb-2 w-full text-[10px] text-muted-foreground break-all text-center">
                                         {item.disk === 'public'
                                             ? `/storage/${item.file_name}`
-                                            : `/private/${item.file_name}`}
+                                            : `Privat file`}
                                     </div>
+
                                     <AlertDialog open={open && deleteId === item.id} onOpenChange={setOpen}>
                                         <AlertDialogTrigger asChild>
                                             <Button
@@ -111,6 +165,7 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                                                 Hapus
                                             </Button>
                                         </AlertDialogTrigger>
+
                                         <AlertDialogContent>
                                             <AlertDialogTitle>Konfirmasi Hapus</AlertDialogTitle>
                                             <AlertDialogDescription>
@@ -118,7 +173,7 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                                             </AlertDialogDescription>
                                             <div className="flex justify-end gap-2 mt-4">
                                                 <AlertDialogCancel asChild>
-                                                    <Button variant="secondary">Batal</Button>
+                                                    <Button variant="secondary" onClick={() => { setOpen(false); setDeleteId(null); }}>Batal</Button>
                                                 </AlertDialogCancel>
                                                 <AlertDialogAction asChild>
                                                     <Button variant="destructive" onClick={confirmDelete}>Hapus</Button>
@@ -131,30 +186,28 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                         ))
                     )}
                 </div>
-                <div className="mt-4">
-                    {/* Pagination (jika ada) */}
-                    {media.links && (
-                        <div className="flex gap-2">
-                            {media.links.map((link, i) => (
-                                link.url ? (
-                                    <Link
-                                        key={i}
-                                        href={link.url}
-                                        className={`rounded px-2 py-1 ${link.active ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-                                        preserveScroll
-                                        dangerouslySetInnerHTML={{ __html: link.label }}
-                                    />
-                                ) : (
-                                    <span
-                                        key={i}
-                                        className={`rounded px-2 py-1 ${link.active ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-                                        dangerouslySetInnerHTML={{ __html: link.label }}
-                                    />
-                                )
-                            ))}
-                        </div>
-                    )}
-                </div>
+
+                {media.links && (
+                    <div className="mt-4 flex gap-2">
+                        {media.links.map((link, i) => (
+                            link.url ? (
+                                <Link
+                                    key={i}
+                                    href={link.url}
+                                    className={`rounded px-2 py-1 ${link.active ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                                    preserveScroll
+                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                />
+                            ) : (
+                                <span
+                                    key={i}
+                                    className={`rounded px-2 py-1 ${link.active ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                />
+                            )
+                        ))}
+                    </div>
+                )}
             </div>
         </AppLayout>
     );

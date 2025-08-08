@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\SocialAuthController;
+use App\Http\Controllers\GalleryController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -49,14 +50,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/dashboard', function () {
             return Inertia::render('Admin/Dashboard');
         })->name('dashboard');
-
-        Route::get('/gallery', [\App\Http\Controllers\Admin\GalleryController::class, 'index'])->name('gallery.index');
-        Route::delete('/gallery/{id}', [\App\Http\Controllers\Admin\GalleryController::class, 'destroy'])->name('gallery.destroy');
-
         Route::get('/settings', function () {
             return Inertia::render('Admin/Settings');
         })->name('settings')->middleware('permission:manage-settings');
     });
+
+    Route::get('gallery', [GalleryController::class, 'index'])->name('gallery.index');
+    Route::post('gallery', [GalleryController::class, 'store'])->name('gallery.store');
+    Route::delete('gallery/{id}', [GalleryController::class, 'destroy'])->name('gallery.destroy');
+    Route::get('gallery/file/{id}', [GalleryController::class, 'file'])->name('gallery.file');
 
     Route::post('logout', [SocialAuthController::class, 'logout'])->name('logout');
 
