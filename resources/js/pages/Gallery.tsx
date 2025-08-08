@@ -41,20 +41,20 @@ export default function Gallery({ media, visibility }: GalleryProps) {
 
     const handleDelete = (id: number, fileName: string) => {
         openConfirmation({
-            title: 'Konfirmasi Hapus File',
-            message: `Apakah Anda yakin ingin menghapus file <b>${fileName}</b>?`,
-            confirmText: 'Hapus',
-            cancelText: 'Batal',
+            title: 'Delete File Confirmation',
+            message: `Are you sure you want to delete the file <b>${fileName}</b>?`,
+            confirmText: 'Delete',
+            cancelText: 'Cancel',
             variant: 'destructive',
             onConfirm: () => {
                 router.delete(route('gallery.destroy', id), {
                     preserveScroll: true,
                     onSuccess: () => {
-                        toast.success('File berhasil dihapus');
+                        toast.success('File deleted successfully');
                         router.reload();
                     },
                     onError: () => {
-                        toast.error('Gagal menghapus file');
+                        toast.error('Failed to delete file');
                     }
                 });
             },
@@ -68,12 +68,12 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                 forceFormData: true,
                 preserveScroll: true,
                 onSuccess: () => {
-                    toast.success('File berhasil diunggah');
+                    toast.success('File uploaded successfully');
                     reset();
                     router.reload();
                 },
                 onError: () => {
-                    toast.error('Gagal mengunggah file');
+                    toast.error('Failed to upload file');
                 }
             });
         }
@@ -91,14 +91,14 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                 <div className="flex items-center justify-between mb-4">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight text-foreground">File Manager</h1>
-                        <p className="text-muted-foreground">Kelola file publik dan privat di aplikasi Anda</p>
+                        <p className="text-muted-foreground">Manage public and private files in your application</p>
                     </div>
                     <div className="flex gap-2">
                         <Button asChild variant={visibility === 'public' ? 'default' : 'secondary'} size="sm">
-                            <Link href={route('gallery.index', { visibility: 'public' })} preserveScroll>Publik</Link>
+                            <Link href={route('gallery.index', { visibility: 'public' })} preserveScroll>Public</Link>
                         </Button>
                         <Button asChild variant={visibility === 'private' ? 'default' : 'secondary'} size="sm">
-                            <Link href={route('gallery.index', { visibility: 'private' })} preserveScroll>Privat</Link>
+                            <Link href={route('gallery.index', { visibility: 'private' })} preserveScroll>Private</Link>
                         </Button>
                     </div>
                 </div>
@@ -110,11 +110,11 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                         required
                     />
                     <CustomSelect
-                        value={{ value: data.visibility, label: data.visibility === 'public' ? 'Publik' : 'Privat' }}
+                        value={{ value: data.visibility, label: data.visibility === 'public' ? 'Public' : 'Private' }}
                         className="rounded border px-2 py-1"
                         options={[
-                            { value: 'public', label: 'Publik' },
-                            { value: 'private', label: 'Privat' }
+                            { value: 'public', label: 'Public' },
+                            { value: 'private', label: 'Private' }
                         ]}
                         onChange={(option) => {
                             if (option && !Array.isArray(option) && typeof option === 'object' && 'value' in option) {
@@ -128,7 +128,7 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">
                     {media.data.length === 0 ? (
                         <Card className="col-span-full flex items-center justify-center h-40">
-                            <CardContent className="text-center">Belum ada file.</CardContent>
+                            <CardContent className="text-center">No files yet.</CardContent>
                         </Card>
                     ) : (
                         media.data.map((item) => (
@@ -141,7 +141,7 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                                             <Lock className="h-4 w-4 text-gray-500" />
                                         )}
                                         <span className="text-xs font-semibold text-muted-foreground">
-                                            {item.disk === 'public' ? 'Publik' : 'Privat'}
+                                            {item.disk === 'public' ? 'Public' : 'Private'}
                                         </span>
                                     </div>
                                     <CardTitle className="text-xs break-all text-center w-full">{item.file_name}</CardTitle>
@@ -157,7 +157,7 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                                     <div className="mb-2 w-full text-[10px] text-muted-foreground break-all text-center">
                                         {item.disk === 'public'
                                             ? `/storage/${item.file_name}`
-                                            : `Privat file`}
+                                            : `Private file`}
                                     </div>
                                     <Button
                                         variant="destructive"
@@ -165,7 +165,7 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                                         onClick={() => handleDelete(item.id, item.file_name)}
                                         className="w-full"
                                     >
-                                        Hapus
+                                        Delete
                                     </Button>
                                 </CardContent>
                             </Card>
