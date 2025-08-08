@@ -1,20 +1,13 @@
 import * as React from 'react';
 import { router, Head, Link, useForm } from '@inertiajs/react';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogFooter
-} from '@/components/ui/alert-dialog'; // ini Shadcn UI
+import ConfirmationDialog from '@/components/confirmation-dialog';
+import { useConfirmation } from '@/hooks/use-confirmation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { Lock, Globe2 } from 'lucide-react';
 import CustomSelect from '../components/select';
+import { toast } from '@/utils/toast';
 
 interface MediaItem {
     id: number;
@@ -39,30 +32,33 @@ interface GalleryProps {
 }
 
 export default function Gallery({ media, visibility }: GalleryProps) {
-    const [deleteId, setDeleteId] = React.useState<number | null>(null);
-    const [open, setOpen] = React.useState(false);
+    const { confirmationState, openConfirmation, handleConfirm, handleCancel } = useConfirmation();
 
     const { data, setData, post, processing, reset } = useForm({
         file: null as File | null,
         visibility: visibility
     });
 
-    const handleDelete = (id: number) => {
-        setDeleteId(id);
-        setOpen(true);
-    };
-
-    const confirmDelete = () => {
-        if (deleteId !== null) {
-            router.delete(route('gallery.destroy', deleteId), {
-                preserveScroll: true,
-                onSuccess: () => {
-                    setOpen(false);
-                    setDeleteId(null);
-                    router.reload();
-                }
-            });
-        }
+    const handleDelete = (id: number, fileName: string) => {
+        openConfirmation({
+            title: 'Konfirmasi Hapus File',
+            message: `Apakah Anda yakin ingin menghapus file <b>${fileName}</b>?`,
+            confirmText: 'Hapus',
+            cancelText: 'Batal',
+            variant: 'destructive',
+            onConfirm: () => {
+                router.delete(route('gallery.destroy', id), {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        toast.success('File berhasil dihapus');
+                        router.reload();
+                    },
+                    onError: () => {
+                        toast.error('Gagal menghapus file');
+                    }
+                });
+            },
+        });
     };
 
     const submitUpload = (e: React.FormEvent) => {
@@ -72,9 +68,13 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                 forceFormData: true,
                 preserveScroll: true,
                 onSuccess: () => {
+                    toast.success('File berhasil diunggah');
                     reset();
                     router.reload();
                 },
+                onError: () => {
+                    toast.error('Gagal mengunggah file');
+                }
             });
         }
     };
@@ -84,13 +84,10 @@ export default function Gallery({ media, visibility }: GalleryProps) {
         { title: 'File Manager', href: '/dashboard/gallery' },
     ];
 
-    const deletingItem = deleteId ? media.data.find(m => m.id === deleteId) ?? null : null;
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="File Manager" />
             <div className="flex flex-col gap-4 p-4">
-                {/* Header */}
                 <div className="flex items-center justify-between mb-4">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight text-foreground">File Manager</h1>
@@ -106,7 +103,6 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                     </div>
                 </div>
 
-                {/* Upload Form */}
                 <form onSubmit={submitUpload} className="flex items-center gap-2 mb-4">
                     <input
                         type="file"
@@ -129,7 +125,6 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                     <Button type="submit" disabled={processing}>Upload</Button>
                 </form>
 
-                {/* File Grid */}
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">
                     {media.data.length === 0 ? (
                         <Card className="col-span-full flex items-center justify-center h-40">
@@ -164,11 +159,10 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                                             ? `/storage/${item.file_name}`
                                             : `Privat file`}
                                     </div>
-
                                     <Button
                                         variant="destructive"
                                         size="sm"
-                                        onClick={() => handleDelete(item.id)}
+                                        onClick={() => handleDelete(item.id, item.file_name)}
                                         className="w-full"
                                     >
                                         Hapus
@@ -179,27 +173,12 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                     )}
                 </div>
 
-                {/* Konfirmasi Hapus */}
-                <AlertDialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setDeleteId(null); }}>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Konfirmasi Hapus</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                Yakin ingin menghapus file <b>{deletingItem ? deletingItem.file_name : ''}</b>?
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel asChild>
-                                <Button variant="secondary">Batal</Button>
-                            </AlertDialogCancel>
-                            <AlertDialogAction asChild>
-                                <Button variant="destructive" onClick={confirmDelete}>Hapus</Button>
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
+                <ConfirmationDialog
+                    state={confirmationState}
+                    onConfirm={handleConfirm}
+                    onCancel={handleCancel}
+                />
 
-                {/* Pagination */}
                 {media.links && (
                     <div className="mt-4 flex gap-2">
                         {media.links.map((link, i) => (
