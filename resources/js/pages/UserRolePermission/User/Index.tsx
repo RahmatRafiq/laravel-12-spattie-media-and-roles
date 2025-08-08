@@ -23,11 +23,11 @@ const columns: DataTableColumn<User>[] = [
         render: (data: User[keyof User] | null, type: 'display' | 'type' | 'sort' | 'export', row: User) => {
             let html = '';
             if (row.trashed) {
-                html += `<button class="btn-restore ml-2 px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700" data-id="${row.id}">Restore</button>`;
-                html += `<button class="btn-force-delete ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" data-id="${row.id}">Force Delete</button>`;
+                html += `<button class="btn-restore ml-2 my-1 px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm font-medium align-middle" data-id="${row.id}">Restore</button>`;
+                html += `<button class="btn-force-delete ml-2 my-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm font-medium align-middle" data-id="${row.id}">Force Delete</button>`;
             } else {
                 html += `<span class="inertia-link-cell" data-id="${row.id}"></span>`;
-                html += `<button class="btn-delete ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" data-id="${row.id}">Delete</button>`;
+                html += `<button class="btn-delete ml-2 my-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm font-medium align-middle" data-id="${row.id}">Delete</button>`;
             }
             return html;
         },
@@ -75,7 +75,11 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
             if (id && !cell.querySelector('a')) {
                 const root = ReactDOM.createRoot(cell);
                 root.render(
-                    <Link href={route('users.edit', id)} className="rounded bg-yellow-500 px-2 py-1 text-white hover:bg-yellow-600">
+                    <Link
+                        href={route('users.edit', id)}
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white rounded px-3 py-2 my-1 text-sm font-medium align-middle"
+                        style={{ display: 'inline-block', minWidth: '80px', textAlign: 'center' }}
+                    >
                         Edit
                     </Link>,
                 );
