@@ -45,6 +45,11 @@ const mainNavItems: NavItem[] = [
         href: '/dashboard/app-settings',
         icon: Settings,
     },
+    {
+        title: 'Gallery',
+        href: '/dashboard/gallery',
+        icon: FileText,
+    },
 ];
 
 const footerNavItems: NavItem[] = [

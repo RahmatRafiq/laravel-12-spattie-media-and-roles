@@ -43,17 +43,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/storage', [\App\Http\Controllers\StorageController::class, 'store'])->name('storage.store');
         Route::delete('/storage', [\App\Http\Controllers\StorageController::class, 'destroy'])->name('storage.destroy');
         Route::get('/storage/{path}', [\App\Http\Controllers\StorageController::class, 'show'])->name('storage.show');
+        Route::get('gallery', [\App\Http\Controllers\GalleryController::class, 'index'])->name('gallery.index');
+        Route::post('gallery', [\App\Http\Controllers\GalleryController::class, 'store'])->name('gallery.store');
+        Route::delete('gallery/{id}', [\App\Http\Controllers\GalleryController::class, 'destroy'])->name('gallery.destroy');
+        Route::get('gallery/file/{id}', [\App\Http\Controllers\GalleryController::class, 'file'])->name('gallery.file');
     });
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', function () {
             return Inertia::render('Admin/Dashboard');
         })->name('dashboard');
-        
         Route::get('/settings', function () {
             return Inertia::render('Admin/Settings');
         })->name('settings')->middleware('permission:manage-settings');
     });
+
 
     Route::post('logout', [SocialAuthController::class, 'logout'])->name('logout');
 
