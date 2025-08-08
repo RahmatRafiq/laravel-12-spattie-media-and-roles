@@ -29,14 +29,17 @@ interface GalleryProps {
         links?: PaginationLink[];
     };
     visibility: 'public' | 'private';
+    collections: string[];
+    selected_collection?: string | null;
 }
 
-export default function Gallery({ media, visibility }: GalleryProps) {
+export default function Gallery({ media, visibility, collections, selected_collection }: GalleryProps) {
     const { confirmationState, openConfirmation, handleConfirm, handleCancel } = useConfirmation();
 
     const { data, setData, post, processing, reset } = useForm({
         file: null as File | null,
-        visibility: visibility
+        visibility: visibility,
+        collection_name: selected_collection || '',
     });
 
     const handleDelete = (id: number, fileName: string) => {
@@ -84,6 +87,15 @@ export default function Gallery({ media, visibility }: GalleryProps) {
         { title: 'File Manager', href: '/dashboard/gallery' },
     ];
 
+    // Handler for filter change
+    const handleFilterChange = (field: 'collection_name' | 'visibility', value: string) => {
+        const params = {
+            visibility: field === 'visibility' ? value : data.visibility,
+            collection_name: field === 'collection_name' ? value : data.collection_name,
+        };
+        router.visit(route('gallery.index', params), { preserveScroll: true });
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="File Manager" />
@@ -93,13 +105,34 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                         <h1 className="text-2xl font-bold tracking-tight text-foreground">File Manager</h1>
                         <p className="text-muted-foreground">Manage public and private files in your application</p>
                     </div>
-                    <div className="flex gap-2">
-                        <Button asChild variant={visibility === 'public' ? 'default' : 'secondary'} size="sm">
-                            <Link href={route('gallery.index', { visibility: 'public' })} preserveScroll>Public</Link>
+                    <div className="flex gap-2 items-center">
+                        <Button
+                            variant={visibility === 'public' ? 'default' : 'secondary'}
+                            size="sm"
+                            onClick={() => handleFilterChange('visibility', 'public')}
+                        >
+                            Public
                         </Button>
-                        <Button asChild variant={visibility === 'private' ? 'default' : 'secondary'} size="sm">
-                            <Link href={route('gallery.index', { visibility: 'private' })} preserveScroll>Private</Link>
+                        <Button
+                            variant={visibility === 'private' ? 'default' : 'secondary'}
+                            size="sm"
+                            onClick={() => handleFilterChange('visibility', 'private')}
+                        >
+                            Private
                         </Button>
+                        <CustomSelect
+                            className="min-w-[120px]"
+                            value={collections && data.collection_name ? { value: data.collection_name, label: data.collection_name } : null}
+                            options={collections.map((c) => ({ value: c, label: c }))}
+                            onChange={(option) => {
+                                if (option && !Array.isArray(option) && typeof option === 'object' && 'value' in option) {
+                                    setData('collection_name', option.value);
+                                    handleFilterChange('collection_name', option.value);
+                                }
+                            }}
+                            placeholder="Collection"
+                            isClearable
+                        />
                     </div>
                 </div>
 
@@ -121,6 +154,18 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                                 setData('visibility', option.value as 'public' | 'private');
                             }
                         }}
+                    />
+                    <CustomSelect
+                        value={collections && data.collection_name ? { value: data.collection_name, label: data.collection_name } : null}
+                        className="rounded border px-2 py-1 min-w-[120px]"
+                        options={collections.map((c) => ({ value: c, label: c }))}
+                        onChange={(option) => {
+                            if (option && !Array.isArray(option) && typeof option === 'object' && 'value' in option) {
+                                setData('collection_name', option.value);
+                            }
+                        }}
+                        placeholder="Collection"
+                        isClearable
                     />
                     <Button type="submit" disabled={processing}>Upload</Button>
                 </form>

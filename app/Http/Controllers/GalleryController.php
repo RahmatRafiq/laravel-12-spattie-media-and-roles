@@ -15,10 +15,20 @@ class GalleryController extends Controller
     {
         $visibility = $request->query('visibility', 'public');
         $diskName = $visibility === 'public' ? 'public' : 'local';
+        $collection = $request->query('collection_name', null);
 
-        $paginator = Media::where('collection_name', 'gallery')
-            ->where('disk', $diskName)
-            ->orderBy('created_at', 'desc')
+        // Get unique collections for filter options
+        $allCollections = Media::select('collection_name')->distinct()->pluck('collection_name')->toArray();
+
+        $query = Media::query();
+        if ($collection) {
+            $query->where('collection_name', $collection);
+        } else {
+            $query->where('collection_name', 'gallery');
+        }
+        $query->where('disk', $diskName);
+
+        $paginator = $query->orderBy('created_at', 'desc')
             ->paginate(20)
             ->appends($request->query());
 
@@ -31,6 +41,7 @@ class GalleryController extends Controller
                     ? Storage::disk($m->disk)->url($m->file_name)
                     : route('gallery.file', $m->id),
                 'disk' => $m->disk === 'public' ? 'public' : 'private',
+                'collection_name' => $m->collection_name,
             ];
         })->toArray();
 
@@ -43,6 +54,8 @@ class GalleryController extends Controller
                 'links' => $links,
             ],
             'visibility' => $visibility,
+            'collections' => $allCollections,
+            'selected_collection' => $collection,
         ]);
     }
 
