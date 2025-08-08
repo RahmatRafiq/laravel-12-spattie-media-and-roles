@@ -60,10 +60,10 @@ const DataTableWrapperInner = forwardRef<DataTableWrapperRef, DataTableWrapperPr
                 if (id && onRowDelete) {
                     const config = confirmationConfig?.delete || {};
                     openConfirmation({
-                        title: config.title || 'Konfirmasi Hapus',
-                        message: config.message || 'Apakah Anda yakin ingin menghapus item ini?',
-                        confirmText: config.confirmText || 'Hapus',
-                        cancelText: config.cancelText || 'Batal',
+                        title: config.title || 'Delete Confirmation',
+                        message: config.message || 'Are you sure you want to delete this item?',
+                        confirmText: config.confirmText || 'Delete',
+                        cancelText: config.cancelText || 'Cancel',
                         variant: 'destructive',
                         onConfirm: () => {
                             onRowDelete(Number(id));
@@ -83,10 +83,10 @@ const DataTableWrapperInner = forwardRef<DataTableWrapperRef, DataTableWrapperPr
                 if (id && onRowRestore) {
                     const config = confirmationConfig?.restore || {};
                     openConfirmation({
-                        title: config.title || 'Konfirmasi Restore',
-                        message: config.message || 'Apakah Anda yakin ingin mengembalikan item ini?',
+                        title: config.title || 'Restore Confirmation',
+                        message: config.message || 'Are you sure you want to restore this item?',
                         confirmText: config.confirmText || 'Restore',
-                        cancelText: config.cancelText || 'Batal',
+                        cancelText: config.cancelText || 'Cancel',
                         variant: 'default',
                         onConfirm: () => {
                             onRowRestore(Number(id));
@@ -106,10 +106,10 @@ const DataTableWrapperInner = forwardRef<DataTableWrapperRef, DataTableWrapperPr
                 if (id && onRowForceDelete) {
                     const config = confirmationConfig?.forceDelete || {};
                     openConfirmation({
-                        title: config.title || 'Konfirmasi Hapus Permanen',
-                        message: config.message || 'Apakah Anda yakin ingin menghapus item ini secara permanen? Tindakan ini tidak dapat dibatalkan!',
-                        confirmText: config.confirmText || 'Hapus Permanen',
-                        cancelText: config.cancelText || 'Batal',
+                        title: config.title || 'Permanent Delete Confirmation',
+                        message: config.message || 'Are you sure you want to permanently delete this item? This action cannot be undone!',
+                        confirmText: config.confirmText || 'Delete Permanently',
+                        cancelText: config.cancelText || 'Cancel',
                         variant: 'destructive',
                         onConfirm: () => {
                             onRowForceDelete(Number(id));
@@ -212,10 +212,9 @@ const DataTableWrapperInner = forwardRef<DataTableWrapperRef, DataTableWrapperPr
         </>
     );
 });
-// Generic wrapper function to handle typed expand configs
+
 function DataTableWrapper<T = unknown>(props: DataTableWrapperProps<T> & { ref?: React.Ref<DataTableWrapperRef> }) {
     const { ref, ...otherProps } = props;
-    // Type assertion to bypass the generic constraint
     const typedProps = otherProps as DataTableWrapperProps<unknown>;
     return <DataTableWrapperInner ref={ref} {...typedProps} />;
 }
