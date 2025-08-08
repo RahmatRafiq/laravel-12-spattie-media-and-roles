@@ -113,25 +113,25 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
                         onRowForceDelete={handleForceDelete}
                         confirmationConfig={{
                             delete: {
-                                title: 'Konfirmasi Hapus User',
-                                message: 'Apakah Anda yakin ingin menghapus user ini? User akan dipindahkan ke trash.',
-                                confirmText: 'Hapus',
-                                cancelText: 'Batal',
-                                successMessage: 'User berhasil dihapus',
+                                title: 'Delete User Confirmation',
+                                message: 'Are you sure you want to delete this user? The user will be moved to trash.',
+                                confirmText: 'Delete',
+                                cancelText: 'Cancel',
+                                successMessage: 'User deleted successfully',
                             },
                             restore: {
-                                title: 'Konfirmasi Restore User',
-                                message: 'Apakah Anda yakin ingin mengembalikan user ini dari trash?',
+                                title: 'Restore User Confirmation',
+                                message: 'Are you sure you want to restore this user from trash?',
                                 confirmText: 'Restore',
-                                cancelText: 'Batal',
-                                successMessage: 'User berhasil direstore',
+                                cancelText: 'Cancel',
+                                successMessage: 'User restored successfully',
                             },
                             forceDelete: {
-                                title: 'Konfirmasi Hapus Permanen',
-                                message: 'Apakah Anda yakin ingin menghapus user ini secara permanen? Tindakan ini tidak dapat dibatalkan!',
-                                confirmText: 'Hapus Permanen',
-                                cancelText: 'Batal',
-                                successMessage: 'User berhasil dihapus secara permanen',
+                                title: 'Permanent Delete Confirmation',
+                                message: 'Are you sure you want to permanently delete this user? This action cannot be undone!',
+                                confirmText: 'Permanently Delete',
+                                cancelText: 'Cancel',
+                                successMessage: 'User permanently deleted successfully',
                             },
                         }}
                     />

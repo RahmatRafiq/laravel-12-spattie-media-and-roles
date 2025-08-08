@@ -8,7 +8,6 @@ class ActivityLogController extends Controller
 {
     public function index()
     {
-        // Ambil log terbaru dengan relasi causer (user yang melakukan aksi)
         $logs = Activity::with('causer')
             ->latest()
             ->limit(50)

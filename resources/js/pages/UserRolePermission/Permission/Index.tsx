@@ -80,11 +80,11 @@ export default function PermissionIndex({ success }: { success?: string }) {
                         onRowDelete={handleDelete}
                         confirmationConfig={{
                             delete: {
-                                title: 'Konfirmasi Hapus Permission',
-                                message: 'Apakah Anda yakin ingin menghapus permission ini? Tindakan ini tidak dapat dibatalkan.',
-                                confirmText: 'Hapus',
-                                cancelText: 'Batal',
-                                successMessage: 'Permission berhasil dihapus',
+                                title: 'Delete Permission Confirmation',
+                                message: 'Are you sure you want to delete this permission? This action cannot be undone.',
+                                confirmText: 'Delete',
+                                cancelText: 'Cancel',
+                                successMessage: 'Permission deleted successfully',
                             },
                         }}
                     />

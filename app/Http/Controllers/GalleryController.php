@@ -90,7 +90,7 @@ class GalleryController extends Controller
             ]);
         }
 
-        return redirect()->route('gallery.index')->with('success', 'File berhasil diupload.');
+        return redirect()->route('gallery.index')->with('success', 'File uploaded successfully.');
     }
 
     public function file(int $id)
@@ -116,9 +116,9 @@ class GalleryController extends Controller
 
         if (!$media) {
             if (request()->wantsJson()) {
-                return response()->json(['message' => 'File tidak ditemukan.'], 404);
+                return response()->json(['message' => 'File not found.'], 404);
             }
-            return redirect()->back()->with('error', 'File tidak ditemukan.');
+            return redirect()->back()->with('error', 'File not found.');
         }
 
         if (Storage::disk($media->disk)->exists($media->file_name)) {
@@ -128,9 +128,9 @@ class GalleryController extends Controller
         $media->delete();
 
         if (request()->wantsJson()) {
-            return response()->json(['message' => 'File dihapus']);
+            return response()->json(['message' => 'File deleted']);
         }
 
-        return redirect()->route('gallery.index')->with('success', 'File berhasil dihapus.');
+        return redirect()->route('gallery.index')->with('success', 'File deleted successfully.');
     }
 }

@@ -48,7 +48,6 @@ export default function UserForm({ user, roles }: { user?: User; roles: Role[] }
             <div className="px-4 py-6">
                 <h1 className="mb-4 text-2xl font-semibold">User Management</h1>
                 <div className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-12">
-                    {/* Sidebar */}
                     <aside className="w-full max-w-xl lg:w-48">
                         <nav className="flex flex-col space-y-1">
                             <Button asChild variant="ghost" size="sm" className="justify-start">
@@ -87,7 +86,7 @@ export default function UserForm({ user, roles }: { user?: User; roles: Role[] }
                                     type="password"
                                     value={data.password}
                                     onChange={(e) => setData('password', e.target.value)}
-                                    placeholder={isEdit ? '••••••••' : ''}
+                                    placeholder={isEdit ? 'Leave blank if not changing' : ''}
                                 />
                                 <InputError message={errors.password} />
                             </div>
@@ -99,7 +98,7 @@ export default function UserForm({ user, roles }: { user?: User; roles: Role[] }
                                     type="password"
                                     value={data.password_confirmation}
                                     onChange={(e) => setData('password_confirmation', e.target.value)}
-                                    placeholder={isEdit ? '••••••••' : ''}
+                                    placeholder={isEdit ? 'Leave blank if not changing' : ''}
                                 />
                                 <InputError message={errors.password_confirmation} />
                             </div>

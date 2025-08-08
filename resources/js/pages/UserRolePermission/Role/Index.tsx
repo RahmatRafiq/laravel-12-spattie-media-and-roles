@@ -36,7 +36,6 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
         },
     ];
 
-    // Expand configuration
     const expandConfig = createExpandConfig<Role>({
         enabled: true,
         expandIcon: '+',
@@ -104,11 +103,11 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
                         onRowDelete={handleDelete}
                         confirmationConfig={{
                             delete: {
-                                title: 'Konfirmasi Hapus Role',
-                                message: 'Apakah Anda yakin ingin menghapus role ini? Tindakan ini tidak dapat dibatalkan.',
-                                confirmText: 'Hapus',
-                                cancelText: 'Batal',
-                                successMessage: 'Role berhasil dihapus',
+                                title: 'Delete Role Confirmation',
+                                message: 'Are you sure you want to delete this role? This action cannot be undone.',
+                                confirmText: 'Delete',
+                                cancelText: 'Cancel',
+                                successMessage: 'Role deleted successfully',
                             },
                         }}
                     />

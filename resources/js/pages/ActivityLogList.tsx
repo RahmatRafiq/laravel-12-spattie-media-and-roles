@@ -52,13 +52,8 @@ export default function ActivityLogList() {
         if (typeof window !== 'undefined' && window.Echo) {
             try {
                 window.Echo.channel('activity-logs').listen('ActivityLogCreated', (data: ActivityLog) => {
-                    console.log('Received real-time activity log:', data);
-
-                    // Validate data before adding to state
                     if (data && data.id && data.description) {
-                        setLogs((prev) => [data, ...prev.slice(0, 49)]); // Keep only last 50 logs
-                    } else {
-                        console.warn('Invalid activity log data received:', data);
+                        setLogs((prev) => [data, ...prev.slice(0, 49)]);
                     }
                 });
 
@@ -96,7 +91,7 @@ export default function ActivityLogList() {
             <div className="mt-4 rounded-lg border border-border bg-muted/50 p-4">
                 <div className="mb-2 flex items-center gap-2">
                     <Database className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium text-foreground">Perubahan Data</span>
+                    <span className="text-sm font-medium text-foreground">Data Changes</span>
                 </div>
                 <div className="space-y-2">
                     {Object.keys(properties.attributes).map((key) => (
@@ -120,7 +115,6 @@ export default function ActivityLogList() {
             <Head title="Live Activity Logs" />
 
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight text-foreground">Live Activity Logs</h1>
@@ -136,7 +130,6 @@ export default function ActivityLogList() {
                     </div>
                 </div>
 
-                {/* Content */}
                 <div className="flex-1">
                     {logs.length === 0 ? (
                         <Card className="flex h-64 items-center justify-center">
@@ -169,7 +162,7 @@ export default function ActivityLogList() {
                                                     </div>
                                                     <div className="flex items-center gap-1">
                                                         <Clock className="h-3 w-3" />
-                                                        {new Date(log.created_at).toLocaleString('id-ID', {
+                                                        {new Date(log.created_at).toLocaleString('en-US', {
                                                             day: '2-digit',
                                                             month: 'short',
                                                             year: 'numeric',

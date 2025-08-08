@@ -26,17 +26,14 @@ class UserController extends Controller
         $search = $request->input('search.value', '');
         $filter = $request->query('filter') ?? $request->input('filter', 'active');
 
-        // Create base query for filtering
         $baseQuery = match ($filter) {
             'trashed' => User::onlyTrashed()->with('roles'),
             'all' => User::withTrashed()->with('roles'),
             default => User::with('roles'),
         };
 
-        // Only create callback if we might have search filters
         $recordsTotalCallback = null;
         if ($search) {
-            // Only create callback when we have search (to avoid duplicate queries when no search)
             $recordsTotalCallback = function() use ($filter) {
                 return match ($filter) {
                     'trashed' => User::onlyTrashed()->count(),
@@ -101,7 +98,7 @@ class UserController extends Controller
         $role = SpatieRole::findById($validatedData['role_id']);
         $user->assignRole($role);
 
-        return redirect()->route('users.index')->with('success', 'User berhasil dibuat.');
+        return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
     public function edit($id)
@@ -135,13 +132,13 @@ class UserController extends Controller
         $role = SpatieRole::findById($validatedData['role_id']);
         $user->syncRoles([$role]);
 
-        return redirect()->route('users.index')->with('success', 'User berhasil diperbarui.');
+        return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 
     public function destroy(User $user)
     {
         $user->delete();
-        return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
+        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
 
     public function trashed()
@@ -155,12 +152,12 @@ class UserController extends Controller
     public function restore($id)
     {
         User::onlyTrashed()->where('id', $id)->restore();
-        return redirect()->route('users.index')->with('success', 'User berhasil dipulihkan.');
+        return redirect()->route('users.index')->with('success', 'User restored successfully.');
     }
 
     public function forceDelete($id)
     {
         User::onlyTrashed()->where('id', $id)->forceDelete();
-        return redirect()->route('users.index')->with('success', 'User berhasil dihapus secara permanen.');
+        return redirect()->route('users.index')->with('success', 'User permanently deleted.');
     }
 }
