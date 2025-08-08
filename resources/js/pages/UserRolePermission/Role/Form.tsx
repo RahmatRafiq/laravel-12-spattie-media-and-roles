@@ -7,7 +7,6 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEvent } from 'react';
 
 import CustomSelect from '@/components/select';
-import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import type { Permission, Role } from '@/types/UserRolePermission';
@@ -21,8 +20,7 @@ export default function RoleForm({ role, permissions }: { role?: Role; permissio
     });
 
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Settings', href: '/settings' },
-        { title: 'Role Management', href: '/roles' },
+        { title: 'Role Management', href: route('roles.index') },
         { title: isEdit ? 'Edit Role' : 'Create Role', href: '#' },
     ];
 
@@ -49,60 +47,60 @@ export default function RoleForm({ role, permissions }: { role?: Role; permissio
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={isEdit ? 'Edit Role' : 'Create Role'} />
             <div className="px-4 py-6">
-                <h1 className="mb-4 text-2xl font-semibold">Settings</h1>
-                <div className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-12"></div>
-                <aside className="w-full max-w-xl lg:w-48">
-                    <nav className="flex flex-col space-y-1">
-                        <Button asChild variant="ghost" size="sm" className="justify-start">
-                            <Link href="/users">User List</Link>
-                        </Button>
-                        <Button asChild variant="ghost" size="sm" className="justify-start">
-                            <Link href="/roles">Role Management</Link>
-                        </Button>
-                        <Button asChild variant="ghost" size="sm" className="justify-start">
-                            <Link href="/permissions">Permission Management</Link>
-                        </Button>
-                    </nav>
-                </aside>
-                <Separator className="my-6 md:hidden" />
-                <div className="flex-1 space-y-6 md:max-w-2xl">
-                    <HeadingSmall title={isEdit ? 'Edit Role' : 'Create Role'} description="Fill in the details below" />
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                            <Label htmlFor="name">Role Name</Label>
-                            <Input id="name" type="text" value={data.name} onChange={(e) => setData('name', e.target.value)} required />
-                            <InputError message={errors.name} />
-                        </div>
-                        <div>
-                            <Label htmlFor="guard">Guard</Label>
-                            <CustomSelect
-                                id="guard"
-                                options={guardOptions}
-                                value={guardOptions.find((option) => option.value === data.guard_name)}
-                                onChange={(selected) => setData('guard_name', (selected as { value: string }).value)}
-                            />
-                            <InputError message={errors.guard_name} />
-                        </div>
-                        <div>
-                            <Label htmlFor="permissions">Permissions</Label>
-                            <CustomSelect
-                                id="permissions"
-                                isMulti
-                                options={permissionOptions}
-                                value={permissionOptions.filter((option) => data.permissions.includes(option.value))}
-                                onChange={(newValue) =>
-                                    setData('permissions', Array.isArray(newValue) ? newValue.map((option) => option.value) : [])
-                                }
-                            />
-                            <InputError message={errors.permissions} />
-                        </div>
-                        <div className="flex items-center space-x-4">
-                            <Button disabled={processing}>{isEdit ? 'Update Role' : 'Create Role'}</Button>
-                            <Link href={route('roles.index')} className="bg-muted text-foreground hover:bg-muted/70 rounded px-4 py-2">
-                                Cancel
-                            </Link>
-                        </div>
-                    </form>
+                <h1 className="mb-4 text-2xl font-semibold">Role Management</h1>
+                <div className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-12">
+                    <aside className="w-full max-w-xl lg:w-48">
+                        <nav className="flex flex-col space-y-1">
+                            <Button asChild variant="ghost" size="sm" className="justify-start">
+                                <Link href={route('users.index')}>User List</Link>
+                            </Button>
+                            <Button asChild variant="ghost" size="sm" className="justify-start">
+                                <Link href={route('roles.index')}>Role Management</Link>
+                            </Button>
+                            <Button asChild variant="ghost" size="sm" className="justify-start">
+                                <Link href={route('permissions.index')}>Permission Management</Link>
+                            </Button>
+                        </nav>
+                    </aside>
+                    <div className="flex-1 space-y-6 md:max-w-2xl">
+                        <HeadingSmall title={isEdit ? 'Edit Role' : 'Create Role'} description="Fill in the details below" />
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div>
+                                <Label htmlFor="name">Role Name</Label>
+                                <Input id="name" type="text" value={data.name} onChange={(e) => setData('name', e.target.value)} required />
+                                <InputError message={errors.name} />
+                            </div>
+                            <div>
+                                <Label htmlFor="guard">Guard</Label>
+                                <CustomSelect
+                                    id="guard"
+                                    options={guardOptions}
+                                    value={guardOptions.find((option) => option.value === data.guard_name)}
+                                    onChange={(selected) => setData('guard_name', (selected as { value: string }).value)}
+                                />
+                                <InputError message={errors.guard_name} />
+                            </div>
+                            <div>
+                                <Label htmlFor="permissions">Permissions</Label>
+                                <CustomSelect
+                                    id="permissions"
+                                    isMulti
+                                    options={permissionOptions}
+                                    value={permissionOptions.filter((option) => data.permissions.includes(option.value))}
+                                    onChange={(newValue) =>
+                                        setData('permissions', Array.isArray(newValue) ? newValue.map((option) => option.value) : [])
+                                    }
+                                />
+                                <InputError message={errors.permissions} />
+                            </div>
+                            <div className="flex items-center space-x-4">
+                                <Button disabled={processing}>{isEdit ? 'Update Role' : 'Create Role'}</Button>
+                                <Link href={route('roles.index')} className="bg-muted text-foreground hover:bg-muted/70 rounded px-4 py-2">
+                                    Cancel
+                                </Link>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </AppLayout >

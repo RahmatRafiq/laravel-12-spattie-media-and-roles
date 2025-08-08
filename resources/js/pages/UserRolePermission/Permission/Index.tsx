@@ -9,7 +9,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { useRef } from 'react';
 import ReactDOM from 'react-dom/client';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Permission Management', href: '/permissions' }];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Permission Management', href: route('permissions.index') }];
 
 export default function PermissionIndex({ success }: { success?: string }) {
     const dtRef = useRef<DataTableWrapperRef>(null);

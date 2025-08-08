@@ -9,7 +9,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { useRef } from 'react';
 import ReactDOM from 'react-dom/client';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Role Management', href: '/roles' }];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Role Management', href: route('roles.index') }];
 
 export default function RoleIndexAccordion({ success }: { success?: string }) {
     const dtRef = useRef<DataTableWrapperRef>(null);

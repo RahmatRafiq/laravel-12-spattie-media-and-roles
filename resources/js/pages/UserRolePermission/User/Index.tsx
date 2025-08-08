@@ -35,7 +35,7 @@ const columns: DataTableColumn<User>[] = [
 ];
 
 export default function UserIndex({ filter: initialFilter, success }: { filter: string; success?: string }) {
-    const breadcrumbs: BreadcrumbItem[] = [{ title: 'User Management', href: '/users' }];
+    const breadcrumbs: BreadcrumbItem[] = [{ title: 'User Management', href: route('users.index') }];
     const dtRef = useRef<DataTableWrapperRef>(null);
     const [filter, setFilter] = useState(initialFilter || 'active');
 
