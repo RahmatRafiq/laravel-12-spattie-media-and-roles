@@ -6,10 +6,10 @@ import {
     AlertDialogCancel,
     AlertDialogContent,
     AlertDialogDescription,
-    AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+    AlertDialogFooter
+} from '@/components/ui/alert-dialog'; // ini Shadcn UI
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
@@ -90,6 +90,7 @@ export default function Gallery({ media, visibility }: GalleryProps) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="File Manager" />
             <div className="flex flex-col gap-4 p-4">
+                {/* Header */}
                 <div className="flex items-center justify-between mb-4">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight text-foreground">File Manager</h1>
@@ -105,6 +106,7 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                     </div>
                 </div>
 
+                {/* Upload Form */}
                 <form onSubmit={submitUpload} className="flex items-center gap-2 mb-4">
                     <input
                         type="file"
@@ -127,6 +129,7 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                     <Button type="submit" disabled={processing}>Upload</Button>
                 </form>
 
+                {/* File Grid */}
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">
                     {media.data.length === 0 ? (
                         <Card className="col-span-full flex items-center justify-center h-40">
@@ -161,6 +164,7 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                                             ? `/storage/${item.file_name}`
                                             : `Privat file`}
                                     </div>
+
                                     <Button
                                         variant="destructive"
                                         size="sm"
@@ -175,20 +179,18 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                     )}
                 </div>
 
+                {/* Konfirmasi Hapus */}
                 <AlertDialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setDeleteId(null); }}>
                     <AlertDialogContent>
                         <AlertDialogHeader>
-                            <div className="flex items-center gap-2">
-                                <AlertDialogTitle>Konfirmasi Hapus</AlertDialogTitle>
-                            </div>
+                            <AlertDialogTitle>Konfirmasi Hapus</AlertDialogTitle>
                             <AlertDialogDescription>
                                 Yakin ingin menghapus file <b>{deletingItem ? deletingItem.file_name : ''}</b>?
                             </AlertDialogDescription>
                         </AlertDialogHeader>
-
                         <AlertDialogFooter>
                             <AlertDialogCancel asChild>
-                                <Button variant="secondary" onClick={() => { setOpen(false); setDeleteId(null); }}>Batal</Button>
+                                <Button variant="secondary">Batal</Button>
                             </AlertDialogCancel>
                             <AlertDialogAction asChild>
                                 <Button variant="destructive" onClick={confirmDelete}>Hapus</Button>
@@ -197,6 +199,7 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                     </AlertDialogContent>
                 </AlertDialog>
 
+                {/* Pagination */}
                 {media.links && (
                     <div className="mt-4 flex gap-2">
                         {media.links.map((link, i) => (
