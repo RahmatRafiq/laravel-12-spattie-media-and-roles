@@ -6,9 +6,10 @@ import {
     AlertDialogCancel,
     AlertDialogContent,
     AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger
-} from '@radix-ui/react-alert-dialog';
+} from '@/components/ui/alert-dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
@@ -83,6 +84,8 @@ export default function Gallery({ media, visibility }: GalleryProps) {
         { title: 'File Manager', href: '/dashboard/gallery' },
     ];
 
+    const deletingItem = deleteId ? media.data.find(m => m.id === deleteId) ?? null : null;
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="File Manager" />
@@ -110,12 +113,16 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                     />
                     <CustomSelect
                         value={{ value: data.visibility, label: data.visibility === 'public' ? 'Publik' : 'Privat' }}
-
                         className="rounded border px-2 py-1"
                         options={[
                             { value: 'public', label: 'Publik' },
                             { value: 'private', label: 'Privat' }
                         ]}
+                        onChange={(option) => {
+                            if (option && !Array.isArray(option) && typeof option === 'object' && 'value' in option) {
+                                setData('visibility', option.value as 'public' | 'private');
+                            }
+                        }}
                     />
                     <Button type="submit" disabled={processing}>Upload</Button>
                 </form>
@@ -141,6 +148,7 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                                     </div>
                                     <CardTitle className="text-xs break-all text-center w-full">{item.file_name}</CardTitle>
                                 </CardHeader>
+
                                 <CardContent className="flex flex-col items-center w-full">
                                     <img
                                         src={item.original_url}
@@ -153,39 +161,41 @@ export default function Gallery({ media, visibility }: GalleryProps) {
                                             ? `/storage/${item.file_name}`
                                             : `Privat file`}
                                     </div>
-
-                                    <AlertDialog open={open && deleteId === item.id} onOpenChange={setOpen}>
-                                        <AlertDialogTrigger asChild>
-                                            <Button
-                                                variant="destructive"
-                                                size="sm"
-                                                onClick={() => handleDelete(item.id)}
-                                                className="w-full"
-                                            >
-                                                Hapus
-                                            </Button>
-                                        </AlertDialogTrigger>
-
-                                        <AlertDialogContent>
-                                            <AlertDialogTitle>Konfirmasi Hapus</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                                Yakin ingin menghapus file <b>{item.file_name}</b>?
-                                            </AlertDialogDescription>
-                                            <div className="flex justify-end gap-2 mt-4">
-                                                <AlertDialogCancel asChild>
-                                                    <Button variant="secondary" onClick={() => { setOpen(false); setDeleteId(null); }}>Batal</Button>
-                                                </AlertDialogCancel>
-                                                <AlertDialogAction asChild>
-                                                    <Button variant="destructive" onClick={confirmDelete}>Hapus</Button>
-                                                </AlertDialogAction>
-                                            </div>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
+                                    <Button
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={() => handleDelete(item.id)}
+                                        className="w-full"
+                                    >
+                                        Hapus
+                                    </Button>
                                 </CardContent>
                             </Card>
                         ))
                     )}
                 </div>
+
+                <AlertDialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setDeleteId(null); }}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <div className="flex items-center gap-2">
+                                <AlertDialogTitle>Konfirmasi Hapus</AlertDialogTitle>
+                            </div>
+                            <AlertDialogDescription>
+                                Yakin ingin menghapus file <b>{deletingItem ? deletingItem.file_name : ''}</b>?
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+
+                        <AlertDialogFooter>
+                            <AlertDialogCancel asChild>
+                                <Button variant="secondary" onClick={() => { setOpen(false); setDeleteId(null); }}>Batal</Button>
+                            </AlertDialogCancel>
+                            <AlertDialogAction asChild>
+                                <Button variant="destructive" onClick={confirmDelete}>Hapus</Button>
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
 
                 {media.links && (
                     <div className="mt-4 flex gap-2">

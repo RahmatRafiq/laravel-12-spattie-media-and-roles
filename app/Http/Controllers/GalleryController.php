@@ -13,7 +13,7 @@ class GalleryController extends Controller
 {
     public function index(Request $request)
     {
-        $visibility = $request->query('visibility', 'public'); // 'public' or 'private'
+        $visibility = $request->query('visibility', 'public');
         $diskName = $visibility === 'public' ? 'public' : 'local';
 
         $paginator = Media::where('collection_name', 'gallery')
@@ -49,7 +49,7 @@ class GalleryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|max:10240', // 10MB
+            'file' => 'required|file|max:10240',
             'visibility' => 'nullable|in:public,private',
         ]);
 
@@ -59,23 +59,17 @@ class GalleryController extends Controller
         $uploaded = $request->file('file');
         $name = Str::orderedUuid() . '_' . $uploaded->getClientOriginalName();
 
-        // simpan file di disk yang dipilih
         Storage::disk($diskName)->putFileAs('', $uploaded, $name);
 
-        // attach ke user jika tersedia, atau buat record media secara aman
         $user = Auth::user();
         $media = null;
 
-        // Jika user model memiliki method addMediaFromDisk (HasMedia trait), gunakan itu.
         if ($user && method_exists($user, 'addMediaFromDisk')) {
-            // addMediaFromDisk(pathRelativeToDisk, disk)
-            // path = $name karena kita simpan di root disk
             $media = $user->addMediaFromDisk($name, $diskName)
                 ->usingName(pathinfo($name, PATHINFO_FILENAME))
                 ->preservingOriginal()
                 ->toMediaCollection('gallery', $diskName);
         } else {
-            // fallback: buat record manual tetapi isi semua kolom JSON yg mungkin diwajibkan DB
             $now = now();
             $media = Media::create([
                 'model_type' => $user ? get_class($user) : \App\Models\User::class,
@@ -86,7 +80,6 @@ class GalleryController extends Controller
                 'mime_type' => $uploaded->getClientMimeType(),
                 'disk' => $diskName,
                 'size' => $uploaded->getSize(),
-                // pastikan JSON fields terisi agar tidak error
                 'manipulations' => json_encode([]),
                 'custom_properties' => json_encode(['visibility' => $visibility]),
                 'responsive_images' => json_encode([]),
@@ -97,12 +90,7 @@ class GalleryController extends Controller
             ]);
         }
 
-        return response()->json([
-            'id' => $media->id,
-            'file_name' => $media->file_name,
-            'original_url' => ($diskName === 'public') ? Storage::disk($diskName)->url($name) : route('gallery.file', $media->id),
-            'disk' => $diskName === 'public' ? 'public' : 'private',
-        ]);
+        return redirect()->route('gallery.index')->with('success', 'File berhasil diupload.');
     }
 
     public function file(int $id)
@@ -113,8 +101,6 @@ class GalleryController extends Controller
             if (!Auth::check()) {
                 abort(403);
             }
-            // jika perlu: owner-only check
-            // if ($media->model_id !== Auth::id()) { abort(403); }
         }
 
         if (!Storage::disk($media->disk)->exists($media->file_name)) {
