@@ -181,23 +181,32 @@ export default function Gallery({ media, visibility }: GalleryProps) {
 
                 {media.links && (
                     <div className="mt-4 flex gap-2">
-                        {media.links.map((link, i) => (
+                        {media.links.map((link, i) =>
                             link.url ? (
-                                <Link
+                                <Button
+                                    asChild
                                     key={i}
-                                    href={link.url}
-                                    className={`rounded px-2 py-1 ${link.active ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-                                    preserveScroll
-                                    dangerouslySetInnerHTML={{ __html: link.label }}
-                                />
+                                    variant={link.active ? "default" : "secondary"}
+                                    size="sm"
+                                    className="px-2 py-1"
+                                >
+                                    <Link
+                                        href={link.url}
+                                        preserveScroll
+                                        dangerouslySetInnerHTML={{ __html: link.label }}
+                                    />
+                                </Button>
                             ) : (
-                                <span
+                                <Button
                                     key={i}
-                                    className={`rounded px-2 py-1 ${link.active ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                                    variant={link.active ? "default" : "secondary"}
+                                    size="sm"
+                                    className="px-2 py-1"
+                                    disabled
                                     dangerouslySetInnerHTML={{ __html: link.label }}
                                 />
                             )
-                        ))}
+                        )}
                     </div>
                 )}
             </div>
