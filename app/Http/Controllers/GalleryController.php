@@ -14,11 +14,22 @@ class GalleryController extends Controller
     public function index(Request $request)
     {
         $visibility = $request->query('visibility', 'public');
-        $diskName = $visibility === 'public' ? 'public' : 'local';
         $collection = $request->query('collection_name', null);
 
-        // Get unique collections for filter options
         $allCollections = Media::select('collection_name')->distinct()->pluck('collection_name')->toArray();
+        $allDisks = Media::select('disk')->distinct()->pluck('disk')->toArray();
+
+        $publicDisks = [];
+        $privateDisks = [];
+        foreach ($allDisks as $disk) {
+            $diskConfig = config('filesystems.disks.' . $disk);
+            if ($diskConfig && ($diskConfig['driver'] ?? null) === 'local' && isset($diskConfig['url']) && str_contains($diskConfig['url'], '/storage')) {
+                $publicDisks[] = $disk;
+            } else {
+                $privateDisks[] = $disk;
+            }
+        }
+        $selectedDisks = $visibility === 'public' ? $publicDisks : $privateDisks;
 
         $query = Media::query();
         if ($collection) {
@@ -26,21 +37,37 @@ class GalleryController extends Controller
         } else {
             $query->where('collection_name', 'gallery');
         }
-        $query->where('disk', $diskName);
+        if (!empty($selectedDisks)) {
+            $query->whereIn('disk', $selectedDisks);
+        } else {
+            $query->whereRaw('1=0');
+        }
 
         $paginator = $query->orderBy('created_at', 'desc')
             ->paginate(20)
             ->appends($request->query());
 
         $items = collect($paginator->items())->map(function ($m) {
+            $diskConfig = config('filesystems.disks.' . $m->disk);
+            $url = null;
+            $filePath = $m->file_name;
+            if ($diskConfig && ($diskConfig['driver'] ?? null) === 'local' && isset($diskConfig['url'])) {
+                if (!Storage::disk($m->disk)->exists($filePath)) {
+                    $subfolderPath = $m->id . '/' . $m->file_name;
+                    if (Storage::disk($m->disk)->exists($subfolderPath)) {
+                        $filePath = $subfolderPath;
+                    }
+                }
+                $url = rtrim($diskConfig['url'], '/') . '/' . ltrim($filePath, '/');
+            } else {
+                $url = route('gallery.file', $m->id);
+            }
             return [
                 'id' => $m->id,
                 'file_name' => $m->file_name,
                 'name' => $m->name ?? $m->file_name,
-                'original_url' => ($m->disk === 'public')
-                    ? Storage::disk($m->disk)->url($m->file_name)
-                    : route('gallery.file', $m->id),
-                'disk' => $m->disk === 'public' ? 'public' : 'private',
+                'original_url' => $url,
+                'disk' => $m->disk,
                 'collection_name' => $m->collection_name,
             ];
         })->toArray();
@@ -70,37 +97,15 @@ class GalleryController extends Controller
         $diskName = $visibility === 'public' ? 'public' : 'local';
 
         $uploaded = $request->file('file');
-        $name = Str::orderedUuid() . '_' . $uploaded->getClientOriginalName();
-
-        Storage::disk($diskName)->putFileAs('', $uploaded, $name);
-
         $user = Auth::user();
-        $media = null;
-
-        if ($user && method_exists($user, 'addMediaFromDisk')) {
-            $media = $user->addMediaFromDisk($name, $diskName)
-                ->usingName(pathinfo($name, PATHINFO_FILENAME))
+        if ($user && method_exists($user, 'addMedia')) {
+            $user->addMedia($uploaded)
+                ->usingName(pathinfo($uploaded->getClientOriginalName(), PATHINFO_FILENAME))
                 ->preservingOriginal()
+                ->withCustomProperties(['visibility' => $visibility])
                 ->toMediaCollection('gallery', $diskName);
         } else {
-            $now = now();
-            $media = Media::create([
-                'model_type' => $user ? get_class($user) : \App\Models\User::class,
-                'model_id' => $user ? $user->getKey() : 0,
-                'collection_name' => 'gallery',
-                'name' => pathinfo($name, PATHINFO_FILENAME),
-                'file_name' => $name,
-                'mime_type' => $uploaded->getClientMimeType(),
-                'disk' => $diskName,
-                'size' => $uploaded->getSize(),
-                'manipulations' => json_encode([]),
-                'custom_properties' => json_encode(['visibility' => $visibility]),
-                'responsive_images' => json_encode([]),
-                'uuid' => (string) Str::uuid(),
-                'order_column' => 1,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ]);
+            return redirect()->back()->with('error', 'User model must use HasMedia trait.');
         }
 
         return redirect()->route('gallery.index')->with('success', 'File berhasil diupload.');
@@ -116,11 +121,21 @@ class GalleryController extends Controller
             }
         }
 
-        if (!Storage::disk($media->disk)->exists($media->file_name)) {
-            abort(404);
+        $filePath = $media->file_name;
+        if (!Storage::disk($media->disk)->exists($filePath)) {
+            $subfolderPath = $media->id . '/' . $media->file_name;
+            if (Storage::disk($media->disk)->exists($subfolderPath)) {
+                $filePath = $subfolderPath;
+            } else {
+                abort(404);
+            }
         }
-
-        return Storage::disk($media->disk)->response($media->file_name);
+        $fullPath = Storage::disk($media->disk)->path($filePath);
+        $mime = $media->mime_type ?? 'application/octet-stream';
+        return response()->file($fullPath, [
+            'Content-Type' => $mime,
+            'Content-Disposition' => 'inline; filename="' . basename($filePath) . '"',
+        ]);
     }
 
     public function destroy($id)

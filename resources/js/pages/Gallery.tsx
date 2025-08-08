@@ -14,7 +14,8 @@ interface MediaItem {
     file_name: string;
     name: string;
     original_url: string;
-    disk: 'public' | 'private';
+    disk: string;
+    collection_name: string;
 }
 
 interface PaginationLink {
@@ -87,7 +88,6 @@ export default function Gallery({ media, visibility, collections, selected_colle
         { title: 'File Manager', href: '/dashboard/gallery' },
     ];
 
-    // Handler for filter change
     const handleFilterChange = (field: 'collection_name' | 'visibility', value: string) => {
         const params = {
             visibility: field === 'visibility' ? value : data.visibility,
@@ -96,11 +96,9 @@ export default function Gallery({ media, visibility, collections, selected_colle
         router.visit(route('gallery.index', params), { preserveScroll: true });
     };
 
-    // Group collections by disk/visibility
     const groupedCollections = React.useMemo(() => {
         const groups: { [key: string]: string[] } = { public: [], private: [] };
         collections.forEach((col) => {
-            // Convention: collection name with prefix 'public:' or 'private:' or fallback to current visibility
             if (col.startsWith('public:')) {
                 groups.public.push(col.replace(/^public:/, ''));
             } else if (col.startsWith('private:')) {
@@ -112,14 +110,12 @@ export default function Gallery({ media, visibility, collections, selected_colle
         return groups;
     }, [collections, visibility]);
 
-    // Accordion state
     const [openAccordion, setOpenAccordion] = React.useState<'public' | 'private'>(visibility);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="File Manager" />
             <div className="flex flex-row gap-4 p-4">
-                {/* Sidebar Explorer Accordion */}
                 <aside className="w-56 min-w-[180px] border-r pr-4">
                     <div className="mb-2 font-semibold text-sm text-muted-foreground">Folders</div>
                     <ul className="space-y-1">
@@ -169,8 +165,6 @@ export default function Gallery({ media, visibility, collections, selected_colle
                         ))}
                     </ul>
                 </aside>
-
-                {/* Main Content */}
                 <div className="flex-1 flex flex-col gap-4">
                     <div className="flex items-center justify-between mb-4">
                         <div>
@@ -178,7 +172,6 @@ export default function Gallery({ media, visibility, collections, selected_colle
                             <p className="text-muted-foreground">Manage public and private files in your application</p>
                         </div>
                     </div>
-
                     <form onSubmit={submitUpload} className="flex items-center gap-2 mb-4">
                         <input
                             type="file"
@@ -212,7 +205,6 @@ export default function Gallery({ media, visibility, collections, selected_colle
                         />
                         <Button type="submit" disabled={processing}>Upload</Button>
                     </form>
-
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">
                         {media.data.length === 0 ? (
                             <Card className="col-span-full flex items-center justify-center h-40">
@@ -223,18 +215,17 @@ export default function Gallery({ media, visibility, collections, selected_colle
                                 <Card key={item.id} className="flex flex-col items-center p-2">
                                     <CardHeader className="w-full flex flex-col items-center gap-1">
                                         <div className="flex items-center gap-1">
-                                            {item.disk === 'public' ? (
+                                            {(item.disk === 'public' || item.disk.includes('profile-images')) ? (
                                                 <Globe2 className="h-4 w-4 text-blue-500" />
                                             ) : (
                                                 <Lock className="h-4 w-4 text-gray-500" />
                                             )}
                                             <span className="text-xs font-semibold text-muted-foreground">
-                                                {item.disk === 'public' ? 'Public' : 'Private'}
+                                                {(item.disk === 'public' || item.disk.includes('profile-images')) ? 'Public' : 'Private'}
                                             </span>
                                         </div>
                                         <CardTitle className="text-xs break-all text-center w-full">{item.file_name}</CardTitle>
                                     </CardHeader>
-
                                     <CardContent className="flex flex-col items-center w-full">
                                         <img
                                             src={item.original_url}
@@ -243,9 +234,7 @@ export default function Gallery({ media, visibility, collections, selected_colle
                                             onError={e => ((e.target as HTMLImageElement).style.display = 'none')}
                                         />
                                         <div className="mb-2 w-full text-[10px] text-muted-foreground break-all text-center">
-                                            {item.disk === 'public'
-                                                ? `/storage/${item.file_name}`
-                                                : `Private file`}
+                                            {item.original_url}
                                         </div>
                                         <Button
                                             variant="destructive"
@@ -260,13 +249,11 @@ export default function Gallery({ media, visibility, collections, selected_colle
                             ))
                         )}
                     </div>
-
                     <ConfirmationDialog
                         state={confirmationState}
                         onConfirm={handleConfirm}
                         onCancel={handleCancel}
                     />
-
                     {media.links && (
                         <div className="mt-4 flex gap-2">
                             {media.links.map((link, i) =>
