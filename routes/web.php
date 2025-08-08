@@ -49,7 +49,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/dashboard', function () {
             return Inertia::render('Admin/Dashboard');
         })->name('dashboard');
-        
+
+        Route::get('/gallery', [\App\Http\Controllers\Admin\GalleryController::class, 'index'])->name('gallery.index');
+        Route::delete('/gallery/{id}', [\App\Http\Controllers\Admin\GalleryController::class, 'destroy'])->name('gallery.destroy');
+
         Route::get('/settings', function () {
             return Inertia::render('Admin/Settings');
         })->name('settings')->middleware('permission:manage-settings');
