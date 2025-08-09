@@ -31,7 +31,6 @@ class AppServiceProvider extends ServiceProvider
             broadcast(new \App\Events\ActivityLogCreated($activity));
         });
 
-        // Share AppSetting globally to all Inertia responses
         Inertia::share('appSettings', function () {
             return AppSetting::getInstance();
         });

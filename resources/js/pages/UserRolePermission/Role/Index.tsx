@@ -9,7 +9,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { useRef } from 'react';
 import ReactDOM from 'react-dom/client';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Role Management', href: '/roles' }];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Role Management', href: route('roles.index') }];
 
 export default function RoleIndexAccordion({ success }: { success?: string }) {
     const dtRef = useRef<DataTableWrapperRef>(null);
@@ -28,7 +28,7 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
             render: (data: Role[keyof Role] | null, type: 'display' | 'type' | 'sort' | 'export', row: Role) => {
                 return `
           <span class="inertia-link-cell" data-id="${row.id}"></span>
-          <button data-id="${row.id}" class="ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 btn-delete">
+          <button data-id="${row.id}" class="ml-2 my-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 btn-delete text-sm font-medium align-middle">
             Delete
           </button>
         `;
@@ -36,7 +36,6 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
         },
     ];
 
-    // Expand configuration
     const expandConfig = createExpandConfig<Role>({
         enabled: true,
         expandIcon: '+',
@@ -70,7 +69,11 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
             if (id && !cell.querySelector('a')) {
                 const root = ReactDOM.createRoot(cell);
                 root.render(
-                    <Link href={`/roles/${id}/edit`} className="rounded bg-yellow-500 px-2 py-1 text-white hover:bg-yellow-600">
+                    <Link
+                        href={route('roles.edit', id)}
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white rounded px-3 py-2 my-1 text-sm font-medium align-middle"
+                        style={{ display: 'inline-block', minWidth: '80px', textAlign: 'center' }}
+                    >
                         Edit
                     </Link>,
                 );
@@ -104,11 +107,11 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
                         onRowDelete={handleDelete}
                         confirmationConfig={{
                             delete: {
-                                title: 'Konfirmasi Hapus Role',
-                                message: 'Apakah Anda yakin ingin menghapus role ini? Tindakan ini tidak dapat dibatalkan.',
-                                confirmText: 'Hapus',
-                                cancelText: 'Batal',
-                                successMessage: 'Role berhasil dihapus',
+                                title: 'Delete Role Confirmation',
+                                message: 'Are you sure you want to delete this role? This action cannot be undone.',
+                                confirmText: 'Delete',
+                                cancelText: 'Cancel',
+                                successMessage: 'Role deleted successfully',
                             },
                         }}
                     />

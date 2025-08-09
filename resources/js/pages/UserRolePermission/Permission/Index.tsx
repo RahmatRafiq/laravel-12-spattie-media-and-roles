@@ -9,7 +9,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { useRef } from 'react';
 import ReactDOM from 'react-dom/client';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Permission Management', href: '/permissions' }];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Permission Management', href: route('permissions.index') }];
 
 export default function PermissionIndex({ success }: { success?: string }) {
     const dtRef = useRef<DataTableWrapperRef>(null);
@@ -25,7 +25,7 @@ export default function PermissionIndex({ success }: { success?: string }) {
             render: (data: Permission[keyof Permission] | null, type: 'display' | 'type' | 'sort' | 'export', row: Permission) => {
                 return `
                 <span class="inertia-link-cell" data-id="${row.id}"></span>
-                <button data-id="${row.id}" class="ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 btn-delete">
+                <button data-id="${row.id}" class="ml-2 my-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 btn-delete text-sm font-medium align-middle">
                   Delete
                 </button>
                `;
@@ -47,7 +47,11 @@ export default function PermissionIndex({ success }: { success?: string }) {
             if (id && !cell.querySelector('a')) {
                 const root = ReactDOM.createRoot(cell);
                 root.render(
-                    <Link href={`/permissions/${id}/edit`} className="rounded bg-yellow-500 px-2 py-1 text-white hover:bg-yellow-600">
+                    <Link
+                        href={route('permissions.edit', id)}
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white rounded px-3 py-2 my-1 text-sm font-medium align-middle"
+                        style={{ display: 'inline-block', minWidth: '80px', textAlign: 'center' }}
+                    >
                         Edit
                     </Link>,
                 );
@@ -80,11 +84,11 @@ export default function PermissionIndex({ success }: { success?: string }) {
                         onRowDelete={handleDelete}
                         confirmationConfig={{
                             delete: {
-                                title: 'Konfirmasi Hapus Permission',
-                                message: 'Apakah Anda yakin ingin menghapus permission ini? Tindakan ini tidak dapat dibatalkan.',
-                                confirmText: 'Hapus',
-                                cancelText: 'Batal',
-                                successMessage: 'Permission berhasil dihapus',
+                                title: 'Delete Permission Confirmation',
+                                message: 'Are you sure you want to delete this permission? This action cannot be undone.',
+                                confirmText: 'Delete',
+                                cancelText: 'Cancel',
+                                successMessage: 'Permission deleted successfully',
                             },
                         }}
                     />

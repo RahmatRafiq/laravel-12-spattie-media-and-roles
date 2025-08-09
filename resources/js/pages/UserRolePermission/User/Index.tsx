@@ -23,11 +23,11 @@ const columns: DataTableColumn<User>[] = [
         render: (data: User[keyof User] | null, type: 'display' | 'type' | 'sort' | 'export', row: User) => {
             let html = '';
             if (row.trashed) {
-                html += `<button class="btn-restore ml-2 px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700" data-id="${row.id}">Restore</button>`;
-                html += `<button class="btn-force-delete ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" data-id="${row.id}">Force Delete</button>`;
+                html += `<button class="btn-restore ml-2 my-1 px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm font-medium align-middle" data-id="${row.id}">Restore</button>`;
+                html += `<button class="btn-force-delete ml-2 my-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm font-medium align-middle" data-id="${row.id}">Force Delete</button>`;
             } else {
                 html += `<span class="inertia-link-cell" data-id="${row.id}"></span>`;
-                html += `<button class="btn-delete ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" data-id="${row.id}">Delete</button>`;
+                html += `<button class="btn-delete ml-2 my-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm font-medium align-middle" data-id="${row.id}">Delete</button>`;
             }
             return html;
         },
@@ -35,7 +35,7 @@ const columns: DataTableColumn<User>[] = [
 ];
 
 export default function UserIndex({ filter: initialFilter, success }: { filter: string; success?: string }) {
-    const breadcrumbs: BreadcrumbItem[] = [{ title: 'User Management', href: '/users' }];
+    const breadcrumbs: BreadcrumbItem[] = [{ title: 'User Management', href: route('users.index') }];
     const dtRef = useRef<DataTableWrapperRef>(null);
     const [filter, setFilter] = useState(initialFilter || 'active');
 
@@ -75,7 +75,11 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
             if (id && !cell.querySelector('a')) {
                 const root = ReactDOM.createRoot(cell);
                 root.render(
-                    <Link href={`/users/${id}/edit`} className="rounded bg-yellow-500 px-2 py-1 text-white hover:bg-yellow-600">
+                    <Link
+                        href={route('users.edit', id)}
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white rounded px-3 py-2 my-1 text-sm font-medium align-middle"
+                        style={{ display: 'inline-block', minWidth: '80px', textAlign: 'center' }}
+                    >
                         Edit
                     </Link>,
                 );
@@ -113,25 +117,25 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
                         onRowForceDelete={handleForceDelete}
                         confirmationConfig={{
                             delete: {
-                                title: 'Konfirmasi Hapus User',
-                                message: 'Apakah Anda yakin ingin menghapus user ini? User akan dipindahkan ke trash.',
-                                confirmText: 'Hapus',
-                                cancelText: 'Batal',
-                                successMessage: 'User berhasil dihapus',
+                                title: 'Delete User Confirmation',
+                                message: 'Are you sure you want to delete this user? The user will be moved to trash.',
+                                confirmText: 'Delete',
+                                cancelText: 'Cancel',
+                                successMessage: 'User deleted successfully',
                             },
                             restore: {
-                                title: 'Konfirmasi Restore User',
-                                message: 'Apakah Anda yakin ingin mengembalikan user ini dari trash?',
+                                title: 'Restore User Confirmation',
+                                message: 'Are you sure you want to restore this user from trash?',
                                 confirmText: 'Restore',
-                                cancelText: 'Batal',
-                                successMessage: 'User berhasil direstore',
+                                cancelText: 'Cancel',
+                                successMessage: 'User restored successfully',
                             },
                             forceDelete: {
-                                title: 'Konfirmasi Hapus Permanen',
-                                message: 'Apakah Anda yakin ingin menghapus user ini secara permanen? Tindakan ini tidak dapat dibatalkan!',
-                                confirmText: 'Hapus Permanen',
-                                cancelText: 'Batal',
-                                successMessage: 'User berhasil dihapus secara permanen',
+                                title: 'Permanent Delete Confirmation',
+                                message: 'Are you sure you want to permanently delete this user? This action cannot be undone!',
+                                confirmText: 'Permanently Delete',
+                                cancelText: 'Cancel',
+                                successMessage: 'User permanently deleted successfully',
                             },
                         }}
                     />

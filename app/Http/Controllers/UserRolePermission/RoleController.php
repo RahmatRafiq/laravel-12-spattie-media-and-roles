@@ -95,7 +95,7 @@ class RoleController extends Controller
 
         $role->permissions()->sync($request->permissions);
 
-        return redirect()->route('roles.index')->with('success', 'Role berhasil dibuat.');
+        return redirect()->route('roles.index')->with('success', 'Role has been created successfully.');
     }
 
     public function edit($id)
@@ -125,7 +125,7 @@ class RoleController extends Controller
 
         $role->permissions()->sync($request->permissions);
 
-        return redirect()->route('roles.index')->with('success', 'Role berhasil diperbarui.');
+        return redirect()->route('roles.index')->with('success', 'Role has been updated successfully.');
     }
 
     public function destroy($id)
@@ -133,6 +133,6 @@ class RoleController extends Controller
         $role = Role::findOrFail($id);
         $role->delete();
 
-        return redirect()->route('roles.index')->with('success', 'Role berhasil dihapus.');
+        return redirect()->route('roles.index')->with('success', 'Role has been deleted successfully.');
     }
 }

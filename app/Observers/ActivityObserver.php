@@ -3,6 +3,7 @@ namespace App\Observers;
 
 use App\Models\User;
 use App\Notifications\AdminUserActivityNotification;
+use Log;
 use Spatie\Activitylog\Models\Activity;
 
 class ActivityObserver
@@ -13,7 +14,7 @@ class ActivityObserver
             return;
         }
 
-        \Log::info("Activity untuk user tercatat, id: " . $activity->id);
+        Log::info("Activity for user recorded, id: " . $activity->id);
 
         $admins = User::role('admin')->get();
         foreach ($admins as $admin) {

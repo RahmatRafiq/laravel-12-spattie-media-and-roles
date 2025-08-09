@@ -143,6 +143,7 @@ class GalleryController extends Controller
             return redirect()->back()->with('error', 'User model must use HasMedia trait.');
         }
         return redirect()->route('gallery.index', ['folder_id' => $folderId])->with('success', 'File uploaded successfully.');
+
     }
 
     public function file(int $id)
@@ -179,11 +180,12 @@ class GalleryController extends Controller
         }
         if (!$media) {
             return redirect()->route('gallery.index', ['folder_id' => $folderId])->with('error', 'File not found.');
+
         }
         if (Storage::disk($media->disk)->exists($media->file_name)) {
             Storage::disk($media->disk)->delete($media->file_name);
         }
         $media->delete();
-        return redirect()->route('gallery.index', ['folder_id' => $folderId])->with('success', 'File deleted successfully.');
+        
     }
 }

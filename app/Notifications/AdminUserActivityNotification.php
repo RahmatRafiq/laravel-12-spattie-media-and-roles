@@ -42,11 +42,11 @@ class AdminUserActivityNotification extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-                    ->subject('Aktivitas User Baru')
-                    ->line('Terdapat aktivitas baru pada data user.')
-                    ->line("Deskripsi: {$this->activity->description}")
-                    ->action('Lihat Detail', url('/admin/users'))
-                    ->line('Terima kasih.');
+                     ->subject('New User Activity')
+                    ->line('There is a new activity on user data.')
+                    ->line("Description: {$this->activity->description}")
+                    ->action('View Details', url('/admin/users'))
+                    ->line('Thank you.');
     }
 
     /**

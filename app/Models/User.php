@@ -63,7 +63,7 @@ class User extends Authenticatable implements HasMedia
                 $user     = auth()->user();
                 $userName = $user ? $user->name : 'unknown';
                 $userId   = $user ? $user->id : 'unknown';
-                return "User {$this->name} (ID: {$this->id}) telah di{$eventName} oleh {$userName} (ID: {$userId})";
+                return "User {$this->name} (ID: {$this->id}) was {$eventName} by {$userName} (ID: {$userId})";
             });
     }
 
