@@ -10,12 +10,12 @@ import AppLogo from './app-logo';
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: '/dashboard',
+        href: route('dashboard'),
         icon: LayoutDashboard,
     },
     {
         title: 'Log Activity',
-        href: '/dashboard/activity-logs',
+        href: route('activity-logs.index'),
         icon: Activity,
     },
     {
@@ -25,29 +25,29 @@ const mainNavItems: NavItem[] = [
         children: [
             {
                 title: 'Roles',
-                href: '/dashboard/roles',
+                href: route('roles.index'),
                 icon: Shield,
             },
             {
                 title: 'Permissions',
-                href: '/dashboard/permissions',
+                href: route('permissions.index'),
                 icon: Key,
             },
             {
                 title: 'User',
-                href: '/dashboard/users',
+                href: route('users.index'),
                 icon: UserCheck,
             },
         ],
     },
     {
         title: 'App Settings',
-        href: '/dashboard/app-settings',
+        href: route('app-settings.index'),
         icon: Settings,
     },
     {
         title: 'Gallery',
-        href: '/dashboard/gallery',
+        href: route('gallery.index'),
         icon: FileText,
     },
 ];
@@ -72,7 +72,7 @@ export function AppSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href="/dashboard" prefetch>
+                            <Link href={route('dashboard')} prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>
