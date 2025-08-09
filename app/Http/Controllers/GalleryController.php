@@ -75,7 +75,7 @@ class GalleryController extends Controller
         $paginationArray = $paginator->toArray();
         $links = $paginationArray['links'] ?? [];
 
-        return Inertia::render('Gallery', [
+        return Inertia::render('Gallery/Index', [
             'media' => [
                 'data' => $items,
                 'links' => $links,
