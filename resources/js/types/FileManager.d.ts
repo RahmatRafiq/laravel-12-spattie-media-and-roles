@@ -12,7 +12,12 @@ interface PaginationLink {
     label: string;
     active: boolean;
 }
-
+interface FilemanagerFolder {
+    id: number;
+    name: string;
+    parent_id: number | null;
+    path?: string | null;
+}
 interface GalleryProps {
     media: {
         data: MediaItem[];

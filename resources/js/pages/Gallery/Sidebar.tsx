@@ -1,64 +1,162 @@
-import * as React from 'react';
-import { Globe2, Lock, Folder, FolderOpen } from 'lucide-react';
+import React from 'react';
+import { FolderOpen, Folder as FolderIcon, ChevronDown, ChevronRight, Plus, Pencil, Trash2 } from 'lucide-react';
 
-interface SidebarProps {
-    groupedCollections: { [key: string]: string[] };
-    openAccordion: 'public' | 'private';
-    setOpenAccordion: (v: 'public' | 'private') => void;
-    data: { collection_name: string };
-    handleFilterChange: (field: 'collection_name' | 'visibility', value: string) => void;
+export interface FilemanagerFolder {
+    id: number;
+    name: string;
+    parent_id: number | null;
+    path?: string | null;
 }
 
-export default function Sidebar({ groupedCollections, openAccordion, setOpenAccordion, data, handleFilterChange }: SidebarProps) {
+interface SidebarProps {
+    folders: FilemanagerFolder[];
+    currentFolderId: number | null;
+    onFolderClick: (folderId: number | null) => void;
+    onCreateFolder: (name: string, parentId: number | null) => void;
+    onRenameFolder: (id: number, name: string) => void;
+    onDeleteFolder: (id: number) => void;
+    expanded?: { [id: number]: boolean };
+    setExpanded?: React.Dispatch<React.SetStateAction<{ [id: number]: boolean }>>;
+}
+
+export default function Sidebar({
+    folders,
+    currentFolderId,
+    onFolderClick,
+    onCreateFolder,
+    onRenameFolder,
+    onDeleteFolder,
+    expanded: controlledExpanded,
+    setExpanded: setControlledExpanded,
+}: SidebarProps) {
+    const [localExpanded, setLocalExpanded] = React.useState<{ [id: number]: boolean }>({});
+    const expanded = controlledExpanded ?? localExpanded;
+    const setExpanded = setControlledExpanded ?? setLocalExpanded;
+
+    const openParentChain = React.useCallback((folderId: number | null, setter: typeof setExpanded) => {
+        if (!folderId) return;
+        setter((prev) => {
+            const next = { ...prev };
+            next[folderId] = true;
+            let parent = folders.find((f) => f.id === folderId)?.parent_id ?? null;
+            while (parent) {
+                next[parent] = true;
+                parent = folders.find((f) => f.id === parent)?.parent_id ?? null;
+            }
+            return next;
+        });
+    }, [folders]);
+
+    const handleToggle = (id: number) => {
+        setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+    };
+
+    const handleFolderClick = (folderId: number | null) => {
+        if (folderId === null) {
+            onFolderClick(null);
+            return;
+        }
+        openParentChain(folderId, setExpanded);
+        onFolderClick(folderId);
+    };
+
+    React.useEffect(() => {
+        if (!currentFolderId) return;
+        openParentChain(currentFolderId, setExpanded);
+    }, [currentFolderId, folders, openParentChain, setExpanded]);
+
+    const renderFolderTree = (parentId: number | null = null, level = 0): React.ReactNode => {
+        return folders
+            .filter((f) => f.parent_id === parentId)
+            .map((folder) => {
+                const hasChildren = folders.some((f) => f.parent_id === folder.id);
+                const isOpen = !!expanded[folder.id];
+                return (
+                    <div key={folder.id} className={
+                        [
+                            'flex flex-col',
+                            level > 0 ? 'border-l border-gray-200 pl-3' : '',
+                        ].join(' ')
+                    }>
+                        <div className={`flex items-center gap-2 py-1 group rounded ${currentFolderId === folder.id ? 'bg-accent/10 text-accent-foreground' : ''}`}>
+                            {hasChildren ? (
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleToggle(folder.id);
+                                    }}
+                                    className="p-0.5 text-gray-400 hover:text-blue-500 flex items-center justify-center"
+                                    tabIndex={-1}
+                                >
+                                    {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                                </button>
+                            ) : (
+                                <span className="w-4 inline-block" />
+                            )}
+
+                            <button
+                                className={`flex items-center gap-2 flex-1 text-left truncate ${currentFolderId === folder.id ? 'font-bold text-blue-600' : ''}`}
+                                onClick={() => handleFolderClick(folder.id)}
+                            >
+                                <span>{isOpen && hasChildren ? <FolderOpen size={16} /> : <FolderIcon size={16} />}</span>
+                                <span className="truncate">{folder.name}</span>
+                            </button>
+
+                            <button
+                                title="Add subfolder"
+                                onClick={() => {
+                                    const name = prompt('Subfolder name');
+                                    if (name) onCreateFolder(name, folder.id);
+                                }}
+                                className="text-xs text-blue-400 opacity-0 group-hover:opacity-100 transition flex items-center"
+                                style={{ marginLeft: 2 }}
+                            >
+                                <Plus size={14} />
+                            </button>
+
+                            <button
+                                title="Rename"
+                                onClick={() => {
+                                    const newName = prompt('Rename folder', folder.name) || folder.name;
+                                    onRenameFolder(folder.id, newName);
+                                }}
+                                className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition flex items-center"
+                            >
+                                <Pencil size={14} />
+                            </button>
+
+                            <button
+                                title="Delete"
+                                onClick={() => onDeleteFolder(folder.id)}
+                                className="text-xs text-red-400 opacity-0 group-hover:opacity-100 transition flex items-center"
+                            >
+                                <Trash2 size={14} />
+                            </button>
+                        </div>
+
+                        {hasChildren && isOpen && <div>{renderFolderTree(folder.id, level + 1)}</div>}
+                    </div>
+                );
+            });
+    };
+
     return (
-        <aside className="w-56 min-w-[180px] border-r pr-4">
-            <div className="mb-2 font-semibold text-sm text-muted-foreground">Folders</div>
-            <ul className="space-y-1">
-                {(['public', 'private'] as const).map((disk) => (
-                    <li key={disk}>
-                        <button
-                            className={`w-full text-left px-3 py-2 rounded hover:bg-muted/70 transition text-sm font-bold ${openAccordion === disk ? 'bg-muted text-foreground' : 'text-muted-foreground'}`}
-                            onClick={() => {
-                                setOpenAccordion(disk);
-                                handleFilterChange('visibility', disk);
-                            }}
-                        >
-                            <span className="inline-block align-middle mr-2">
-                                {disk === 'public' ? <Globe2 className="inline w-4 h-4 align-middle" /> : <Lock className="inline w-4 h-4 align-middle" />}
-                            </span>
-                            {disk.charAt(0).toUpperCase() + disk.slice(1)}
-                        </button>
-                        {openAccordion === disk && (
-                            <ul className="ml-4 mt-1 space-y-1">
-                                <li>
-                                    <button
-                                        className={`w-full text-left px-3 py-2 rounded hover:bg-muted/70 transition text-sm ${!data.collection_name ? 'bg-muted font-bold text-foreground' : ''}`}
-                                        onClick={() => handleFilterChange('collection_name', '')}
-                                    >
-                                        <span className="inline-block align-middle mr-2">
-                                            <FolderOpen className="inline w-4 h-4 align-middle" />
-                                        </span>
-                                        All Collections
-                                    </button>
-                                </li>
-                                {groupedCollections[disk].map((col) => (
-                                    <li key={col}>
-                                        <button
-                                            className={`w-full text-left px-3 py-2 rounded hover:bg-muted/70 transition text-sm ${data.collection_name === col ? 'bg-muted font-bold text-foreground' : ''}`}
-                                            onClick={() => handleFilterChange('collection_name', col)}
-                                        >
-                                            <span className="inline-block align-middle mr-2">
-                                                <Folder className="inline w-4 h-4 align-middle" />
-                                            </span>
-                                            {col}
-                                        </button>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </li>
-                ))}
-            </ul>
+        <aside className="w-full md:w-64 min-w-0 md:min-w-[240px] border-r border-border pr-6 bg-background max-h-[80vh] md:max-h-none overflow-y-auto">
+            <div className="mb-2 font-semibold text-sm text-muted-foreground flex items-center justify-between">
+                Folders
+                <button
+                    onClick={() => {
+                        const name = prompt('Folder name');
+                        if (name) onCreateFolder(name, null);
+                    }}
+                    className="text-xs text-primary hover:underline"
+                >
+                    + Folder
+                </button>
+            </div>
+
+            <div>{renderFolderTree(null, 0)}</div>
         </aside>
     );
 }
