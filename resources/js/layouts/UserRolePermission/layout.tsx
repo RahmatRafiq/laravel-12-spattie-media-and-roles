@@ -18,8 +18,7 @@ export default function UserRolePermissionLayout({
     description,
     active,
 }: PropsWithChildren<{ breadcrumbs: BreadcrumbItem[]; title: string; description?: string; active?: string }>) {
-    if (typeof window === 'undefined') return null;
-    const currentPath = window.location.pathname;
+    const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
     return (
         <div className="px-4 py-6">
             <Heading title={title} description={description} />
