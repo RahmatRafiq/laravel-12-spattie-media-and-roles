@@ -9,10 +9,8 @@ import TreeDnD from '@/components/TreeDnD';
 
 import { toast } from '@/utils/toast';
 import { Pencil, Trash2 } from 'lucide-react';
-
-
-
-
+import { useConfirmation } from '@/hooks/use-confirmation';
+import ConfirmationDialog from '@/components/confirmation-dialog';
 
 export interface MenuTreeItem {
     id: number;
@@ -25,58 +23,62 @@ export interface MenuTreeItem {
     children?: MenuTreeItem[];
 }
 
-
-
 function MenuIndexPage() {
-    // Inline renderMenuItem so it can access router, toast, etc.
-    const renderMenuItem = (item: MenuTreeItem) => {
-        const handleDelete = async (e: React.MouseEvent) => {
-            e.preventDefault();
-            if (!window.confirm('Yakin ingin menghapus menu ini?')) return;
-            try {
-                await router.delete(route('menus.destroy', item.id), {
+    const { confirmationState, openConfirmation, handleConfirm, handleCancel } = useConfirmation();
+    const handleDeleteMenu = (id: number) => {
+        openConfirmation({
+            title: 'Delete Menu Confirmation',
+            message: 'Are you sure you want to delete this menu? This action cannot be undone.',
+            confirmText: 'Delete',
+            cancelText: 'Cancel',
+            variant: 'destructive',
+            icon: <Trash2 className="h-6 w-6 text-red-600" />,
+            onConfirm: () => {
+                router.delete(route('menus.destroy', id), {
                     preserveScroll: true,
                     onSuccess: (page) => {
                         if (typeof page.props.success === 'string') toast.success(page.props.success);
-                        else toast.success('Menu berhasil dihapus.');
+                        else toast.success('Menu deleted successfully.');
                     },
                     onError: () => {
-                        toast.error('Gagal menghapus menu.');
+                        toast.error('Failed to delete menu.');
                     },
                 });
-            } catch {
-                toast.error('Gagal menghapus menu.');
-            }
-        };
-        return (
-            <div className="flex items-center gap-3 rounded-lg border border-border bg-background px-4 py-3 mb-2 shadow-sm hover:bg-accent/20 transition-all group min-h-[48px]">
-                <span className="cursor-move text-muted-foreground text-xl select-none">≡</span>
-                <span className="font-semibold text-base text-foreground truncate max-w-[180px]">{item.title}</span>
-                {item.route && <span className="text-xs text-muted-foreground ml-1">({item.route})</span>}
-                {item.permission && <span className="text-xs bg-muted px-2 py-0.5 rounded ml-1">{item.permission}</span>}
-                <div className="flex-1" />
-                <Link
-                    className="btn btn-xs btn-outline ml-2"
-                    title="Edit Menu"
-                    href={route('menus.edit', item.id)}
-                >
-                    <Pencil size={16} />
-                </Link>
-                <button
-                    type="button"
-                    className="btn btn-xs btn-outline ml-2 text-red-600 hover:bg-red-50"
-                    title="Hapus Menu"
-                    onClick={handleDelete}
-                >
-                    <Trash2 size={16} />
-                </button>
-            </div>
-        );
+            },
+        });
     };
+    const renderMenuItem = (item: MenuTreeItem) => (
+        <div className="flex items-center gap-3 rounded-lg border border-border bg-background px-4 py-3 mb-2 shadow-sm hover:bg-accent/20 transition-all group min-h-[48px]">
+            <span className="cursor-move text-muted-foreground text-xl select-none">≡</span>
+            <span className="font-semibold text-base text-foreground truncate max-w-[180px]">{item.title}</span>
+            {item.route && <span className="text-xs text-muted-foreground ml-1">({item.route})</span>}
+            {item.permission && <span className="text-xs bg-muted px-2 py-0.5 rounded ml-1">{item.permission}</span>}
+            <div className="flex-1" />
+            <Link href={route('menus.edit', item.id)} title="Edit Menu" className="ml-2">
+                <Button type="button" size="icon" variant="outline" className="w-8 h-8" aria-label="Edit Menu">
+                    <Pencil size={16} />
+                </Button>
+            </Link>
+            <Button
+                type="button"
+                size="icon"
+                variant="outline"
+                className="ml-2 w-8 h-8 text-red-600 hover:bg-red-50"
+                title="Delete Menu"
+                aria-label="Delete Menu"
+                onClick={() => handleDeleteMenu(item.id)}
+            >
+                <Trash2 size={16} />
+            </Button>
+        </div>
+    );
     const { menus, success } = (usePage().props as unknown) as { menus: MenuTreeItem[], success?: string };
     const [tree, setTree] = React.useState<MenuTreeItem[]>(menus);
     const [saving, setSaving] = React.useState(false);
 
+    React.useEffect(() => {
+        setTree(menus);
+    }, [menus]);
 
     function normalizeTree(items: MenuTreeItem[]): MenuTreeItem[] {
         return items.map(item => ({
@@ -96,10 +98,10 @@ function MenuIndexPage() {
                 preserveState: true,
                 onSuccess: (page) => {
                     if (typeof page.props.success === 'string') toast.success(page.props.success);
-                    else toast.success('Urutan menu berhasil disimpan.');
+                    else toast.success('Menu order saved successfully.');
                 },
                 onError: () => {
-                    toast.error('Gagal menyimpan urutan menu.');
+                    toast.error('Failed to save menu order.');
                 },
                 onFinish: () => {
                     setSaving(false);
@@ -107,7 +109,7 @@ function MenuIndexPage() {
                 only: [],
             });
         } catch {
-            toast.error('Gagal menyimpan urutan menu.');
+            toast.error('Failed to save menu order.');
             setSaving(false);
         }
     };
@@ -152,6 +154,11 @@ function MenuIndexPage() {
                     </div>
                 </div>
             </div>
+            <ConfirmationDialog
+                state={confirmationState}
+                onConfirm={handleConfirm}
+                onCancel={handleCancel}
+            />
         </AppLayout>
     );
 }

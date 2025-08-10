@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 
 class MenuController extends Controller
 {
-
     public function create(Request $request)
     {
         $parent_id = $request->query('parent_id');
@@ -56,7 +55,6 @@ class MenuController extends Controller
         return redirect()->route('menus.manage')->with('success', 'Menu updated successfully.');
     }
 
-
     public function manage()
     {
         $menus = Menu::with('children')->whereNull('parent_id')->orderBy('order')->get();
@@ -91,10 +89,11 @@ class MenuController extends Controller
             }
         }
     }
-        public function destroy($id)
+
+    public function destroy($id)
     {
         $menu = Menu::findOrFail($id);
         $menu->delete();
-        return redirect()->route('menus.manage')->with('success', 'Menu berhasil dihapus.');
+        return redirect()->route('menus.manage')->with('success', 'Menu deleted successfully.');
     }
 }

@@ -74,7 +74,6 @@ function Tree<T>({ items, getId, getChildren, setChildren, renderItem }: { items
     );
 }
 
-// --- Tree manipulation utils (id: string everywhere) ---
 function removeNode<T>(items: T[], id: string, getId: (item: T) => string | number, getChildren: (item: T) => T[] | undefined, setChildren: (item: T, children: T[]) => T): [T | null, T[]] {
     let removed: T | null = null;
     function walk(list: T[]): T[] {
@@ -149,7 +148,6 @@ export default function TreeDnD<T>({ items, onChange, getId, getChildren, setChi
         if (!removedNode) return;
 
         let targetIndex = to.index;
-        // Only adjust if moving within the same parent and moving downwards (from.index < to.index)
         if (from.parentId === to.parentId && from.index < to.index) {
             targetIndex = to.index;
         }
