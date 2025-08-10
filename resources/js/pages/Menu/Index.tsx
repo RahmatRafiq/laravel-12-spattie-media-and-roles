@@ -27,17 +27,18 @@ export interface MenuTreeItem {
 
 function renderMenuItem(item: MenuTreeItem) {
     return (
-        <div className="flex items-center gap-2 rounded border border-border bg-background px-2 py-1 hover:bg-accent/30 transition group">
-            <span className="cursor-move text-muted-foreground">≡</span>
-            <span className="font-medium text-foreground">{item.title}</span>
-            {item.route && <span className="text-xs text-muted-foreground">({item.route})</span>}
-            {item.permission && <span className="text-xs bg-muted px-1 rounded">{item.permission}</span>}
+        <div className="flex items-center gap-3 rounded-lg border border-border bg-background px-4 py-3 mb-2 shadow-sm hover:bg-accent/20 transition-all group min-h-[48px]">
+            <span className="cursor-move text-muted-foreground text-xl select-none">≡</span>
+            <span className="font-semibold text-base text-foreground truncate max-w-[180px]">{item.title}</span>
+            {item.route && <span className="text-xs text-muted-foreground ml-1">({item.route})</span>}
+            {item.permission && <span className="text-xs bg-muted px-2 py-0.5 rounded ml-1">{item.permission}</span>}
+            <div className="flex-1" />
             <Link
-                className="btn btn-xs btn-outline ml-1"
+                className="btn btn-xs btn-outline ml-2"
                 title="Edit Menu"
                 href={route('menus.edit', item.id)}
             >
-                <Pencil size={14} />
+                <Pencil size={16} />
             </Link>
         </div>
     );
