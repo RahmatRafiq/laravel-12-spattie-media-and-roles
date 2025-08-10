@@ -1,6 +1,10 @@
-﻿# Laravel 12 Spatie Media & Roles StarterKit
+﻿[![wakatime](https://wakatime.com/badge/github/RahmatRafiq/laravel-12-spattie-media-and-roles.svg)](https://wakatime.com/badge/github/RahmatRafiq/laravel-12-spattie-media-and-roles)
 
-Modern starter kit for web apps using **Laravel 12**, **React 19 + Inertia.js**, **Spatie Roles & Permissions**, and **Spatie Media Library**. Built for maintainability, modularity, and rapid development.
+[![wakatime](https://wakatime.com/badge/github/RahmatRafiq/laravel-12-spattie-media-and-roles.svg)](https://wakatime.com/badge/github/RahmatRafiq/laravel-12-spattie-media-and-roles)
+
+# Laravel 12 Spatie Media & Roles StarterKit
+
+A modern starter kit for web apps using **Laravel 12**, **React 19 + Inertia.js**, **Spatie Roles & Permissions**, and **Spatie Media Library**. Built for maintainability, modularity, and rapid development.
 
 ## Features
 
@@ -26,48 +30,49 @@ npm install
 php artisan key:generate
 php artisan migrate --seed
 npm run dev
-php artisan serve
 ```
 
 ### Default Login
 
-Admin:
+- **Admin**
 
-- Email: `admin@example.com` / Password: `password`
-  User:
-- Email: `user@example.com` / Password: `password`
+    - Email: `admin@example.com`
+    - Password: `password`
 
----
+- **User**
+    - Email: `user@example.com`
+    - Password: `password`
 
 ---
 
 ### Useful Commands
 
-See `Makefile` for all available commands (setup, migrate, seed, build, dev, logs, etc).
+See the `Makefile` for all available commands (setup, migrate, seed, build, dev, logs, etc).
 
 ---
 
-App: http://localhost:8000
-Mailpit: http://localhost:8026
-Database: localhost:3308 (user: sail, password: password)
-Redis: localhost:6380
+**App:** http://localhost:8000  
+**Mailpit:** http://localhost:8026  
+**Database:** localhost:3308 (user: sail, password: password)  
+**Redis:** localhost:6380
 
 ---
 
-To change app port, edit `.env` (APP_PORT, APP_URL) and restart.
-
----
+To change the app port, edit `.env` (`APP_PORT`, `APP_URL`) and restart.
 
 ---
 
 ## Role & Permission Usage
 
-Roles: Admin (full access), User (limited access)
+**Roles:**
 
-Permissions:
+- Admin (full access)
+- User (limited access)
+
+**Permissions:**
 `view-users`, `create-users`, `edit-users`, `delete-users`, `view-roles`, `create-roles`, `edit-roles`, `delete-roles`, `view-permissions`, `assign-permissions`, `view-dashboard`, `access-admin-panel`, `manage-settings`, `view-activity-logs`
 
-Example route protection:
+**Example route protection:**
 
 ```php
 Route::resource('roles', RoleController::class)
