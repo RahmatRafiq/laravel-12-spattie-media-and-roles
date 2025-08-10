@@ -1,9 +1,25 @@
+
 import React from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Head, usePage, Link } from '@inertiajs/react';
 import { GripVertical, Pencil } from 'lucide-react';
 import Heading from '@/components/heading';
 import HeadingSmall from '@/components/heading-small';
+import {
+    DndContext,
+    closestCenter,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragEndEvent,
+} from '@dnd-kit/core';
+import {
+    SortableContext,
+    verticalListSortingStrategy,
+    useSortable,
+    arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 export interface MenuTreeItem {
     id: number;
@@ -16,39 +32,92 @@ export interface MenuTreeItem {
     children?: MenuTreeItem[];
 }
 
-function MenuTree({ items }: { items: MenuTreeItem[] }) {
+
+function SortableMenuItem({ item, children }: { item: MenuTreeItem; children?: React.ReactNode }) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: item.id });
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+        zIndex: isDragging ? 10 : undefined,
+    };
+    return (
+        <li ref={setNodeRef} style={style} className="mb-1">
+            <div
+                className="flex items-center gap-2 rounded border border-border bg-background px-2 py-1 hover:bg-accent/30 transition group"
+                {...attributes}
+                {...listeners}
+            >
+                <span className="cursor-move text-muted-foreground"><GripVertical size={16} /></span>
+                {/* TODO: Render icon if available */}
+                <span className="font-medium text-foreground">{item.title}</span>
+                {item.route && <span className="text-xs text-muted-foreground">({item.route})</span>}
+                {item.permission && <span className="text-xs bg-muted px-1 rounded">{item.permission}</span>}
+                <Link
+                    className="btn btn-xs btn-outline ml-1"
+                    title="Edit Menu"
+                    href={route('menus.edit', item.id)}
+                >
+                    <Pencil size={14} />
+                </Link>
+            </div>
+            {children}
+        </li>
+    );
+}
+
+function MenuTree({ items, onChange }: { items: MenuTreeItem[]; onChange?: (items: MenuTreeItem[]) => void }) {
     if (!items || items.length === 0) {
         return <div className="text-muted-foreground text-sm">No menu found.</div>;
     }
     return (
-        <ul className="pl-0">
-            {items.map((item) => (
-                <li key={item.id} className="mb-1">
-                    <div className="flex items-center gap-2 rounded border border-border bg-background px-2 py-1 hover:bg-accent/30 transition group">
-                        <span className="cursor-move text-muted-foreground"><GripVertical size={16} /></span>
-                        {/* TODO: Render icon if available */}
-                        <span className="font-medium text-foreground">{item.title}</span>
-                        {item.route && <span className="text-xs text-muted-foreground">({item.route})</span>}
-                        {item.permission && <span className="text-xs bg-muted px-1 rounded">{item.permission}</span>}
-                        <Link
-                            className="btn btn-xs btn-outline ml-1"
-                            title="Edit Menu"
-                            href={route('menus.edit', item.id)}
-                        ><Pencil size={14} /></Link>
-                    </div>
-                    {item.children && item.children.length > 0 && (
-                        <div className="ml-6 mt-1">
-                            <MenuTree items={item.children} />
-                        </div>
-                    )}
-                </li>
-            ))}
-        </ul>
+        <SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
+            <ul className="pl-0">
+                {items.map((item) => (
+                    <SortableMenuItem key={item.id} item={item}>
+                        {item.children && item.children.length > 0 && (
+                            <div className="ml-6 mt-1">
+                                <MenuTree items={item.children} onChange={onChange} />
+                            </div>
+                        )}
+                    </SortableMenuItem>
+                ))}
+            </ul>
+        </SortableContext>
     );
 }
 
+
 export default function MenuManage() {
     const { menus, success } = (usePage().props as unknown) as { menus: MenuTreeItem[], success?: string };
+    const [tree, setTree] = React.useState<MenuTreeItem[]>(menus);
+
+    // DnD-kit setup
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+    );
+
+    // Flat list of ids for root level
+
+    // Handler for drag end (root level only for now)
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (!over || active.id === over.id) return;
+        const oldIndex = tree.findIndex((i) => i.id === active.id);
+        const newIndex = tree.findIndex((i) => i.id === over.id);
+        if (oldIndex === -1 || newIndex === -1) return;
+        const newTree = arrayMove(tree, oldIndex, newIndex);
+        setTree(newTree);
+        // TODO: handle nested move and update parent_id if needed
+    };
+
     return (
         <AppLayout breadcrumbs={[{ title: 'Dashboard', href: '/dashboard' }, { title: 'Menu Management', href: '#' }]}>
             <Head title="Menu Management" />
@@ -61,7 +130,13 @@ export default function MenuManage() {
                     </div>
                     {success && <div className="mb-2 text-green-600 text-sm font-medium">{success}</div>}
                     <div className="bg-card rounded shadow p-4 mt-2">
-                        <MenuTree items={menus} />
+                        <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleDragEnd}
+                        >
+                            <MenuTree items={tree} onChange={setTree} />
+                        </DndContext>
                     </div>
                 </div>
             </div>
