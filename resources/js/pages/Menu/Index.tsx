@@ -2,6 +2,8 @@ import React from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Head, usePage, Link } from '@inertiajs/react';
 import { GripVertical, Pencil } from 'lucide-react';
+import Heading from '@/components/heading';
+import HeadingSmall from '@/components/heading-small';
 
 export interface MenuTreeItem {
     id: number;
@@ -50,12 +52,12 @@ export default function MenuManage() {
     return (
         <AppLayout breadcrumbs={[{ title: 'Dashboard', href: '/dashboard' }, { title: 'Menu Management', href: '#' }]}>
             <Head title="Menu Management" />
-            <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 py-6">
-                <h1 className="mb-4 text-2xl font-semibold text-center">Menu Management</h1>
-                <div className="w-full max-w-2xl space-y-6">
-                    <div className="flex items-center justify-between mb-2">
-                        <h2 className="text-xl font-bold">Menu List</h2>
-                        <Link className="btn btn-primary btn-sm" href={route('menus.create')}>+ Add Menu</Link>
+            <div className="px-4 py-6">
+                <Heading title="Menu Management" description="Manage your application's navigation menu structure." />
+                <div className="max-w-2xl mx-auto">
+                    <div className="flex items-center justify-between mb-4">
+                        <HeadingSmall title="Menu List" description="View and organize your application's menus." />
+                        <Link className="btn btn-primary btn-sm ml-4" href={route('menus.create')}>+ Add Menu</Link>
                     </div>
                     {success && <div className="mb-2 text-green-600 text-sm font-medium">{success}</div>}
                     <div className="bg-card rounded shadow p-4 mt-2">

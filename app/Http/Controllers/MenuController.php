@@ -66,7 +66,7 @@ class MenuController extends Controller
     public function manage()
     {
         $menus = Menu::with('children')->whereNull('parent_id')->orderBy('order')->get();
-        return inertia('Menu/Manage', [
+        return inertia('Menu/Index', [
             'menus' => $menus,
         ]);
     }
