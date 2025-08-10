@@ -3,7 +3,7 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEvent } from 'react';
 
 import CustomSelect from '@/components/select';
@@ -46,6 +46,7 @@ export default function RoleForm({ role, permissions }: { role?: Role; permissio
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title={isEdit ? 'Edit Role' : 'Create Role'} />
             <UserRolePermissionLayout
                 breadcrumbs={breadcrumbs}
                 title="Role Management"

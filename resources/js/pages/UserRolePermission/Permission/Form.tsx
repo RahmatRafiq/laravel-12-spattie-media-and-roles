@@ -7,7 +7,7 @@ import AppLayout from '@/layouts/app-layout';
 import UserRolePermissionLayout from '@/layouts/UserRolePermission/layout';
 import { BreadcrumbItem } from '@/types';
 import type { Permission } from '@/types/UserRolePermission';
-import { Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEvent } from 'react';
 
 export default function PermissionForm({ permission }: { permission?: Permission }) {
@@ -32,6 +32,7 @@ export default function PermissionForm({ permission }: { permission?: Permission
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title={isEdit ? 'Edit Permission' : 'Create Permission'} />
             <UserRolePermissionLayout
                 breadcrumbs={breadcrumbs}
                 title="Permission Management"

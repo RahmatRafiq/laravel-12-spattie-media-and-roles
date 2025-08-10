@@ -8,7 +8,7 @@ import AppLayout from '@/layouts/app-layout';
 import UserRolePermissionLayout from '@/layouts/UserRolePermission/layout';
 import { BreadcrumbItem } from '@/types';
 import type { Role, User } from '@/types/UserRolePermission';
-import { Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEvent } from 'react';
 
 export default function UserForm({ user, roles }: { user?: User; roles: Role[] }) {
@@ -45,6 +45,7 @@ export default function UserForm({ user, roles }: { user?: User; roles: Role[] }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title={isEdit ? 'Edit User' : 'Create User'} />
             <UserRolePermissionLayout
                 breadcrumbs={breadcrumbs}
                 title="User Management"
