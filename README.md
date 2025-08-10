@@ -1,8 +1,4 @@
-﻿[![wakatime](https://wakatime.com/badge/github/RahmatRafiq/laravel-12-spattie-media-and-roles.svg)](https://wakatime.com/badge/github/RahmatRafiq/laravel-12-spattie-media-and-roles)
-
-[![wakatime](https://wakatime.com/badge/github/RahmatRafiq/laravel-12-spattie-media-and-roles.svg)](https://wakatime.com/badge/github/RahmatRafiq/laravel-12-spattie-media-and-roles)
-
-# Laravel 12 Spatie Media & Roles StarterKit
+﻿# Laravel 12 Spatie Media & Roles StarterKit [![wakatime](https://wakatime.com/badge/github/RahmatRafiq/laravel-12-spattie-media-and-roles.svg)](https://wakatime.com/badge/github/RahmatRafiq/laravel-12-spattie-media-and-roles)
 
 A modern starter kit for web apps using **Laravel 12**, **React 19 + Inertia.js**, **Spatie Roles & Permissions**, and **Spatie Media Library**. Built for maintainability, modularity, and rapid development.
 
