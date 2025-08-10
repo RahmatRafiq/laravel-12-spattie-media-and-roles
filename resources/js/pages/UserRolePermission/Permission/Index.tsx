@@ -66,8 +66,7 @@ export default function PermissionIndex({ success }: { success?: string }) {
                 <h1 className="mb-4 text-2xl font-semibold">Permission Management</h1>
                 <div className="w-full">
                     <HeadingSmall title="Permissions" description="Manage permissions for your application" />
-                    <div className="mb-4 flex items-center justify-between">
-                        <h2 className="text-xl font-semibold">Permission List</h2>
+                    <div className="mb-4 flex items-center justify-end">
                         <Link href={route('permissions.create')}>
                             <Button>Create Permission</Button>
                         </Link>

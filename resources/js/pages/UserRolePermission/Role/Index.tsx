@@ -88,8 +88,7 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
                 <h1 className="mb-4 text-2xl font-semibold">Role Management</h1>
                 <div className="w-full">
                     <HeadingSmall title="Roles" description="Manage roles for your application" />
-                    <div className="mb-4 flex items-center justify-between">
-                        <h2 className="text-xl font-semibold">Role List</h2>
+                    <div className="mb-4 flex items-center justify-end">
                         <Link href={route('roles.create')}>
                             <Button>Create Role</Button>
                         </Link>

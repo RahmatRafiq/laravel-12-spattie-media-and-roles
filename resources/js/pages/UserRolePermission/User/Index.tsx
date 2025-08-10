@@ -94,8 +94,7 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
                 <h1 className="mb-4 text-2xl font-semibold">User Management</h1>
                 <div className="w-full">
                     <HeadingSmall title="Users" description="Manage application users and their roles" />
-                    <div className="mb-4 flex items-center justify-between">
-                        <h2 className="text-xl font-semibold">User List</h2>
+                    <div className="mb-4 flex items-center justify-end">
                         <Link href={route('users.create')}>
                             <Button>Create User</Button>
                         </Link>
