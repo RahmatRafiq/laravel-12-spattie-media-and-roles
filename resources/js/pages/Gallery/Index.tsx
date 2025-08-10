@@ -158,20 +158,24 @@ export default function Gallery({
             <Head title="File Manager" />
             <div className="px-4 py-6">
                 <Heading title="File Manager" description="Manage your application's files and folders." />
-                <div className="flex flex-row items-start gap-6 max-w-7xl mx-auto mt-4">
-                    <aside className="w-full md:w-64 min-w-0 md:min-w-[240px]">
-                        <div className="bg-card rounded shadow p-4">
-                            <HeadingSmall title="Folders" description="Browse and organize your folders." />
-                            <Sidebar
-                                folders={folders}
-                                currentFolderId={currentFolderId}
-                                onFolderClick={handleFolderClick}
-                                onCreateFolder={createFolder}
-                                onRenameFolder={renameFolder}
-                                onDeleteFolder={deleteFolder}
-                                expanded={expanded}
-                                setExpanded={setExpanded}
-                            />
+                <div className="flex flex-row items-start gap-6 max-w-7xl mx-auto mt-4 min-h-[60vh]">
+                    <aside className="hidden md:block w-64 min-w-[240px] h-full">
+                        <div className="bg-card rounded shadow p-0 h-full flex flex-col">
+                            <div className="p-4 border-b">
+                                <HeadingSmall title="Folders" description="Browse and organize your folders." />
+                            </div>
+                            <div className="flex-1 overflow-y-auto">
+                                <Sidebar
+                                    folders={folders}
+                                    currentFolderId={currentFolderId}
+                                    onFolderClick={handleFolderClick}
+                                    onCreateFolder={createFolder}
+                                    onRenameFolder={renameFolder}
+                                    onDeleteFolder={deleteFolder}
+                                    expanded={expanded}
+                                    setExpanded={setExpanded}
+                                />
+                            </div>
                         </div>
                     </aside>
                     <div className="flex-1 flex flex-col gap-4">
