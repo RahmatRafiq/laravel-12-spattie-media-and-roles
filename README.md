@@ -39,8 +39,6 @@ Admin:
 
 ---
 
-See `/documentation/` for more guides and troubleshooting.
-
 ---
 
 ### Useful Commands
@@ -59,8 +57,6 @@ Redis: localhost:6380
 To change app port, edit `.env` (APP_PORT, APP_URL) and restart.
 
 ---
-
-For troubleshooting, see `/documentation/troubleshooting.md`.
 
 ---
 
@@ -111,43 +107,12 @@ Route::middleware('role:admin')->group(function () {
 
 - Responsive, dark/light mode, modular UI, error handling, loading states
 
----
-
-## Production
-
-See `/documentation/deployment.md` for deployment instructions and environment variables.
-
----
-
 ## License
 
 MIT License
 
 ---
 
-## Contributing
-
-Contributions welcome! Fork, branch, commit, and open a PR.
-
----
-
-## Roadmap
-
-- [ ] API docs (Swagger/OpenAPI)
-- [ ] Multi-language (Laravel Localization)
-- [ ] Advanced media management
-- [ ] Real-time notifications
-- [ ] Advanced user management
-- [ ] Audit trail
-- [ ] Export/Import
-- [ ] Two-factor authentication
-
----
-
 ## Support
-
-See `/documentation/` or open an issue on GitHub.
-
----
 
 **Star this repo if you find it useful!**
