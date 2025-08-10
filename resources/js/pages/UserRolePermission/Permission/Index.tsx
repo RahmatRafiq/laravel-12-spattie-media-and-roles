@@ -8,6 +8,7 @@ import { Permission } from '@/types/UserRolePermission';
 import { Head, Link, router } from '@inertiajs/react';
 import { useRef } from 'react';
 import ReactDOM from 'react-dom/client';
+import Heading from '../../../components/heading';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Permission Management', href: route('permissions.index') }];
 
@@ -63,7 +64,7 @@ export default function PermissionIndex({ success }: { success?: string }) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Permissions" />
             <div className="px-4 py-6">
-                <h1 className="mb-4 text-2xl font-semibold">Permission Management</h1>
+                <Heading title="Permission Management" />
                 <div className="w-full">
                     <HeadingSmall title="Permissions" description="Manage permissions for your application" />
                     <div className="mb-4 flex items-center justify-end">

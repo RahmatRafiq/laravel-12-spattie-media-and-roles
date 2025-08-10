@@ -8,6 +8,7 @@ import { Role } from '@/types/UserRolePermission';
 import { Head, Link, router } from '@inertiajs/react';
 import { useRef } from 'react';
 import ReactDOM from 'react-dom/client';
+import Heading from '../../../components/heading';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Role Management', href: route('roles.index') }];
 
@@ -85,7 +86,7 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Roles" />
             <div className="px-4 py-6">
-                <h1 className="mb-4 text-2xl font-semibold">Role Management</h1>
+                <Heading title='Role Management' />
                 <div className="w-full">
                     <HeadingSmall title="Roles" description="Manage roles for your application" />
                     <div className="mb-4 flex items-center justify-end">
