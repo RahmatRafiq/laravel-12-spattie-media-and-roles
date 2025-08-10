@@ -4,53 +4,32 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { Activity, FileText, Github, Key, LayoutDashboard, Settings, Shield, UserCheck, Users } from 'lucide-react';
+import { Activity, FileText, Github, Key, LayoutDashboard, Settings, Shield, UserCheck, Users, type LucideIcon } from 'lucide-react';
 import AppLogo from './app-logo';
+import { usePage } from '@inertiajs/react';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: route('dashboard'),
-        icon: LayoutDashboard,
-    },
-    {
-        title: 'Log Activity',
-        href: route('activity-logs.index'),
-        icon: Activity,
-    },
-    {
-        title: 'Users Management',
-        href: '',
-        icon: Users,
-        children: [
-            {
-                title: 'Roles',
-                href: route('roles.index'),
-                icon: Shield,
-            },
-            {
-                title: 'Permissions',
-                href: route('permissions.index'),
-                icon: Key,
-            },
-            {
-                title: 'User',
-                href: route('users.index'),
-                icon: UserCheck,
-            },
-        ],
-    },
-    {
-        title: 'App Settings',
-        href: route('app-settings.index'),
-        icon: Settings,
-    },
-    {
-        title: 'Gallery',
-        href: route('gallery.index'),
-        icon: FileText,
-    },
-];
+type MenuItem = {
+    id: number;
+    title: string;
+    route?: string | null;
+    icon?: string | null;
+    permission?: string | null;
+    parent_id?: number | null;
+    order?: number;
+    children?: MenuItem[];
+};
+
+const iconMap: Record<string, LucideIcon> = {
+    LayoutDashboard,
+    Activity,
+    Users,
+    Shield,
+    Key,
+    UserCheck,
+    Settings,
+    FileText,
+    Github,
+};
 
 const footerNavItems: NavItem[] = [
     {
@@ -65,7 +44,20 @@ const footerNavItems: NavItem[] = [
     },
 ];
 
+
+
+function mapMenuToNavItem(menu: MenuItem): NavItem {
+    return {
+        title: menu.title,
+        href: menu.route ? route(menu.route) : '#',
+        icon: menu.icon && iconMap[menu.icon] ? iconMap[menu.icon] : undefined,
+        children: menu.children ? menu.children.map(mapMenuToNavItem) : undefined,
+    };
+}
+
 export function AppSidebar() {
+    const { sidebarMenus = [] } = usePage().props as { sidebarMenus?: MenuItem[] };
+    const navItems = (sidebarMenus ?? []).map(mapMenuToNavItem);
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -81,7 +73,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={navItems} />
             </SidebarContent>
 
             <SidebarFooter>
