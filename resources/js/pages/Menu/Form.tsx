@@ -7,7 +7,7 @@ import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import { FormEvent } from 'react';
-import type { MenuTreeItem } from './Manage';
+import type { MenuTreeItem } from './Index';
 import CustomSelect from '@/components/select';
 
 interface MenuFormProps {

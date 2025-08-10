@@ -1,5 +1,5 @@
 import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -12,6 +12,8 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEvent, ChangeEvent } from 'react';
 import { toast } from '@/utils/toast';
 import { AppSetting } from '../../types';
+import Heading from '@/components/heading';
+import HeadingSmall from '@/components/heading-small';
 
 
 interface Props {
@@ -98,14 +100,12 @@ export default function AppSettings({ settings, availableColors }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="App Settings" />
             <div className="px-4 py-6">
-                <h1 className="mb-4 text-2xl font-semibold">App Settings</h1>
+                <Heading title="App Settings" description="Manage your application's global configuration, SEO, theme, and contact info." />
                 <div className="max-w-4xl mx-auto">
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        {/* Basic App Info */}
+                    <form onSubmit={handleSubmit} className="space-y-8">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Basic Information</CardTitle>
-                                <CardDescription>Configure your application's basic details</CardDescription>
+                                <HeadingSmall title="Basic Information" description="Configure your application's basic details" />
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -120,7 +120,6 @@ export default function AppSettings({ settings, availableColors }: Props) {
                                         <InputError message={errors.app_name} />
                                     </div>
                                 </div>
-
                                 <div>
                                     <Label htmlFor="app_description">App Description</Label>
                                     <RichTextEditor
@@ -132,7 +131,6 @@ export default function AppSettings({ settings, availableColors }: Props) {
                                         preview="edit"
                                     />
                                 </div>
-
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <Label htmlFor="app_logo">App Logo Path</Label>
@@ -155,12 +153,9 @@ export default function AppSettings({ settings, availableColors }: Props) {
                                 </div>
                             </CardContent>
                         </Card>
-
-                        {/* SEO Settings */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>SEO Settings</CardTitle>
-                                <CardDescription>Optimize your application for search engines</CardDescription>
+                                <HeadingSmall title="SEO Settings" description="Optimize your application for search engines" />
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div>
@@ -172,7 +167,6 @@ export default function AppSettings({ settings, availableColors }: Props) {
                                         placeholder="Your app title for search engines"
                                     />
                                 </div>
-
                                 <div>
                                     <Label htmlFor="seo_description">SEO Description</Label>
                                     <RichTextEditor
@@ -184,7 +178,6 @@ export default function AppSettings({ settings, availableColors }: Props) {
                                         preview="edit"
                                     />
                                 </div>
-
                                 <div>
                                     <Label htmlFor="seo_keywords">SEO Keywords</Label>
                                     <Textarea
@@ -196,7 +189,6 @@ export default function AppSettings({ settings, availableColors }: Props) {
                                         placeholder="keyword1, keyword2, keyword3"
                                     />
                                 </div>
-
                                 <div>
                                     <Label htmlFor="seo_og_image">Open Graph Image</Label>
                                     <Input
@@ -208,11 +200,9 @@ export default function AppSettings({ settings, availableColors }: Props) {
                                 </div>
                             </CardContent>
                         </Card>
-
                         <Card>
                             <CardHeader>
-                                <CardTitle>Theme Colors</CardTitle>
-                                <CardDescription>Customize your application's color scheme</CardDescription>
+                                <HeadingSmall title="Theme Colors" description="Customize your application's color scheme" />
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -234,12 +224,9 @@ export default function AppSettings({ settings, availableColors }: Props) {
                                 </div>
                             </CardContent>
                         </Card>
-
-                        {/* Contact Information */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>Contact Information</CardTitle>
-                                <CardDescription>Your application's contact details</CardDescription>
+                                <HeadingSmall title="Contact Information" description="Your application's contact details" />
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -261,7 +248,6 @@ export default function AppSettings({ settings, availableColors }: Props) {
                                         />
                                     </div>
                                 </div>
-
                                 <div>
                                     <Label htmlFor="contact_address">Contact Address</Label>
                                     <Textarea
@@ -274,12 +260,9 @@ export default function AppSettings({ settings, availableColors }: Props) {
                                 </div>
                             </CardContent>
                         </Card>
-
-                        {/* Social Links */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>Social Media Links</CardTitle>
-                                <CardDescription>Your social media presence</CardDescription>
+                                <HeadingSmall title="Social Media Links" description="Your social media presence" />
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -331,12 +314,9 @@ export default function AppSettings({ settings, availableColors }: Props) {
                                 </div>
                             </CardContent>
                         </Card>
-
-                        {/* Maintenance Mode */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>Maintenance Mode</CardTitle>
-                                <CardDescription>Put your application in maintenance mode</CardDescription>
+                                <HeadingSmall title="Maintenance Mode" description="Put your application in maintenance mode" />
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="flex items-center space-x-2">
@@ -349,7 +329,6 @@ export default function AppSettings({ settings, availableColors }: Props) {
                                     />
                                     <Label htmlFor="maintenance_mode">Enable Maintenance Mode</Label>
                                 </div>
-
                                 {data.maintenance_mode && (
                                     <div>
                                         <Label htmlFor="maintenance_message">Maintenance Message</Label>
@@ -364,11 +343,9 @@ export default function AppSettings({ settings, availableColors }: Props) {
                                 )}
                             </CardContent>
                         </Card>
-
-                        {/* Submit Button */}
                         <div className="flex items-center space-x-4">
                             <Button disabled={processing}>
-                                {processing ? 'Menyimpan...' : 'Simpan Pengaturan'}
+                                {processing ? 'Saving...' : 'Save Settings'}
                             </Button>
                             <Link href={route('dashboard')} className="rounded bg-gray-300 px-4 py-2 text-gray-800 hover:bg-gray-400">
                                 Cancel

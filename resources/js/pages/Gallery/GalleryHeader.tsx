@@ -1,10 +1,10 @@
-import * as React from 'react';
+import Heading from '../../components/heading';
 
 export default function GalleryHeader() {
     return (
         <div className="flex items-center justify-between mb-4">
             <div>
-                <h1 className="text-2xl font-bold tracking-tight text-foreground">File Manager</h1>
+                <Heading title="File Manager" />
                 <p className="text-muted-foreground">Manage public and private files in your application</p>
             </div>
         </div>

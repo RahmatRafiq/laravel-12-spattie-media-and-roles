@@ -5,6 +5,8 @@ import GalleryUploadForm from './GalleryUploadForm';
 import GalleryGrid from './GalleryGrid';
 import GalleryPagination from './GalleryPagination';
 import AppLayout from '../../layouts/app-layout';
+import Heading from '../../components/heading';
+import HeadingSmall from '../../components/heading-small';
 import { Head, router, useForm, useRemember } from '@inertiajs/react';
 import { toast } from '../../utils/toast';
 import ConfirmationDialog from '../../components/confirmation-dialog';
@@ -154,36 +156,45 @@ export default function Gallery({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="File Manager" />
-            <div className="flex flex-row gap-4 p-4">
-                <Sidebar
-                    folders={folders}
-                    currentFolderId={currentFolderId}
-                    onFolderClick={handleFolderClick}
-                    onCreateFolder={createFolder}
-                    onRenameFolder={renameFolder}
-                    onDeleteFolder={deleteFolder}
-                    expanded={expanded}
-                    setExpanded={setExpanded}
-                />
-
-                <div className="flex-1 flex flex-col gap-4">
-                    <nav className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
-                        {breadcrumbs.map((bc, i) => (
-                            <span key={i} className="flex items-center gap-1">
-                                {i > 0 && <span className="mx-1">/</span>}
-                                <span>{bc.title}</span>
-                            </span>
-                        ))}
-                    </nav>
-
-                    <GalleryHeader />
-                    <GalleryUploadForm data={data} setData={setData} processing={processing} submitUpload={submitUpload} />
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">
-                        <GalleryGrid media={media.data} handleDelete={handleDelete} />
+            <div className="px-4 py-6">
+                <Heading title="File Manager" description="Manage your application's files and folders." />
+                <div className="flex flex-row items-start gap-6 max-w-7xl mx-auto mt-4 min-h-[60vh]">
+                    <aside className="hidden md:block w-64 min-w-[240px] h-full">
+                        <div className="bg-card rounded shadow p-0 h-full flex flex-col">
+                            <div className="p-4 border-b">
+                                <HeadingSmall title="Folders" description="Browse and organize your folders." />
+                            </div>
+                            <div className="flex-1 overflow-y-auto">
+                                <Sidebar
+                                    folders={folders}
+                                    currentFolderId={currentFolderId}
+                                    onFolderClick={handleFolderClick}
+                                    onCreateFolder={createFolder}
+                                    onRenameFolder={renameFolder}
+                                    onDeleteFolder={deleteFolder}
+                                    expanded={expanded}
+                                    setExpanded={setExpanded}
+                                />
+                            </div>
+                        </div>
+                    </aside>
+                    <div className="flex-1 flex flex-col gap-4">
+                        <nav className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+                            {breadcrumbs.map((bc, i) => (
+                                <span key={i} className="flex items-center gap-1">
+                                    {i > 0 && <span className="mx-1">/</span>}
+                                    <span>{bc.title}</span>
+                                </span>
+                            ))}
+                        </nav>
+                        <GalleryHeader />
+                        <GalleryUploadForm data={data} setData={setData} processing={processing} submitUpload={submitUpload} />
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                            <GalleryGrid media={media.data} handleDelete={handleDelete} />
+                        </div>
+                        <ConfirmationDialog state={confirmationState} onConfirm={handleConfirm} onCancel={handleCancel} />
+                        {media.links && <GalleryPagination links={media.links} />}
                     </div>
-
-                    <ConfirmationDialog state={confirmationState} onConfirm={handleConfirm} onCancel={handleCancel} />
-                    {media.links && <GalleryPagination links={media.links} />}
                 </div>
             </div>
         </AppLayout>

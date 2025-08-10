@@ -9,6 +9,7 @@ import { User } from '@/types/UserRolePermission';
 import { Head, Link, router } from '@inertiajs/react';
 import { useRef, useState } from 'react';
 import ReactDOM from 'react-dom/client';
+import Heading from '../../../components/heading';
 
 const columns: DataTableColumn<User>[] = [
     { data: 'id', title: 'ID' },
@@ -91,11 +92,10 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Users" />
             <div className="px-4 py-6">
-                <h1 className="mb-4 text-2xl font-semibold">User Management</h1>
+                <Heading title="User Management" />
                 <div className="w-full">
                     <HeadingSmall title="Users" description="Manage application users and their roles" />
-                    <div className="mb-4 flex items-center justify-between">
-                        <h2 className="text-xl font-semibold">User List</h2>
+                    <div className="mb-4 flex items-center justify-end">
                         <Link href={route('users.create')}>
                             <Button>Create User</Button>
                         </Link>

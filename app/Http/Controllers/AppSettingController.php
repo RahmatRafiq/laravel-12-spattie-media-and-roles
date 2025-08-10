@@ -15,7 +15,7 @@ class AppSettingController extends Controller
         $settings = AppSetting::getInstance();
         $availableColors = AppSetting::getAvailableColors();
 
-        return Inertia::render('AppSetting/AppSettings', [
+        return Inertia::render('AppSetting/Index', [
             'settings' => $settings,
             'availableColors' => $availableColors,
         ]);

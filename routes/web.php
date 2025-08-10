@@ -44,8 +44,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/storage', [\App\Http\Controllers\StorageController::class, 'destroy'])->name('storage.destroy');
         Route::get('/storage/{path}', [\App\Http\Controllers\StorageController::class, 'show'])->name('storage.show');
         Route::get('gallery', [\App\Http\Controllers\GalleryController::class, 'index'])->name('gallery.index');
-        Route::get('menus', [\App\Http\Controllers\MenuController::class, 'index'])->name('menus.index');
         Route::middleware('role:admin')->group(function () {
+            Route::post('/menus/update-order', [\App\Http\Controllers\MenuController::class, 'updateOrder'])->name('menus.updateOrder');
             Route::get('menus/manage', [\App\Http\Controllers\MenuController::class, 'manage'])->name('menus.manage');
             Route::get('menus/create', [\App\Http\Controllers\MenuController::class, 'create'])->name('menus.create');
             Route::get('menus/{menu}/edit', [\App\Http\Controllers\MenuController::class, 'edit'])->name('menus.edit');

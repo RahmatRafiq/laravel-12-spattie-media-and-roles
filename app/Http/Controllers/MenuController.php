@@ -17,6 +17,20 @@ class MenuController extends Controller
             'menu' => $parent_id ? ['parent_id' => (int)$parent_id] : null,
         ]);
     }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'route' => 'nullable|string|max:255',
+            'icon' => 'nullable|string|max:255',
+            'permission' => 'nullable|string|max:255',
+            'parent_id' => 'nullable|exists:menus,id',
+        ]);
+        $menu = Menu::create($validated);
+        return redirect()->route('menus.manage')->with('success', 'Menu created successfully.');
+    }
+
     public function edit($id)
     {
         $menu = Menu::with('children')->findOrFail($id);
@@ -41,46 +55,45 @@ class MenuController extends Controller
         return redirect()->route('menus.manage')->with('success', 'Menu updated successfully.');
     }
 
-    public function index(Request $request)
-    {
-        $user = Auth::user();
-        $menus = Menu::with(['children' => function($q) use ($user) {
-            $q->orderBy('order');
-        }])
-        ->whereNull('parent_id')
-        ->orderBy('order')
-        ->get()
-        ->filter(function ($menu) use ($user) {
-            return !$menu->permission || $user->can($menu->permission);
-        })
-        ->map(function ($menu) use ($user) {
-            $menu->children = $menu->children->filter(function ($child) use ($user) {
-                return !$child->permission || $user->can($child->permission);
-            })->values();
-            return $menu;
-        })
-        ->values();
-        return response()->json($menus);
-    }
-
     public function manage()
     {
         $menus = Menu::with('children')->whereNull('parent_id')->orderBy('order')->get();
-        return inertia('Menu/Manage', [
+        return inertia('Menu/Index', [
             'menus' => $menus,
         ]);
     }
 
-    public function store(Request $request)
+    public function updateOrder(Request $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'route' => 'nullable|string|max:255',
-            'icon' => 'nullable|string|max:255',
-            'permission' => 'nullable|string|max:255',
-            'parent_id' => 'nullable|exists:menus,id',
+        $data = $request->validate([
+            'tree' => 'required',
         ]);
-        $menu = Menu::create($validated);
-        return redirect()->route('menus.manage')->with('success', 'Menu created successfully.');
+        $tree = json_decode($request->input('tree'), true);
+        if (!is_array($tree)) {
+            return response()->json(['success' => false, 'message' => 'Invalid tree data'], 422);
+        }
+        $this->updateMenuTree($tree);
+        return redirect()->route('menus.manage')
+            ->with('success', 'Menu order updated successfully.');
+    }
+
+    private function updateMenuTree(array $tree, $parentId = null)
+    {
+        foreach ($tree as $order => $item) {
+            Menu::where('id', $item['id'])->update([
+                'order' => $order,
+                'parent_id' => $parentId,
+            ]);
+            if (!empty($item['children']) && is_array($item['children'])) {
+                $this->updateMenuTree($item['children'], $item['id']);
+            }
+        }
+    }
+
+    public function destroy($id)
+    {
+        $menu = Menu::findOrFail($id);
+        $menu->delete();
+        return redirect()->route('menus.manage')->with('success', 'Menu deleted successfully.');
     }
 }
