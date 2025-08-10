@@ -91,4 +91,10 @@ class MenuController extends Controller
             }
         }
     }
+        public function destroy($id)
+    {
+        $menu = Menu::findOrFail($id);
+        $menu->delete();
+        return redirect()->route('menus.manage')->with('success', 'Menu berhasil dihapus.');
+    }
 }

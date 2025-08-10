@@ -149,9 +149,9 @@ export default function TreeDnD<T>({ items, onChange, getId, getChildren, setChi
         if (!removedNode) return;
 
         let targetIndex = to.index;
+        // Only adjust if moving within the same parent and moving downwards (from.index < to.index)
         if (from.parentId === to.parentId && from.index < to.index) {
-            targetIndex = to.index - 1;
-            if (targetIndex < 0) targetIndex = 0;
+            targetIndex = to.index;
         }
 
         const newTree = insertNode(
