@@ -9,13 +9,15 @@ import { Head, Link, useForm, router } from '@inertiajs/react';
 import { FormEvent } from 'react';
 import type { MenuTreeItem } from './Index';
 import CustomSelect from '@/components/select';
+import { Permission } from '../../types/UserRolePermission';
 
 interface MenuFormProps {
     menu?: MenuTreeItem;
     allMenus: MenuTreeItem[];
+    permissions?: Permission[];
 }
 
-export default function MenuFormPage({ menu, allMenus }: MenuFormProps) {
+export default function MenuFormPage({ menu, allMenus, permissions = [] }: MenuFormProps) {
     const isEdit = !!menu;
     const { data, setData, post, put, processing, errors } = useForm({
         title: menu ? menu.title : '',
@@ -70,7 +72,14 @@ export default function MenuFormPage({ menu, allMenus }: MenuFormProps) {
                             </div>
                             <div>
                                 <Label htmlFor="permission">Permission</Label>
-                                <Input id="permission" value={data.permission ?? ''} onChange={e => setData('permission', e.target.value)} />
+                                <CustomSelect
+                                    inputId="permission"
+                                    isClearable
+                                    options={permissions.map((p) => ({ value: p.name, label: p.name }))}
+                                    value={permissions.find((p) => p.name === data.permission) ? { value: data.permission, label: data.permission } : null}
+                                    onChange={option => setData('permission', option && !Array.isArray(option) ? (option as { value: string }).value : '')}
+                                    placeholder="Select permission"
+                                />
                                 <InputError message={errors.permission} />
                             </div>
                             <div>

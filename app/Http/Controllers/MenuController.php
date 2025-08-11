@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Menu;
+use App\Models\Permission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,8 +13,10 @@ class MenuController extends Controller
     {
         $parent_id = $request->query('parent_id');
         $allMenus = Menu::orderBy('order')->get();
+        $permissions = Permission::orderBy('name')->get(['id', 'name']);
         return inertia('Menu/Form', [
             'allMenus' => $allMenus,
+            'permissions' => $permissions,
             'menu' => $parent_id ? ['parent_id' => (int)$parent_id] : null,
         ]);
     }
@@ -35,9 +38,11 @@ class MenuController extends Controller
     {
         $menu = Menu::with('children')->findOrFail($id);
         $allMenus = Menu::where('id', '!=', $id)->orderBy('order')->get();
+        $permissions = Permission::orderBy('name')->get(['id', 'name']);
         return inertia('Menu/Form', [
             'menu' => $menu,
             'allMenus' => $allMenus,
+            'permissions' => $permissions,
         ]);
     }
 
