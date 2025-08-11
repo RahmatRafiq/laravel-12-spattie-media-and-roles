@@ -28,7 +28,6 @@ class PermissionSeeder extends Seeder
             
             // General permissions
             'view-dashboard',
-            'access-admin-panel',
             'manage-settings',
             'view-activity-logs',
         ];

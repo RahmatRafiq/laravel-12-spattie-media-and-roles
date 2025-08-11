@@ -28,7 +28,6 @@ class RolePermissionSeeder extends Seeder
                 'view-permissions',
                 'assign-permissions',
                 'view-dashboard',
-                'access-admin-panel',
                 'manage-settings',
                 'view-activity-logs',
             ];
@@ -42,7 +41,6 @@ class RolePermissionSeeder extends Seeder
         }
 
         if ($userRole) {
-            // User gets limited permissions
             $userPermissions = [
                 'view-dashboard',
             ];
