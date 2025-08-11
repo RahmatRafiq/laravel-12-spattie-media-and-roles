@@ -25,6 +25,7 @@ class MenuSeeder extends Seeder
             'title' => 'Users Management',
             'icon' => 'Users',
             'order' => 3,
+            'permission' => 'view-users',
         ]);
         Menu::create([
             'title' => 'Roles',
