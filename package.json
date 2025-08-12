@@ -59,6 +59,8 @@
         "concurrently": "^9.0.1",
         "datatables.net-dt": "^2.2.2",
         "datatables.net-react": "^1.0.0",
+        "datatables.net-responsive-dt": "^3.0.5",
+        "datatables.net-select-dt": "^3.0.1",
         "dropzone": "^6.0.0-beta.2",
         "globals": "^15.14.0",
         "laravel-vite-plugin": "^1.0",
