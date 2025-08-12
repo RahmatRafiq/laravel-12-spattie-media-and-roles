@@ -46,7 +46,9 @@ services:
     networks:
       - sail
   frankenphp:
-    image: dunglas/frankenphp
+    build:
+      context: .
+      dockerfile: Dockerfile.frankenphp
     ports:
       - '8090:80'
     volumes:
