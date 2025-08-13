@@ -16,7 +16,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('dashboard')->group(function () {
         Route::get('/', function () {
             return Inertia::render('dashboard');
-        })->name('dashboard');
+        })->middleware('permission:view-dashboard')->name('dashboard');
         
         Route::get('/activity-logs', [ActivityLogController::class,'index'])->name('activity-logs.index');
         
