@@ -16,7 +16,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('dashboard')->group(function () {
         Route::get('/', function () {
             return Inertia::render('dashboard');
-        })->name('dashboard');
+        })->middleware('permission:view-dashboard')->name('dashboard');
         
         Route::get('/activity-logs', [ActivityLogController::class,'index'])->name('activity-logs.index');
         
@@ -56,7 +56,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('gallery', [\App\Http\Controllers\GalleryController::class, 'store'])->name('gallery.store');
         Route::delete('gallery/{id}', [\App\Http\Controllers\GalleryController::class, 'destroy'])->name('gallery.destroy');
         Route::get('gallery/file/{id}', [\App\Http\Controllers\GalleryController::class, 'file'])->name('gallery.file');
-        Route::post('gallery/folder', [\App\Http\Controllers\GalleryController::class, 'createFolder'])->name('gallery.folder.create');
+        Route::post('gallery/folder', [\App\Http\Controllers\GalleryController::class, 'createFolder'])
+            ->middleware('role:admin')
+            ->name('gallery.folder.create');
         Route::put('gallery/folder/{id}', [\App\Http\Controllers\GalleryController::class, 'renameFolder'])->name('gallery.folder.rename');
         Route::delete('gallery/folder/{id}', [\App\Http\Controllers\GalleryController::class, 'deleteFolder'])->name('gallery.folder.delete');
     });
