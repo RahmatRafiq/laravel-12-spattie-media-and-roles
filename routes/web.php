@@ -2,11 +2,15 @@
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\SocialAuthController;
+use App\Models\AppSetting;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('welcome');
+    $settings = AppSetting::getInstance();
+    return Inertia::render('welcome', [
+        'settings' => $settings,
+    ]);
 })->name('home');
 
 Route::get('auth/{provider}', [SocialAuthController::class, 'redirectToProvider'])->name('auth.redirect');
