@@ -23,7 +23,7 @@ class RoleController extends Controller
     public function json(Request $request)
     {
         $search = $request->input('search.value', '');
-        $query  = Role::with('permissions');
+    $query  = Role::with('permissions');
 
         $columns = [
             'id',
@@ -53,19 +53,15 @@ class RoleController extends Controller
         $data = DataTable::paginate($query, $request, $recordsTotalCallback);
 
         $data['data'] = collect($data['data'])->map(function ($role) {
+            $permissionsList = isset($role->permissions) ? collect($role->permissions)->pluck('name')->implode(', ') : '';
             return [
-                'id'          => $role->id,
-                'name'        => $role->name,
-                'guard_name'  => $role->guard_name,
-                'created_at'  => $role->created_at->toDateTimeString(),
-                'updated_at'  => $role->updated_at->toDateTimeString(),
-                'permissions' => $role->permissions->map(function ($permission) {
-                    return [
-                        'id'   => $permission->id,
-                        'name' => $permission->name,
-                    ];
-                })->toArray(),
-                'actions'     => '',
+                'id'               => $role->id,
+                'name'             => $role->name,
+                'guard_name'       => $role->guard_name,
+                'created_at'       => $role->created_at->toDateTimeString(),
+                'updated_at'       => $role->updated_at->toDateTimeString(),
+                'permissions_list' => $permissionsList,
+                'actions'          => '',
             ];
         });
 
