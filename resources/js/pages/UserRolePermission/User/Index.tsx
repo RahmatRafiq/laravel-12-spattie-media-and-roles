@@ -12,15 +12,16 @@ import ReactDOM from 'react-dom/client';
 import Heading from '../../../components/heading';
 
 const columns: DataTableColumn<User>[] = [
-    { data: 'id', title: 'ID' },
-    { data: 'name', title: 'Name' },
-    { data: 'email', title: 'Email' },
-    { data: 'roles', title: 'Role(s)' },
+    { data: 'id', title: 'ID', className: 'all' },
+    { data: 'name', title: 'Name', className: 'all' },
+    { data: 'email', title: 'Email', className: 'tablet-p' },
+    { data: 'roles', title: 'Role(s)', className: 'tablet-l' },
     {
         data: null,
         title: 'Actions',
         orderable: false,
         searchable: false,
+        className: 'all',
         render: (data: User[keyof User] | null, type: 'display' | 'type' | 'sort' | 'export', row: User) => {
             let html = '';
             if (row.trashed) {
