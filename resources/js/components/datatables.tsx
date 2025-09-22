@@ -1,6 +1,8 @@
 import { AjaxConfig, DataTableOptions, DataTableWrapperProps, DataTableWrapperRef, ExpandConfig } from '@/types/DataTables';
 import DT from 'datatables.net-dt';
 import 'datatables.net-dt/css/dataTables.dataTables.css';
+import 'datatables.net-responsive-dt';
+import 'datatables.net-responsive-dt/css/responsive.dataTables.css';
 import DataTable, { DataTableRef } from 'datatables.net-react';
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import { useConfirmation } from '@/hooks/use-confirmation';
@@ -33,7 +35,7 @@ const DataTableWrapperInner = forwardRef<DataTableWrapperRef, DataTableWrapperPr
             },
             ...columns,
         ]
-        : columns;
+        : columns; // Clean approach - no control column, click on row to expand
 
     useImperativeHandle(ref, () => ({
         reload: () => {
@@ -176,6 +178,18 @@ const DataTableWrapperInner = forwardRef<DataTableWrapperRef, DataTableWrapperPr
         processing: true,
         serverSide: true,
         paging: true,
+        responsive: {
+            breakpoints: [
+                { name: 'desktop', width: Infinity },
+                { name: 'tablet-l', width: 1024 },
+                { name: 'tablet-p', width: 768 },
+                { name: 'mobile-l', width: 640 },
+            ],
+            details: {
+                type: 'inline',
+                target: 'tr'
+            }
+        },
     };
 
     const tableOptions: DataTableOptions = { ...defaultOptions, ...options };

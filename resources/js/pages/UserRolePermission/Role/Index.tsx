@@ -1,4 +1,4 @@
-import DataTableWrapper, { DataTableWrapperRef, createExpandConfig } from '@/components/datatables';
+import DataTableWrapper, { DataTableWrapperRef } from '@/components/datatables';
 import HeadingSmall from '@/components/heading-small';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
@@ -16,45 +16,39 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
     const dtRef = useRef<DataTableWrapperRef>(null);
 
     const columns: DataTableColumn<Role>[] = [
-        { data: 'id', title: 'ID' },
-        { data: 'name', title: 'Name' },
-        { data: 'guard_name', title: 'Guard Name' },
-        { data: 'created_at', title: 'Created At' },
-        { data: 'updated_at', title: 'Updated At' },
+        { data: 'id', title: 'ID', className: 'all' },
+        { data: 'name', title: 'Name', className: 'all' },
+        { data: 'guard_name', title: 'Guard Name', className: 'tablet-p' },
+        { data: 'created_at', title: 'Created At', className: 'tablet-l' },
+        { data: 'updated_at', title: 'Updated At', className: 'desktop' },
+        {
+            data: 'permissions_list',
+            title: 'Permissions',
+            className: 'tablet-p',
+            render: (data: Role[keyof Role] | null) => {
+                const value = typeof data === 'string' ? data : '';
+                if (!value) return '';
+                return value.split(',').map((perm) =>
+                    `<span class='inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 bg-primary text-primary-foreground mr-1 mb-1'>${perm.trim()}</span>`
+                ).join('');
+            }
+        },
         {
             data: null,
             title: 'Actions',
             orderable: false,
             searchable: false,
+            className: 'all',
             render: (data: Role[keyof Role] | null, type: 'display' | 'type' | 'sort' | 'export', row: Role) => {
                 return `
-          <span class="inertia-link-cell" data-id="${row.id}"></span>
-          <button data-id="${row.id}" class="ml-2 my-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 btn-delete text-sm font-medium align-middle">
-            Delete
-          </button>
-        `;
+                    <span class="inertia-link-cell" data-id="${row.id}"></span>
+                    <button data-id="${row.id}" class="ml-2 my-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 btn-delete text-sm font-medium align-middle">
+                        Delete
+                    </button>
+                `;
             },
         },
     ];
-
-    const expandConfig = createExpandConfig<Role>({
-        enabled: true,
-        expandIcon: '+',
-        collapseIcon: '-',
-        columnTitle: '',
-        renderContent: (rowData: Role) => {
-            if (!rowData.permissions || rowData.permissions.length === 0) {
-                return '<div class="p-3 text-gray-500">No permissions assigned.</div>';
-            }
-            const listItems = rowData.permissions.map((permission) => `<li class="ml-4 list-disc text-gray-700">${permission.name}</li>`).join('');
-            return `
-        <div class="p-4 bg-gray-50 border border-gray-200 rounded shadow-sm">
-          <strong class="block text-gray-800 mb-2">Permissions:</strong>
-          <ul>${listItems}</ul>
-        </div>
-      `;
-        },
-    });
 
     const handleDelete = (id: number) => {
         router.delete(route('roles.destroy', id), {
@@ -103,7 +97,6 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
                         }}
                         columns={columns}
                         options={{ drawCallback }}
-                        expand={expandConfig}
                         onRowDelete={handleDelete}
                         confirmationConfig={{
                             delete: {
