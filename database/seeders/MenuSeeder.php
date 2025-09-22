@@ -63,8 +63,16 @@ class MenuSeeder extends Seeder
             'title' => 'Menu Management',
             'route' => 'menus.manage',
             'icon' => 'Settings',
-            'permission' => 'manage-settings', 
+            'permission' => 'manage-settings',
             'order' => 5,
         ]);
+        Menu::create([
+            'title' => 'Activity Logs',
+            'route' => 'activity-logs.index',
+            'icon' => 'ListChecks',
+            'permission' => 'view-activity-logs',
+            'order' => 6,
+        ]);
+
     }
 }

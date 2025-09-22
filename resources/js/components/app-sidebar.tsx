@@ -5,6 +5,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import {
+    ListChecks,
     Activity,
     FileText,
     Github,
@@ -294,6 +295,7 @@ type MenuItem = {
 };
 
 const iconMap: Record<string, LucideIcon> = {
+    ListChecks,
     // Original icons
     LayoutDashboard,
     Activity,
