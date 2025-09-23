@@ -14,7 +14,8 @@ export default function CustomSelect<OptionType>(props: CustomSelectProps<Option
             borderColor: state.isFocused ? '#3b82f6' : '#d1d5db',
             boxShadow: state.isFocused ? '0 0 0 2px rgba(59, 130, 246, 0.5)' : 'none',
             borderRadius: '0.375rem',
-            minHeight: '2.5rem',
+            minHeight: '3rem', // tinggi minimal
+            // height: '3rem', // hapus agar bisa membesar
             '&:hover': {
                 borderColor: '#3b82f6',
             },
@@ -25,7 +26,7 @@ export default function CustomSelect<OptionType>(props: CustomSelectProps<Option
             borderRadius: '0.375rem',
             padding: '0.25rem',
             boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-            zIndex: 50,
+            zIndex: 9999,
         }),
         option: (provided, state) => ({
             ...provided,
@@ -64,7 +65,7 @@ export default function CustomSelect<OptionType>(props: CustomSelectProps<Option
         }),
     };
     if (isCreatable) {
-        return <CreatableSelect {...restProps} styles={customStyles} classNamePrefix="react-select" />;
+        return <CreatableSelect {...restProps} styles={customStyles} classNamePrefix="react-select" className="w-full min-h-[3rem] h-auto" />;
     }
-    return <Select {...restProps} styles={customStyles} classNamePrefix="react-select" />;
+    return <Select {...restProps} styles={customStyles} classNamePrefix="react-select" className="w-full min-h-[3rem] h-auto" />;
 }
