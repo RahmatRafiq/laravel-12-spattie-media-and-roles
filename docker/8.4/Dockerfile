@@ -6,13 +6,17 @@ ARG WWWGROUP
 ARG NODE_VERSION=22
 ARG MYSQL_CLIENT="mysql-client"
 ARG POSTGRES_VERSION=17
+ARG FRANKENPHP_VERSION="v1.0.0"
 
 WORKDIR /var/www/html
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
-ENV SUPERVISOR_PHP_COMMAND="/usr/bin/php -d variables_order=EGPCS /var/www/html/artisan serve --host=0.0.0.0 --port=80"
+ENV SUPERVISOR_PHP_COMMAND="/usr/bin/php -d variables_order=EGPCS /var/www/html/artisan serve --host=0.0.0.0 --port=${APP_PORT:-80}"
 ENV SUPERVISOR_PHP_USER="sail"
+ENV PLAYWRIGHT_BROWSERS_PATH=0 
+ENV FRANKENPHP_CONFIG_FILE="/etc/frankenphp/frankenphp.ini"
+ENV APP_PORT=${APP_PORT:-80}
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
@@ -43,6 +47,7 @@ RUN apt-get update && apt-get upgrade -y \
     && npm install -g npm \
     && npm install -g pnpm \
     && npm install -g bun \
+    && npx playwright install-deps \
     && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee /etc/apt/keyrings/yarn.gpg >/dev/null \
     && echo "deb [signed-by=/etc/apt/keyrings/yarn.gpg] https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list \
     && curl -sS https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | tee /etc/apt/keyrings/pgdg.gpg >/dev/null \
@@ -51,9 +56,15 @@ RUN apt-get update && apt-get upgrade -y \
     && apt-get install -y yarn \
     && apt-get install -y $MYSQL_CLIENT \
     && apt-get install -y postgresql-client-$POSTGRES_VERSION \
+    && apt-get install -y poppler-utils imagemagick tesseract-ocr \
     && apt-get -y autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Install FrankenPHP binary
+RUN mkdir -p /etc/frankenphp \
+    && curl -L -o /usr/local/bin/frankenphp https://github.com/dunglas/frankenphp/releases/download/${FRANKENPHP_VERSION}/frankenphp-linux-x86-64 \
+    && chmod +x /usr/local/bin/frankenphp
 
 RUN setcap "cap_net_bind_service=+ep" /usr/bin/php8.4
 
@@ -64,8 +75,10 @@ RUN useradd -ms /bin/bash --no-user-group -g $WWWGROUP -u 1337 sail
 COPY start-container /usr/local/bin/start-container
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY php.ini /etc/php/8.4/cli/conf.d/99-sail.ini
+COPY frankenphp.ini /etc/frankenphp/frankenphp.ini
 RUN chmod +x /usr/local/bin/start-container
 
 EXPOSE 80/tcp
+EXPOSE ${APP_PORT}/tcp
 
 ENTRYPOINT ["start-container"]
