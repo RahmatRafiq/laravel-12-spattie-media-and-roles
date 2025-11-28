@@ -4,16 +4,12 @@ import '@/echo';
 import AppLayout from '@/layouts/app-layout';
 import { Head, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
-import { Activity, Clock, User, Database } from 'lucide-react';
+import { Activity, Clock, User, Database, Wifi, WifiOff } from 'lucide-react';
+import type Echo from 'laravel-echo';
 
 declare global {
     interface Window {
-        Echo: {
-            channel: (channelName: string) => {
-                listen: (eventName: string, callback: (data: ActivityLog) => void) => void;
-            };
-            leave: (channelName: string) => void;
-        };
+        Echo: Echo;
     }
 }
 
@@ -47,23 +43,48 @@ const breadcrumbs = [
 export default function ActivityLogList() {
     const { initialLogs } = usePage<PageProps>().props;
     const [logs, setLogs] = useState<ActivityLog[]>(initialLogs || []);
+    const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>('connecting');
 
     useEffect(() => {
         if (typeof window !== 'undefined' && window.Echo) {
             try {
-                window.Echo.channel('activity-logs').listen('ActivityLogCreated', (data: ActivityLog) => {
+                const pusher = window.Echo.connector.pusher;
+
+                pusher.connection.bind('connected', () => {
+                    setConnectionStatus('connected');
+                });
+
+                pusher.connection.bind('disconnected', () => {
+                    setConnectionStatus('disconnected');
+                });
+
+                pusher.connection.bind('error', () => {
+                    setConnectionStatus('error');
+                });
+
+                window.Echo.private('activity-logs').listen('ActivityLogCreated', (data: ActivityLog) => {
                     if (data && data.id && data.description) {
                         setLogs((prev) => [data, ...prev.slice(0, 49)]);
                     }
                 });
 
                 return () => {
-                    window.Echo.leave('activity-logs');
+                    window.Echo.leave('private-activity-logs');
+                    pusher.connection.unbind_all();
                 };
             } catch (error) {
                 console.error('Error setting up Echo listener:', error);
+                setConnectionStatus('error');
             }
         }
+    }, []);
+
+    useEffect(() => {
+        const cleanup = setInterval(() => {
+            setLogs(prev => prev.slice(0, 50));
+        }, 60000);
+
+        return () => clearInterval(cleanup);
     }, []);
 
     const getEventColor = (event: string) => {
@@ -122,11 +143,37 @@ export default function ActivityLogList() {
                             Monitor real-time user activities and system changes
                         </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <Activity className="h-5 w-5 text-green-500" />
-                        <span className="text-sm text-muted-foreground">
-                            {logs.length} log{logs.length !== 1 ? 's' : ''}
-                        </span>
+                    <div className="flex items-center gap-4">
+                        {connectionStatus === 'connected' && (
+                            <Badge variant="outline" className="gap-1 border-green-500/50 bg-green-500/10 text-green-600 dark:text-green-400">
+                                <Wifi className="h-3 w-3" />
+                                Live
+                            </Badge>
+                        )}
+                        {connectionStatus === 'connecting' && (
+                            <Badge variant="outline" className="gap-1 border-yellow-500/50 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400">
+                                <Wifi className="h-3 w-3 animate-pulse" />
+                                Connecting
+                            </Badge>
+                        )}
+                        {connectionStatus === 'disconnected' && (
+                            <Badge variant="outline" className="gap-1 border-red-500/50 bg-red-500/10 text-red-600 dark:text-red-400">
+                                <WifiOff className="h-3 w-3" />
+                                Disconnected
+                            </Badge>
+                        )}
+                        {connectionStatus === 'error' && (
+                            <Badge variant="outline" className="gap-1 border-red-500/50 bg-red-500/10 text-red-600 dark:text-red-400">
+                                <WifiOff className="h-3 w-3" />
+                                Error
+                            </Badge>
+                        )}
+                        <div className="flex items-center gap-2">
+                            <Activity className="h-5 w-5 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">
+                                {logs.length} log{logs.length !== 1 ? 's' : ''}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
