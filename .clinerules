@@ -1,0 +1,83 @@
+# Laravel 12 Spatie StarterKit - Cline AI Rules
+
+## Project Overview
+Professional Laravel 12 starter kit dengan React 19, TypeScript, Inertia.js, dan Spatie packages (Media, Permission, Activity Log). Real-time features menggunakan Laravel Reverb.
+
+## Core Technologies
+Backend: Laravel 12 | Frontend: React 19 + TypeScript 5.7 | UI: Tailwind CSS 4.0 + shadcn/ui | Real-time: Laravel Reverb
+
+## Critical Patterns
+
+### Page Structure (MANDATORY)
+```tsx
+import AppLayout from '@/layouts/app-layout';
+import PageContainer from '@/components/page-container';
+import Heading from '@/components/heading';
+
+export default function Page() {
+    return (
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="Title" />
+            <PageContainer maxWidth="4xl">
+                <Heading title="Title" description="Desc" />
+                {/* Content */}
+            </PageContainer>
+        </AppLayout>
+    );
+}
+```
+
+### PageContainer Widths
+- `'none'` or `'full'` → Full width (tables)
+- `'2xl'` → Simple forms
+- `'4xl'` → Complex forms
+- `'7xl'` → Galleries
+
+## Code Rules
+
+### DO:
+✅ Use TypeScript interfaces for all props
+✅ Use `@/` imports (never `../../`)
+✅ Use existing shadcn/ui components (24 available)
+✅ Use `PageContainer` for consistency
+✅ Add permission checks (backend + frontend)
+✅ Use `toast` for notifications
+✅ Use `useForm` from Inertia
+✅ Run formatters: `composer pint`, `npm run format`
+
+### DON'T:
+❌ Use `any` in TypeScript
+❌ Create custom CSS (use Tailwind)
+❌ Hardcode routes (use `route()`)
+❌ Skip error handling
+❌ Bypass permissions
+❌ Forget loading states
+
+## Available Components
+Button, Input, Label, Textarea, Checkbox, Select, Card, Alert, Badge, Avatar, Dialog, Dropdown Menu, Sheet, Sidebar, Breadcrumb, Separator, Skeleton, Toggle, Tooltip, Table
+
+## Common Patterns
+- **DataTables**: `<DataTableWrapper ajax={{url: route('x.json')}} />`
+- **Forms**: `const {data, setData, post, errors} = useForm({})`
+- **Confirmation**: `const {openConfirmation} = useConfirmation()`
+- **Permissions**: `{user.permissions.includes('edit-users') && <Button />}`
+
+## File Locations
+- Pages: `resources/js/pages/[Feature]/[Action].tsx`
+- Components: `resources/js/components/`
+- Types: `resources/js/types/`
+- Layouts: `resources/js/layouts/`
+
+## Naming
+- Components: PascalCase (`AppSidebar.tsx`)
+- Hooks/Utils: kebab-case (`use-appearance.tsx`)
+- Routes: kebab-case (`/app-settings`)
+
+## Permissions (14 total)
+view-users, create-users, edit-users, delete-users, view-roles, create-roles, edit-roles, delete-roles, view-permissions, assign-permissions, view-dashboard, manage-settings, view-activity-logs, manage-menus
+
+## Commands
+Dev: `composer dev` | Migrate: `php artisan migrate:fresh --seed` | Format: `composer pint && npm run format` | Build: `npm run build`
+
+## Full Docs
+See `.claude/project.md` and `CLAUDE.md` for complete documentation.

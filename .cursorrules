@@ -1,0 +1,186 @@
+# Laravel 12 Spatie StarterKit - AI Coding Rules
+
+## Project Context
+Laravel 12 + React 19 + TypeScript starter kit dengan Spatie Media Library, Permission, dan Activity Log. Real-time features menggunakan Laravel Reverb (WebSocket).
+
+## Tech Stack
+- Backend: Laravel 12, Inertia.js 2.0, Spatie packages
+- Frontend: React 19, TypeScript 5.7, Tailwind CSS 4.0, shadcn/ui
+- Real-time: Laravel Reverb, Laravel Echo
+- Database: MariaDB, Redis
+
+## Critical Files
+- Shared Inertia data: `app/Providers/AppServiceProvider.php`
+- Frontend entry: `resources/js/app.tsx`
+- Routes: `routes/web.php`
+- Types: `resources/js/types/index.d.ts`
+
+## Code Style & Conventions
+
+### Backend (Laravel/PHP)
+- Use Laravel Pint for formatting (run `composer pint` before commits)
+- Controllers: Single resource responsibility
+- Models: Use traits (HasRoles, HasMedia, LogsActivity, SoftDeletes)
+- Naming: PascalCase for classes, camelCase for methods
+- Always use type hints (PHP 8.2+)
+- Extract reusable logic to `app/Helpers/`
+- Use Form Requests for validation
+
+### Frontend (React/TypeScript)
+- Use TypeScript strict mode
+- Components: PascalCase (`AppSidebar.tsx`)
+- Hooks/Utils: kebab-case (`use-appearance.tsx`)
+- Always define interfaces for props
+- Use `@/` alias for imports
+- Prefer function components with hooks
+- Use Tailwind utility classes (no custom CSS unless necessary)
+- Run `npm run format` before commits
+
+### File Organization
+- Pages: `resources/js/pages/[Feature]/[Action].tsx`
+- Components: `resources/js/components/[component-name].tsx`
+- Layouts: `resources/js/layouts/[layout-name].tsx`
+- Hooks: `resources/js/hooks/use-[hook-name].ts`
+- Types: `resources/js/types/[type-name].d.ts`
+
+## Component Patterns
+
+### Page Layout (ALWAYS USE THIS)
+```tsx
+import AppLayout from '@/layouts/app-layout';
+import PageContainer from '@/components/page-container';
+import Heading from '@/components/heading';
+import { Head } from '@inertiajs/react';
+
+export default function YourPage() {
+    return (
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="Page Title" />
+            <PageContainer maxWidth="4xl"> {/* Use: none, 2xl, 4xl, 7xl, full */}
+                <Heading title="Title" description="Description" />
+                {/* Content */}
+            </PageContainer>
+        </AppLayout>
+    );
+}
+```
+
+### Server-Side DataTables
+```tsx
+<DataTableWrapper
+    ref={tableRef}
+    ajax={{ url: route('resource.json'), type: 'GET' }}
+    columns={columns}
+    onDelete={(id) => router.delete(route('resource.destroy', id))}
+/>
+```
+
+### Confirmation Dialog
+```tsx
+const { confirmationState, handleConfirm, handleCancel, openConfirmation } = useConfirmation();
+
+openConfirmation({
+    title: 'Confirm Action?',
+    message: 'This cannot be undone.',
+    onConfirm: () => { /* action */ },
+});
+
+<ConfirmationDialog state={confirmationState} onConfirm={handleConfirm} onCancel={handleCancel} />
+```
+
+### Form Submission
+```tsx
+const { data, setData, post, processing, errors } = useForm({ name: '' });
+
+const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    post(route('resource.store'), {
+        onSuccess: () => toast.success('Success!'),
+    });
+};
+```
+
+## Permission System
+- Use middleware for routes: `Route::middleware('permission:view-users')`
+- Hide UI based on permissions: `{user.permissions.includes('create-users') && <Button />}`
+- 14 available permissions (see CLAUDE.md)
+
+## Important Rules
+
+### ALWAYS:
+1. Use `PageContainer` component for page layout consistency
+2. Use existing TypeScript types from `types/` directory
+3. Follow naming conventions (PascalCase components, kebab-case utils)
+4. Add TypeScript interfaces for all props and data structures
+5. Use `@/` alias for imports, never relative paths like `../../`
+6. Use shadcn/ui components when available (24 components)
+7. Implement permission checks both backend (middleware) and frontend (UI hiding)
+8. Use `toast` from `@/utils/toast` for notifications
+9. Use `useForm` from Inertia for form handling
+10. Run formatters before suggesting commits
+
+### NEVER:
+1. Create custom CSS files (use Tailwind utilities)
+2. Hardcode routes (always use `route()` helper)
+3. Bypass permission checks
+4. Create new layout patterns (use existing layouts)
+5. Use `any` type in TypeScript
+6. Create duplicate components (check existing first)
+7. Skip error handling in forms
+8. Forget to add loading states (use `processing` from useForm)
+
+## Available UI Components (shadcn/ui)
+Button, Input, Label, Textarea, Checkbox, Select, Card, Alert, Badge, Avatar, Dialog, Alert Dialog, Dropdown Menu, Sheet, Breadcrumb, Sidebar, Separator, Skeleton, Toggle, Tooltip, Collapsible, Table, Navigation Menu, Toggle Group
+
+## Common Helpers
+- `DataTable::of()` - Server-side DataTables
+- `toast.success()` / `toast.error()` - Notifications
+- `route()` - Laravel/Ziggy routes
+- `cn()` - Merge Tailwind classes
+- `useConfirmation()` - Confirmation dialogs
+- `useAppearance()` - Dark mode
+
+## Testing & Quality
+- Use Pest for testing
+- Write feature tests for critical paths
+- Run `composer pint` for PHP formatting
+- Run `npm run format` for JS/TS formatting
+- Run `npm run type-check` for TypeScript validation
+
+## Performance Best Practices
+- Use server-side DataTables for large datasets
+- Lazy load heavy components
+- Use Inertia's partial reloads when possible
+- Optimize images with Spatie Media Library
+- Use Redis for caching
+
+## Security Checklist
+- ✅ CSRF protection (automatic via Inertia)
+- ✅ XSS prevention (React escaping)
+- ✅ SQL injection prevention (Eloquent ORM)
+- ✅ Permission-based access control
+- ✅ Rate limiting on auth routes
+- ✅ Validate all user inputs
+- ✅ Sanitize file uploads
+
+## Git Commit Messages
+Use conventional commits:
+- `feat:` - New feature
+- `fix:` - Bug fix
+- `refactor:` - Code refactoring
+- `style:` - Formatting, styling
+- `docs:` - Documentation
+- `test:` - Testing
+- `chore:` - Maintenance
+
+Example: `feat: add user export functionality`
+
+## Documentation
+Full documentation: `.claude/project.md` and `CLAUDE.md`
+
+## When Stuck
+1. Check existing similar components/pages
+2. Review TypeScript types in `resources/js/types/`
+3. Check Laravel routes in `routes/web.php`
+4. Review Spatie package docs for Media/Permission/Activity Log
+5. Check shadcn/ui docs for component usage
