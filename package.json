@@ -17,6 +17,7 @@
         "@types/node": "^22.13.5",
         "@types/react-select": "^5.0.0",
         "@types/toastify-js": "^1.12.3",
+        "baseline-browser-mapping": "^2.8.32",
         "eslint": "^9.17.0",
         "eslint-config-prettier": "^10.0.1",
         "eslint-plugin-react": "^7.37.3",
