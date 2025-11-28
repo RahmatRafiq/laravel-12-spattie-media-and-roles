@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\UserRolePermission;
 
 use App\Helpers\DataTable;
@@ -15,6 +16,7 @@ class RoleController extends Controller
     public function index()
     {
         $roles = Role::all();
+
         return Inertia::render('UserRolePermission/Role/Index', [
             'roles' => $roles,
         ]);
@@ -23,7 +25,7 @@ class RoleController extends Controller
     public function json(Request $request)
     {
         $search = $request->input('search.value', '');
-    $query  = Role::with('permissions');
+        $query = Role::with('permissions');
 
         $columns = [
             'id',
@@ -35,7 +37,7 @@ class RoleController extends Controller
 
         $recordsTotalCallback = null;
         if ($search) {
-            $recordsTotalCallback = function() {
+            $recordsTotalCallback = function () {
                 return Role::count();
             };
         }
@@ -54,14 +56,15 @@ class RoleController extends Controller
 
         $data['data'] = collect($data['data'])->map(function ($role) {
             $permissionsList = isset($role->permissions) ? collect($role->permissions)->pluck('name')->implode(', ') : '';
+
             return [
-                'id'               => $role->id,
-                'name'             => $role->name,
-                'guard_name'       => $role->guard_name,
-                'created_at'       => $role->created_at->toDateTimeString(),
-                'updated_at'       => $role->updated_at->toDateTimeString(),
+                'id' => $role->id,
+                'name' => $role->name,
+                'guard_name' => $role->guard_name,
+                'created_at' => $role->created_at->toDateTimeString(),
+                'updated_at' => $role->updated_at->toDateTimeString(),
                 'permissions_list' => $permissionsList,
-                'actions'          => '',
+                'actions' => '',
             ];
         });
 
@@ -71,6 +74,7 @@ class RoleController extends Controller
     public function create()
     {
         $permissions = Permission::all();
+
         return Inertia::render('UserRolePermission/Role/Form', [
             'permissions' => $permissions,
         ]);
@@ -79,13 +83,13 @@ class RoleController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'        => 'required|unique:roles,name',
-            'guard_name'  => ['required', 'string', 'max:255', Rule::in(Guards::list())],
+            'name' => 'required|unique:roles,name',
+            'guard_name' => ['required', 'string', 'max:255', Rule::in(Guards::list())],
             'permissions' => 'required|array',
         ]);
 
         $role = Role::create([
-            'name'       => $request->name,
+            'name' => $request->name,
             'guard_name' => $request->guard_name,
         ]);
 
@@ -99,9 +103,9 @@ class RoleController extends Controller
         $role = Role::with('permissions')->findOrFail($id);
 
         return Inertia::render('UserRolePermission/Role/Form', [
-            'role'        => $role->load('permissions'),
+            'role' => $role->load('permissions'),
             'permissions' => Permission::all(),
-            'guards'      => array_keys(config('auth.guards')),
+            'guards' => array_keys(config('auth.guards')),
         ]);
     }
 
@@ -109,13 +113,13 @@ class RoleController extends Controller
     {
         $role = Role::findOrFail($id);
         $request->validate([
-            'name'        => 'required|string|max:255|unique:roles,name,' . $role->id,
-            'guard_name'  => ['required', 'string', 'max:255', Rule::in(Guards::list())],
+            'name' => 'required|string|max:255|unique:roles,name,'.$role->id,
+            'guard_name' => ['required', 'string', 'max:255', Rule::in(Guards::list())],
             'permissions' => 'required|array',
         ]);
 
         $role->update([
-            'name'       => $request->name,
+            'name' => $request->name,
             'guard_name' => $request->guard_name,
         ]);
 

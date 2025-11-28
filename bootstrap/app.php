@@ -36,7 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 if ($request->header('X-Inertia') || $request->header('X-Inertia-Version') || $request->wantsJson()) {
                     return \Inertia\Inertia::render('403', [
                         'message' => $e->getMessage() ?: 'Access Denied',
-                        'status' => 403
+                        'status' => 403,
                     ])->toResponse($request)->setStatusCode(403);
                 }
             }

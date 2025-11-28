@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Menu;
 use App\Models\Permission;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class MenuController extends Controller
 {
@@ -14,10 +13,11 @@ class MenuController extends Controller
         $parent_id = $request->query('parent_id');
         $allMenus = Menu::orderBy('order')->get();
         $permissions = Permission::orderBy('name')->get(['id', 'name']);
+
         return inertia('Menu/Form', [
             'allMenus' => $allMenus,
             'permissions' => $permissions,
-            'menu' => $parent_id ? ['parent_id' => (int)$parent_id] : null,
+            'menu' => $parent_id ? ['parent_id' => (int) $parent_id] : null,
         ]);
     }
 
@@ -31,6 +31,7 @@ class MenuController extends Controller
             'parent_id' => 'nullable|exists:menus,id',
         ]);
         $menu = Menu::create($validated);
+
         return redirect()->route('menus.manage')->with('success', 'Menu created successfully.');
     }
 
@@ -39,6 +40,7 @@ class MenuController extends Controller
         $menu = Menu::with('children')->findOrFail($id);
         $allMenus = Menu::where('id', '!=', $id)->orderBy('order')->get();
         $permissions = Permission::orderBy('name')->get(['id', 'name']);
+
         return inertia('Menu/Form', [
             'menu' => $menu,
             'allMenus' => $allMenus,
@@ -57,12 +59,14 @@ class MenuController extends Controller
             'parent_id' => 'nullable|exists:menus,id',
         ]);
         $menu->update($validated);
+
         return redirect()->route('menus.manage')->with('success', 'Menu updated successfully.');
     }
 
     public function manage()
     {
         $menus = Menu::with('children')->whereNull('parent_id')->orderBy('order')->get();
+
         return inertia('Menu/Index', [
             'menus' => $menus,
         ]);
@@ -74,10 +78,11 @@ class MenuController extends Controller
             'tree' => 'required',
         ]);
         $tree = json_decode($request->input('tree'), true);
-        if (!is_array($tree)) {
+        if (! is_array($tree)) {
             return response()->json(['success' => false, 'message' => 'Invalid tree data'], 422);
         }
         $this->updateMenuTree($tree);
+
         return redirect()->route('menus.manage')
             ->with('success', 'Menu order updated successfully.');
     }
@@ -89,7 +94,7 @@ class MenuController extends Controller
                 'order' => $order,
                 'parent_id' => $parentId,
             ]);
-            if (!empty($item['children']) && is_array($item['children'])) {
+            if (! empty($item['children']) && is_array($item['children'])) {
                 $this->updateMenuTree($item['children'], $item['id']);
             }
         }
@@ -99,6 +104,7 @@ class MenuController extends Controller
     {
         $menu = Menu::findOrFail($id);
         $menu->delete();
+
         return redirect()->route('menus.manage')->with('success', 'Menu deleted successfully.');
     }
 }

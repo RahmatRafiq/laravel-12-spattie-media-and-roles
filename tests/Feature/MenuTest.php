@@ -74,7 +74,7 @@ test('admin can update menu order', function () {
             'tree' => json_encode([
                 ['id' => $menu1->id],
                 ['id' => $menu2->id],
-            ])
+            ]),
         ])
         ->assertRedirect();
     $this->assertDatabaseHas('menus', ['id' => $menu1->id, 'order' => 0]);

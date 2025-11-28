@@ -1,10 +1,9 @@
 <?php
 
-use App\Models\User;
-use App\Models\Role;
 use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
 
 beforeEach(function () {
     $this->seed(\Database\Seeders\PermissionSeeder::class);

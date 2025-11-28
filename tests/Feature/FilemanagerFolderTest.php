@@ -28,7 +28,6 @@ test('folder can have children', function () {
     expect($parent->children->first()->name)->toBe('Child');
 });
 
-
 test('cannot create folder without name (validation)', function () {
     $admin = User::factory()->create();
     $admin->assignRole('admin');

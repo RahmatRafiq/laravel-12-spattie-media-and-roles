@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -14,7 +15,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements HasMedia
 {
-    use HasFactory, Notifiable, InteractsWithMedia, HasRoles, SoftDeletes, LogsActivity;
+    use HasFactory, HasRoles, InteractsWithMedia, LogsActivity, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -46,13 +47,11 @@ class User extends Authenticatable implements HasMedia
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password'          => 'hashed',
+        'password' => 'hashed',
     ];
 
     /**
      * Get the options for activity logging.
-     *
-     * @return \Spatie\Activitylog\LogOptions
      */
     public function getActivitylogOptions(): LogOptions
     {
@@ -60,11 +59,11 @@ class User extends Authenticatable implements HasMedia
             ->logOnly(['name', 'email', 'password'])
             ->logOnlyDirty()
             ->setDescriptionForEvent(function (string $eventName) {
-                $user     = auth()->user();
+                $user = auth()->user();
                 $userName = $user ? $user->name : 'unknown';
-                $userId   = $user ? $user->id : 'unknown';
+                $userId = $user ? $user->id : 'unknown';
+
                 return "User {$this->name} (ID: {$this->id}) was {$eventName} by {$userName} (ID: {$userId})";
             });
     }
-
 }

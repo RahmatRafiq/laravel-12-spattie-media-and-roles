@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class AppSetting extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'app_name',
         'app_description',
@@ -50,6 +51,7 @@ class AppSetting extends Model
                 'maintenance_mode' => false,
             ]
         );
+
         return $settings;
     }
 
@@ -60,6 +62,7 @@ class AppSetting extends Model
     {
         $settings = static::getInstance();
         $settings->update($data);
+
         return $settings;
     }
 

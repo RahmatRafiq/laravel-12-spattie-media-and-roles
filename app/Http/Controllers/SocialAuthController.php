@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Socialite\Facades\Socialite;
 
 class SocialAuthController extends Controller
 {
@@ -22,7 +22,7 @@ class SocialAuthController extends Controller
 
             $user = User::where('email', $socialUser->getEmail())->first();
 
-            if (!$user) {
+            if (! $user) {
                 $user = User::create([
                     'name' => $socialUser->getName(),
                     'email' => $socialUser->getEmail(),
@@ -43,6 +43,7 @@ class SocialAuthController extends Controller
     public function logout(Request $request)
     {
         Auth::logout();
+
         return redirect('/')->with('success', 'Logout successful!');
     }
 }
