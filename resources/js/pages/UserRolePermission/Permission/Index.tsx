@@ -1,5 +1,7 @@
-import DataTableWrapper, { DataTableWrapperRef } from '@/components/datatables';
+import Heading from '@/components/heading';
 import HeadingSmall from '@/components/heading-small';
+import PageContainer from '@/components/page-container';
+import DataTableWrapper, { DataTableWrapperRef } from '@/components/datatables';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
@@ -8,7 +10,6 @@ import { Permission } from '@/types/UserRolePermission';
 import { Head, Link, router } from '@inertiajs/react';
 import { useRef } from 'react';
 import ReactDOM from 'react-dom/client';
-import Heading from '../../../components/heading';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Permission Management', href: route('permissions.index') }];
 
@@ -63,10 +64,9 @@ export default function PermissionIndex({ success }: { success?: string }) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Permissions" />
-            <div className="px-4 py-6">
+            <PageContainer maxWidth="full">
                 <Heading title="Permission Management" />
-                <div className="w-full">
-                    <HeadingSmall title="Permissions" description="Manage permissions for your application" />
+                <HeadingSmall title="Permissions" description="Manage permissions for your application" />
                     <div className="mb-4 flex items-center justify-end">
                         <Link href={route('permissions.create')}>
                             <Button>Create Permission</Button>
@@ -92,8 +92,7 @@ export default function PermissionIndex({ success }: { success?: string }) {
                             },
                         }}
                     />
-                </div>
-            </div>
+            </PageContainer>
         </AppLayout>
     );
 }
