@@ -1,6 +1,7 @@
 import Heading from '@/components/heading';
 import HeadingSmall from '@/components/heading-small';
 import InputError from '@/components/input-error';
+import PageContainer from '@/components/page-container';
 import CustomSelect from '@/components/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,12 +50,11 @@ export default function MenuFormPage({ menu, allMenus, permissions = [] }: MenuF
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={isEdit ? 'Edit Menu' : 'Create Menu'} />
-            <div className="px-4 py-6">
+            <PageContainer maxWidth="full">
                 <Heading title="Menu Management" description="Manage your application menu items" />
-                <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
-                    <div className="flex-1 space-y-6 md:max-w-2xl">
-                        <HeadingSmall title={isEdit ? 'Edit Menu' : 'Create Menu'} description="Fill in the menu details below" />
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="max-w-2xl mx-auto space-y-6">
+                    <HeadingSmall title={isEdit ? 'Edit Menu' : 'Create Menu'} description="Fill in the menu details below" />
+                    <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="space-y-2">
                                 <Label htmlFor="title">Title</Label>
                                 <Input id="title" value={data.title ?? ''} onChange={(e) => setData('title', e.target.value)} required />
@@ -103,9 +103,8 @@ export default function MenuFormPage({ menu, allMenus, permissions = [] }: MenuF
                                 </Button>
                             </div>
                         </form>
-                    </div>
                 </div>
-            </div>
+            </PageContainer>
         </AppLayout>
     );
 }

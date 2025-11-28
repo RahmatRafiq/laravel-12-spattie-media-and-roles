@@ -46,11 +46,11 @@ export default function PermissionForm({ permission }: { permission?: Permission
                         <Input id="name" type="text" value={data.name} onChange={(e) => setData('name', e.target.value)} required />
                         <InputError message={errors.name} />
                     </div>
-                    <div className="flex items-center space-x-4">
+                    <div className="flex items-center gap-4">
                         <Button disabled={processing}>{isEdit ? 'Update Permission' : 'Create Permission'}</Button>
-                        <Link href={route('permissions.index')} className="rounded bg-gray-300 px-4 py-2 text-gray-800 hover:bg-gray-400">
-                            Cancel
-                        </Link>
+                        <Button type="button" variant="outline" asChild>
+                            <Link href={route('permissions.index')}>Cancel</Link>
+                        </Button>
                     </div>
                 </form>
             </UserRolePermissionLayout>

@@ -83,11 +83,11 @@ export default function RoleForm({ role, permissions }: { role?: Role; permissio
                         />
                         <InputError message={errors.permissions} />
                     </div>
-                    <div className="flex items-center space-x-4">
+                    <div className="flex items-center gap-4">
                         <Button disabled={processing}>{isEdit ? 'Update Role' : 'Create Role'}</Button>
-                        <Link href={route('roles.index')} className="bg-muted text-foreground hover:bg-muted/70 rounded px-4 py-2">
-                            Cancel
-                        </Link>
+                        <Button type="button" variant="outline" asChild>
+                            <Link href={route('roles.index')}>Cancel</Link>
+                        </Button>
                     </div>
                 </form>
             </UserRolePermissionLayout>

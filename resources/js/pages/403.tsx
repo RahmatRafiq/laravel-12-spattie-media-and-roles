@@ -1,4 +1,7 @@
-import { Head } from '@inertiajs/react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Head, router } from '@inertiajs/react';
+import { AlertTriangle, ArrowLeft, Home } from 'lucide-react';
 
 interface ErrorPageProps {
     message: string;
@@ -9,43 +12,40 @@ export default function Error403({ message, status }: ErrorPageProps) {
     return (
         <>
             <Head title="Access Denied" />
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="max-w-md w-full space-y-8">
-                    <div>
-                        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-                            <svg
-                                className="h-6 w-6 text-red-600"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"
-                                />
-                            </svg>
+            <div className="min-h-screen flex items-center justify-center bg-background p-4">
+                <Card className="w-full max-w-md">
+                    <CardHeader className="text-center">
+                        <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10">
+                            <AlertTriangle className="h-10 w-10 text-destructive" />
                         </div>
-                        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                            Access Denied
-                        </h2>
-                        <p className="mt-2 text-center text-sm text-gray-600">
+                        <CardTitle className="text-3xl font-bold">Access Denied</CardTitle>
+                        <CardDescription className="text-lg">
                             Error {status}
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <p className="text-center text-muted-foreground">
+                            {message || 'You do not have permission to access this page.'}
                         </p>
-                        <p className="mt-4 text-center text-sm text-gray-600">
-                            {message}
-                        </p>
-                    </div>
-                    <div className="mt-6">
-                        <button
-                            onClick={() => window.history.back()}
-                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                        >
-                            Go Back
-                        </button>
-                    </div>
-                </div>
+                        <div className="flex flex-col gap-3">
+                            <Button
+                                onClick={() => router.visit('/dashboard')}
+                                className="w-full"
+                            >
+                                <Home className="mr-2 h-4 w-4" />
+                                Go to Dashboard
+                            </Button>
+                            <Button
+                                onClick={() => window.history.back()}
+                                variant="outline"
+                                className="w-full"
+                            >
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                Go Back
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
         </>
     );

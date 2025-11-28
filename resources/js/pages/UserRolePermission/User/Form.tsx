@@ -101,11 +101,11 @@ export default function UserForm({ user, roles }: { user?: User; roles: Role[] }
                         />
                         <InputError message={errors.role_id} />
                     </div>
-                    <div className="flex items-center space-x-4">
+                    <div className="flex items-center gap-4">
                         <Button disabled={processing}>{isEdit ? 'Update User' : 'Create User'}</Button>
-                        <Link href={route('users.index')} className="bg-muted text-foreground hover:bg-muted/70 rounded px-4 py-2">
-                            Cancel
-                        </Link>
+                        <Button type="button" variant="outline" asChild>
+                            <Link href={route('users.index')}>Cancel</Link>
+                        </Button>
                     </div>
                 </form>
             </UserRolePermissionLayout>

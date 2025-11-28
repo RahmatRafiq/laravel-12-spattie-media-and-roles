@@ -1,11 +1,14 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import '@/echo';
+import Heading from '@/components/heading';
+import PageContainer from '@/components/page-container';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
+import type { PageProps as InertiaPageProps } from '@inertiajs/core';
 import { Head, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
-import { Activity, Clock, User, Database, Wifi, WifiOff } from 'lucide-react';
 import type Echo from 'laravel-echo';
+import { Activity, Clock, Database, User, Wifi, WifiOff } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 declare global {
     interface Window {
@@ -29,15 +32,13 @@ interface ActivityLog {
     created_at: string;
 }
 
-import { PageProps as InertiaPageProps } from '@inertiajs/core';
-
 interface PageProps extends InertiaPageProps {
     initialLogs: ActivityLog[];
 }
 
 const breadcrumbs = [
     { title: 'Dashboard', href: '/dashboard' },
-    { title: 'Activity Logs', href: '/dashboard/activity-logs' }
+    { title: 'Activity Logs', href: '/dashboard/activity-logs' },
 ];
 
 export default function ActivityLogList() {
@@ -135,49 +136,44 @@ export default function ActivityLogList() {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Live Activity Logs" />
 
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground">Live Activity Logs</h1>
-                        <p className="text-muted-foreground">
-                            Monitor real-time user activities and system changes
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        {connectionStatus === 'connected' && (
-                            <Badge variant="outline" className="gap-1 border-green-500/50 bg-green-500/10 text-green-600 dark:text-green-400">
-                                <Wifi className="h-3 w-3" />
-                                Live
-                            </Badge>
-                        )}
-                        {connectionStatus === 'connecting' && (
-                            <Badge variant="outline" className="gap-1 border-yellow-500/50 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400">
-                                <Wifi className="h-3 w-3 animate-pulse" />
-                                Connecting
-                            </Badge>
-                        )}
-                        {connectionStatus === 'disconnected' && (
-                            <Badge variant="outline" className="gap-1 border-red-500/50 bg-red-500/10 text-red-600 dark:text-red-400">
-                                <WifiOff className="h-3 w-3" />
-                                Disconnected
-                            </Badge>
-                        )}
-                        {connectionStatus === 'error' && (
-                            <Badge variant="outline" className="gap-1 border-red-500/50 bg-red-500/10 text-red-600 dark:text-red-400">
-                                <WifiOff className="h-3 w-3" />
-                                Error
-                            </Badge>
-                        )}
-                        <div className="flex items-center gap-2">
-                            <Activity className="h-5 w-5 text-muted-foreground" />
-                            <span className="text-sm text-muted-foreground">
-                                {logs.length} log{logs.length !== 1 ? 's' : ''}
-                            </span>
+            <PageContainer maxWidth="full">
+                <div className="flex flex-col gap-6">
+                    <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                        <Heading title="Live Activity Logs" description="Monitor real-time user activities and system changes" />
+                        <div className="flex items-center gap-4">
+                            {connectionStatus === 'connected' && (
+                                <Badge variant="outline" className="gap-1 border-green-500/50 bg-green-500/10 text-green-600 dark:text-green-400">
+                                    <Wifi className="h-3 w-3" />
+                                    Live
+                                </Badge>
+                            )}
+                            {connectionStatus === 'connecting' && (
+                                <Badge variant="outline" className="gap-1 border-yellow-500/50 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400">
+                                    <Wifi className="h-3 w-3 animate-pulse" />
+                                    Connecting
+                                </Badge>
+                            )}
+                            {connectionStatus === 'disconnected' && (
+                                <Badge variant="outline" className="gap-1 border-red-500/50 bg-red-500/10 text-red-600 dark:text-red-400">
+                                    <WifiOff className="h-3 w-3" />
+                                    Disconnected
+                                </Badge>
+                            )}
+                            {connectionStatus === 'error' && (
+                                <Badge variant="outline" className="gap-1 border-red-500/50 bg-red-500/10 text-red-600 dark:text-red-400">
+                                    <WifiOff className="h-3 w-3" />
+                                    Error
+                                </Badge>
+                            )}
+                            <div className="flex items-center gap-2">
+                                <Activity className="h-5 w-5 text-muted-foreground" />
+                                <span className="text-sm text-muted-foreground">
+                                    {logs.length} log{logs.length !== 1 ? 's' : ''}
+                                </span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div className="flex-1">
                     {logs.length === 0 ? (
                         <Card className="flex h-64 items-center justify-center">
                             <CardContent className="text-center">
@@ -238,7 +234,7 @@ export default function ActivityLogList() {
                         </div>
                     )}
                 </div>
-            </div>
+            </PageContainer>
         </AppLayout>
     );
 }
