@@ -9,7 +9,7 @@ import type Echo from 'laravel-echo';
 
 declare global {
     interface Window {
-        Echo: Echo;
+        Echo: Echo<'reverb'>;
     }
 }
 
@@ -62,7 +62,7 @@ export default function ActivityLogList() {
                     setConnectionStatus('error');
                 });
 
-                window.Echo.private('activity-logs').listen('ActivityLogCreated', (data: ActivityLog) => {
+                window.Echo.private('activity-logs').listen('.ActivityLogCreated', (data: ActivityLog) => {
                     if (data && data.id && data.description) {
                         setLogs((prev) => [data, ...prev.slice(0, 49)]);
                     }
