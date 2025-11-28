@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Settings;
 
 use App\Helpers\MediaLibrary;
@@ -17,19 +18,19 @@ class ProfileController extends Controller
 {
     public function edit(Request $request): Response
     {
-        $media        = $request->user()->getMedia('profile-images')->first();
+        $media = $request->user()->getMedia('profile-images')->first();
         $profileImage = $media
         ? [
             'file_name' => $media->file_name,
-            'size'      => $media->size,
-            'url'       => $media->getFullUrl(),
+            'size' => $media->size,
+            'url' => $media->getFullUrl(),
         ]
         : null;
 
         return Inertia::render('settings/profile', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
-            'status'          => $request->session()->get('status'),
-            'profileImage'    => $profileImage,
+            'status' => $request->session()->get('status'),
+            'profileImage' => $profileImage,
         ]);
     }
 
@@ -39,19 +40,19 @@ class ProfileController extends Controller
             'profile-images.*' => 'required|file|image|max:2048',
         ]);
 
-        $file     = $request->file('profile-images')[0];
+        $file = $request->file('profile-images')[0];
         $tempPath = $file->store('', 'temp');
 
         return response()->json([
             'name' => basename($tempPath),
-            'url'  => Storage::disk('temp')->url($tempPath),
+            'url' => Storage::disk('temp')->url($tempPath),
         ]);
     }
 
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $request->validate([
-            'profile-images'   => 'array|max:1',
+            'profile-images' => 'array|max:1',
             'profile-images.*' => 'string',
         ]);
 
@@ -75,10 +76,12 @@ class ProfileController extends Controller
             $user->save();
 
             DB::commit();
+
             return to_route('profile.edit');
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error($e->getMessage());
+
             return back()->withErrors('Profile update failed.');
         }
     }

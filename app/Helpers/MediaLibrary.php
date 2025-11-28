@@ -8,17 +8,18 @@ use Illuminate\Http\Request;
 
 class MediaLibrary
 {
-    public static function put(Collection | Model $model, string $collectionName = 'default', Request $request, string $disk = 'media')
+    public static function put(Collection|Model $model, string $collectionName, Request $request, string $disk = 'media')
     {
         // retrieve saved images
         $files = $model->getMedia($collectionName);
 
         // get image that will be removed if exists in $images and not exists in $request
         $filesToRemove = $files->filter(function ($file) use ($request, $collectionName) {
-            if (!$request->input($collectionName)) {
+            if (! $request->input($collectionName)) {
                 return true;
             }
-            return !in_array($file->file_name, $request->input($collectionName));
+
+            return ! in_array($file->file_name, $request->input($collectionName));
         });
 
         // remove images from media
@@ -30,7 +31,7 @@ class MediaLibrary
         if ($request->input($collectionName)) {
             // add images from temp
             foreach ($request->input($collectionName) as $fileName) {
-                if (!$files->contains('file_name', $fileName)) {
+                if (! $files->contains('file_name', $fileName)) {
                     $model->addMediaFromDisk($fileName, 'temp')->toMediaCollection($collectionName, $disk);
                     $addedFiles[] = $fileName;
                 }
@@ -39,8 +40,8 @@ class MediaLibrary
 
         // file that not affected from removed and added
         $files = $files->filter(function ($file) use ($filesToRemove, $addedFiles) {
-            return !in_array($file->file_name, $filesToRemove->pluck('file_name')->toArray())
-            && !in_array($file->file_name, $addedFiles);
+            return ! in_array($file->file_name, $filesToRemove->pluck('file_name')->toArray())
+            && ! in_array($file->file_name, $addedFiles);
         });
 
         return [
@@ -54,7 +55,7 @@ class MediaLibrary
         ];
     }
 
-    public static function destroy(Collection | Model $model, string $collectionName = 'default')
+    public static function destroy(Collection|Model $model, string $collectionName = 'default')
     {
         try {
             // delete file from media

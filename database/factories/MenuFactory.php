@@ -14,7 +14,7 @@ class MenuFactory extends Factory
         return [
             'title' => $this->faker->word(),
             'route' => $this->faker->slug(),
-            'icon' => 'icon-' . $this->faker->word(),
+            'icon' => 'icon-'.$this->faker->word(),
             'permission' => null,
             'parent_id' => null,
             'order' => $this->faker->numberBetween(1, 10),

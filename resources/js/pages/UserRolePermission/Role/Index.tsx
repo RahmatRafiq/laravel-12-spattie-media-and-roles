@@ -1,5 +1,7 @@
-import DataTableWrapper, { DataTableWrapperRef } from '@/components/datatables';
+import Heading from '@/components/heading';
 import HeadingSmall from '@/components/heading-small';
+import PageContainer from '@/components/page-container';
+import DataTableWrapper, { DataTableWrapperRef } from '@/components/datatables';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
@@ -8,7 +10,6 @@ import { Role } from '@/types/UserRolePermission';
 import { Head, Link, router } from '@inertiajs/react';
 import { useRef } from 'react';
 import ReactDOM from 'react-dom/client';
-import Heading from '../../../components/heading';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Role Management', href: route('roles.index') }];
 
@@ -79,10 +80,9 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Roles" />
-            <div className="px-4 py-6">
-                <Heading title='Role Management' />
-                <div className="w-full">
-                    <HeadingSmall title="Roles" description="Manage roles for your application" />
+            <PageContainer maxWidth="full">
+                <Heading title="Role Management" />
+                <HeadingSmall title="Roles" description="Manage roles for your application" />
                     <div className="mb-4 flex items-center justify-end">
                         <Link href={route('roles.create')}>
                             <Button>Create Role</Button>
@@ -108,8 +108,7 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
                             },
                         }}
                     />
-                </div>
-            </div>
+            </PageContainer>
         </AppLayout>
     );
 }

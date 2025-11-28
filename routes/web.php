@@ -8,6 +8,7 @@ use Inertia\Inertia;
 
 Route::get('/', function () {
     $settings = AppSetting::getInstance();
+
     return Inertia::render('welcome', [
         'settings' => $settings,
     ]);
@@ -21,9 +22,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', function () {
             return Inertia::render('dashboard');
         })->middleware('permission:view-dashboard')->name('dashboard');
-        
-        Route::get('/activity-logs', [ActivityLogController::class,'index'])->name('activity-logs.index');
-        
+
+        Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+
         Route::post('roles/json', [\App\Http\Controllers\UserRolePermission\RoleController::class, 'json'])->name('roles.json');
         Route::resource('roles', \App\Http\Controllers\UserRolePermission\RoleController::class)
             ->middleware('permission:view-roles|create-roles|edit-roles|delete-roles');
@@ -76,10 +77,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         })->name('settings')->middleware('permission:manage-settings');
     });
 
-
     Route::post('logout', [SocialAuthController::class, 'logout'])->name('logout');
 
 });
 
-require __DIR__ . '/settings.php';
-require __DIR__ . '/auth.php';
+require __DIR__.'/settings.php';
+require __DIR__.'/auth.php';

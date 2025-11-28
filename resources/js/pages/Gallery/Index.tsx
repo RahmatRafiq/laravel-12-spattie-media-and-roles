@@ -1,16 +1,17 @@
-import React from 'react';
-import Sidebar, { FilemanagerFolder } from './Sidebar';
-import GalleryHeader from './GalleryHeader';
-import GalleryUploadForm from './GalleryUploadForm';
-import GalleryGrid from './GalleryGrid';
-import GalleryPagination from './GalleryPagination';
-import AppLayout from '../../layouts/app-layout';
-import Heading from '../../components/heading';
-import HeadingSmall from '../../components/heading-small';
+import ConfirmationDialog from '@/components/confirmation-dialog';
+import Heading from '@/components/heading';
+import HeadingSmall from '@/components/heading-small';
+import PageContainer from '@/components/page-container';
+import { useConfirmation } from '@/hooks/use-confirmation';
+import AppLayout from '@/layouts/app-layout';
+import { toast } from '@/utils/toast';
 import { Head, router, useForm, useRemember } from '@inertiajs/react';
-import { toast } from '../../utils/toast';
-import ConfirmationDialog from '../../components/confirmation-dialog';
-import { useConfirmation } from '../../hooks/use-confirmation';
+import React from 'react';
+import GalleryGrid from './GalleryGrid';
+import GalleryHeader from './GalleryHeader';
+import GalleryPagination from './GalleryPagination';
+import GalleryUploadForm from './GalleryUploadForm';
+import Sidebar, { FilemanagerFolder } from './Sidebar';
 
 export default function Gallery({
     media,
@@ -156,9 +157,9 @@ export default function Gallery({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="File Manager" />
-            <div className="px-4 py-6">
+            <PageContainer maxWidth="7xl">
                 <Heading title="File Manager" description="Manage your application's files and folders." />
-                <div className="flex flex-row items-start gap-6 max-w-7xl mx-auto mt-4 min-h-[60vh]">
+                <div className="flex flex-row items-start gap-6 mt-4 min-h-[60vh]">
                     <aside className="hidden md:block w-64 min-w-[240px] h-full">
                         <div className="bg-card rounded shadow p-0 h-full flex flex-col">
                             <div className="p-4 border-b">
@@ -196,7 +197,7 @@ export default function Gallery({
                         {media.links && <GalleryPagination links={media.links} />}
                     </div>
                 </div>
-            </div>
+            </PageContainer>
         </AppLayout>
     );
 }

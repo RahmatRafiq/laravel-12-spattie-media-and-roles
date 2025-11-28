@@ -1,19 +1,20 @@
-import AppLayout from '@/layouts/app-layout';
+import Heading from '@/components/heading';
+import HeadingSmall from '@/components/heading-small';
+import InputError from '@/components/input-error';
+import PageContainer from '@/components/page-container';
+import RichTextEditor from '@/components/ui/rich-text-editor';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import RichTextEditor from '@/components/ui/rich-text-editor';
-import InputError from '@/components/input-error';
+import AppLayout from '@/layouts/app-layout';
+import { toast } from '@/utils/toast';
 import { BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { FormEvent, ChangeEvent } from 'react';
-import { toast } from '@/utils/toast';
+import { ChangeEvent, FormEvent } from 'react';
 import { AppSetting } from '../../types';
-import Heading from '@/components/heading';
-import HeadingSmall from '@/components/heading-small';
 
 
 interface Props {
@@ -99,10 +100,9 @@ export default function AppSettings({ settings, availableColors }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="App Settings" />
-            <div className="px-4 py-6">
+            <PageContainer maxWidth="4xl">
                 <Heading title="App Settings" description="Manage your application's global configuration, SEO, theme, and contact info." />
-                <div className="max-w-4xl mx-auto">
-                    <form onSubmit={handleSubmit} className="space-y-8">
+                <form onSubmit={handleSubmit} className="space-y-8">
                         <Card>
                             <CardHeader>
                                 <HeadingSmall title="Basic Information" description="Configure your application's basic details" />
@@ -343,17 +343,16 @@ export default function AppSettings({ settings, availableColors }: Props) {
                                 )}
                             </CardContent>
                         </Card>
-                        <div className="flex items-center space-x-4">
-                            <Button disabled={processing}>
-                                {processing ? 'Saving...' : 'Save Settings'}
-                            </Button>
-                            <Link href={route('dashboard')} className="rounded bg-gray-300 px-4 py-2 text-gray-800 hover:bg-gray-400">
-                                Cancel
-                            </Link>
-                        </div>
-                    </form>
-                </div>
-            </div>
+                    <div className="flex items-center gap-4">
+                        <Button disabled={processing}>
+                            {processing ? 'Saving...' : 'Save Settings'}
+                        </Button>
+                        <Button type="button" variant="outline" asChild>
+                            <Link href={route('dashboard')}>Cancel</Link>
+                        </Button>
+                    </div>
+                </form>
+            </PageContainer>
         </AppLayout>
     );
 }

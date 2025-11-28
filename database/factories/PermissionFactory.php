@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use Spatie\Permission\Models\Permission;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Spatie\Permission\Models\Permission;
 
 class PermissionFactory extends Factory
 {

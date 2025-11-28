@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\UserRolePermission;
 
 use App\Helpers\DataTable;
@@ -14,10 +15,10 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $filter = $request->query('filter', 'active');
-        
+
         return Inertia::render('UserRolePermission/User/Index', [
             'filter' => $filter,
-            'roles'  => Role::all(),
+            'roles' => Role::all(),
         ]);
     }
 
@@ -34,7 +35,7 @@ class UserController extends Controller
 
         $recordsTotalCallback = null;
         if ($search) {
-            $recordsTotalCallback = function() use ($filter) {
+            $recordsTotalCallback = function () use ($filter) {
                 return match ($filter) {
                     'trashed' => User::onlyTrashed()->count(),
                     'all' => User::withTrashed()->count(),
@@ -60,11 +61,11 @@ class UserController extends Controller
 
         $data['data'] = collect($data['data'])->map(function ($user) {
             return [
-                'id'      => $user->id,
-                'name'    => $user->name,
-                'email'   => $user->email,
-                'roles'   => $user->roles->pluck('name')->toArray(),
-                'trashed' => !is_null($user->deleted_at),
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'roles' => $user->roles->pluck('name')->toArray(),
+                'trashed' => ! is_null($user->deleted_at),
                 'actions' => '',
             ];
         });
@@ -75,6 +76,7 @@ class UserController extends Controller
     public function create()
     {
         $roles = Role::all();
+
         return Inertia::render('UserRolePermission/User/Form', [
             'roles' => $roles,
         ]);
@@ -83,15 +85,15 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|string|email|max:255|unique:users',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'role_id'  => 'required|exists:roles,id',
+            'role_id' => 'required|exists:roles,id',
         ]);
 
         $user = User::create([
-            'name'     => $validatedData['name'],
-            'email'    => $validatedData['email'],
+            'name' => $validatedData['name'],
+            'email' => $validatedData['email'],
             'password' => bcrypt($validatedData['password']),
         ]);
 
@@ -103,11 +105,12 @@ class UserController extends Controller
 
     public function edit($id)
     {
-        $user  = User::withTrashed()->findOrFail($id);
+        $user = User::withTrashed()->findOrFail($id);
         $roles = Role::all();
         $user->role_id = $user->roles->first()->id ?? null;
+
         return Inertia::render('UserRolePermission/User/Form', [
-            'user'  => $user,
+            'user' => $user,
             'roles' => $roles,
         ]);
     }
@@ -115,14 +118,14 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $validatedData = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|string|email|max:255|unique:users,email,' . $id,
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,'.$id,
             'password' => 'nullable|string|min:8|confirmed',
-            'role_id'  => 'required|exists:roles,id',
+            'role_id' => 'required|exists:roles,id',
         ]);
 
-        $user        = User::withTrashed()->findOrFail($id);
-        $user->name  = $validatedData['name'];
+        $user = User::withTrashed()->findOrFail($id);
+        $user->name = $validatedData['name'];
         $user->email = $validatedData['email'];
         if ($request->filled('password')) {
             $user->password = bcrypt($validatedData['password']);
@@ -138,12 +141,14 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
+
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
 
     public function trashed()
     {
         $users = User::onlyTrashed()->with('roles')->get();
+
         return Inertia::render('UserRolePermission/User/Trashed', [
             'users' => $users,
         ]);
@@ -152,12 +157,14 @@ class UserController extends Controller
     public function restore($id)
     {
         User::onlyTrashed()->where('id', $id)->restore();
+
         return redirect()->route('users.index')->with('success', 'User restored successfully.');
     }
 
     public function forceDelete($id)
     {
         User::onlyTrashed()->where('id', $id)->forceDelete();
+
         return redirect()->route('users.index')->with('success', 'User permanently deleted.');
     }
 }

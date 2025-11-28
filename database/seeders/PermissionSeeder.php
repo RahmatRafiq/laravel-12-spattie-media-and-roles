@@ -15,17 +15,17 @@ class PermissionSeeder extends Seeder
             'create-users',
             'edit-users',
             'delete-users',
-            
+
             // Role management permissions
             'view-roles',
             'create-roles',
             'edit-roles',
             'delete-roles',
-            
+
             // Permission management
             'view-permissions',
             'assign-permissions',
-            
+
             // General permissions
             'view-dashboard',
             'manage-settings',
@@ -35,7 +35,7 @@ class PermissionSeeder extends Seeder
         foreach ($permissions as $permission) {
             Permission::firstOrCreate([
                 'name' => $permission,
-                'guard_name' => 'web'
+                'guard_name' => 'web',
             ]);
         }
     }

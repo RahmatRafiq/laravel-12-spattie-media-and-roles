@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use Spatie\Permission\Models\Role;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Spatie\Permission\Models\Role;
 
 class RoleFactory extends Factory
 {

@@ -80,4 +80,3 @@ test('user without permission cannot delete permission', function () {
         ->delete(route('permissions.destroy', $permission->id))
         ->assertStatus(403);
 });
-

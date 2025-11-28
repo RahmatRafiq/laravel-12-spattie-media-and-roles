@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\UserRolePermission;
 
 use App\Helpers\DataTable;
@@ -12,6 +13,7 @@ class PermissionController extends Controller
     public function index()
     {
         $permissions = Permission::all();
+
         return Inertia::render('UserRolePermission/Permission/Index', [
             'permissions' => $permissions,
         ]);
@@ -20,7 +22,7 @@ class PermissionController extends Controller
     public function json(Request $request)
     {
         $search = $request->input('search.value', '');
-        $query  = Permission::query();
+        $query = Permission::query();
 
         $columns = [
             'id',
@@ -31,7 +33,7 @@ class PermissionController extends Controller
 
         $recordsTotalCallback = null;
         if ($search) {
-            $recordsTotalCallback = function() {
+            $recordsTotalCallback = function () {
                 return Permission::count();
             };
         }
@@ -49,11 +51,11 @@ class PermissionController extends Controller
 
         $data['data'] = collect($data['data'])->map(function ($permission) {
             return [
-                'id'         => $permission->id,
-                'name'       => $permission->name,
+                'id' => $permission->id,
+                'name' => $permission->name,
                 'created_at' => $permission->created_at->toDateTimeString(),
                 'updated_at' => $permission->updated_at->toDateTimeString(),
-                'actions'    => '',
+                'actions' => '',
             ];
         });
 
@@ -81,6 +83,7 @@ class PermissionController extends Controller
     public function edit($id)
     {
         $permission = Permission::findOrFail($id);
+
         return Inertia::render('UserRolePermission/Permission/Form', [
             'permission' => $permission,
         ]);
@@ -90,7 +93,7 @@ class PermissionController extends Controller
     {
         $permission = Permission::findOrFail($id);
         $request->validate([
-            'name' => 'required|unique:permissions,name,' . $permission->id,
+            'name' => 'required|unique:permissions,name,'.$permission->id,
         ]);
 
         $permission->update([

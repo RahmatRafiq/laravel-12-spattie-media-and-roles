@@ -1,16 +1,15 @@
-import React from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Head, usePage, Link, router } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-
+import ConfirmationDialog from '@/components/confirmation-dialog';
 import Heading from '@/components/heading';
 import HeadingSmall from '@/components/heading-small';
+import PageContainer from '@/components/page-container';
 import TreeDnD from '@/components/TreeDnD';
-
-import { toast } from '@/utils/toast';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useConfirmation } from '@/hooks/use-confirmation';
-import ConfirmationDialog from '@/components/confirmation-dialog';
+import { toast } from '@/utils/toast';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Pencil, Trash2 } from 'lucide-react';
+import React from 'react';
 
 export interface MenuTreeItem {
     id: number;
@@ -116,9 +115,8 @@ function MenuIndexPage() {
     return (
         <AppLayout breadcrumbs={[{ title: 'Dashboard', href: '/dashboard' }, { title: 'Menu Management', href: '#' }]}>
             <Head title="Menu Management" />
-            <div className="px-4 py-6">
+            <PageContainer maxWidth="2xl">
                 <Heading title="Menu Management" description="Manage your application's navigation menu structure." />
-                <div className="max-w-2xl mx-auto">
                     <div className="flex items-center justify-between mb-4">
                         <HeadingSmall title="Menu List" description="View and organize your application's menus." />
                         <Link href={route('menus.create')} className="ml-4">
@@ -152,13 +150,8 @@ function MenuIndexPage() {
                             renderItem={renderMenuItem}
                         />
                     </div>
-                </div>
-            </div>
-            <ConfirmationDialog
-                state={confirmationState}
-                onConfirm={handleConfirm}
-                onCancel={handleCancel}
-            />
+                <ConfirmationDialog state={confirmationState} onConfirm={handleConfirm} onCancel={handleCancel} />
+            </PageContainer>
         </AppLayout>
     );
 }

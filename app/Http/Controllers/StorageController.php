@@ -20,7 +20,7 @@ class StorageController extends Controller
             'file' => 'required|file|max:2048',
         ]);
 
-        $name = Str::orderedUuid() . '_' . $request->file('file')->getClientOriginalName();
+        $name = Str::orderedUuid().'_'.$request->file('file')->getClientOriginalName();
 
         $path = Storage::disk('temp')
             ->putFileAs('', $request->file('file'), $name);
