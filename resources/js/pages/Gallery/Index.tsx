@@ -41,13 +41,12 @@ export default function Gallery({
 
     const createFolder = async (name: string, parent_id: number | null = null) => {
         await router.post(
-            route('gallery.folder.create'),
+            route('gallery.folder.create', { visibility }),
             { name, parent_id },
             {
                 preserveScroll: true,
                 onSuccess: () => {
                     toast.success('Folder created successfully');
-                    router.visit(route('gallery.index', { folder_id: parent_id }));
                 },
                 onError: () => {
                     toast.error('Failed to create folder');
@@ -58,13 +57,12 @@ export default function Gallery({
 
     const renameFolder = async (id: number, name: string) => {
         await router.put(
-            route('gallery.folder.rename', id),
+            route('gallery.folder.rename', { id, visibility }),
             { name },
             {
                 preserveScroll: true,
                 onSuccess: () => {
                     toast.success('Folder renamed successfully');
-                    router.visit(route('gallery.index', { folder_id: id }));
                 },
                 onError: () => {
                     toast.error('Failed to rename folder');
@@ -74,11 +72,10 @@ export default function Gallery({
     };
 
     const deleteFolder = async (id: number, parent_id: number | null = null) => {
-        await router.delete(route('gallery.folder.delete', id), {
+        await router.delete(route('gallery.folder.delete', { id, visibility }), {
             preserveScroll: true,
             onSuccess: () => {
                 toast.success('Folder deleted successfully');
-                router.visit(route('gallery.index', { folder_id: parent_id }));
             },
             onError: () => {
                 toast.error('Failed to delete folder');
@@ -95,7 +92,6 @@ export default function Gallery({
                 onSuccess: () => {
                     toast.success('File uploaded successfully');
                     reset();
-                    router.visit(route('gallery.index', { folder_id: currentFolderId }));
                 },
                 onError: () => {
                     toast.error('Failed to upload file');
@@ -107,7 +103,7 @@ export default function Gallery({
     const handleFolderClick = (folderId: number | null) => {
         if (folderId === currentFolderId) return;
         setCurrentFolderId(folderId);
-        router.visit(route('gallery.index', { folder_id: folderId }), {
+        router.visit(route('gallery.index', { folder_id: folderId, visibility }), {
             preserveScroll: true,
             preserveState: true,
         });
@@ -144,7 +140,6 @@ export default function Gallery({
                     preserveScroll: true,
                     onSuccess: () => {
                         toast.success('File deleted successfully');
-                        router.visit(route('gallery.index', { folder_id: currentFolderId }));
                     },
                     onError: () => {
                         toast.error('Failed to delete file');
@@ -188,7 +183,7 @@ export default function Gallery({
                                 </span>
                             ))}
                         </nav>
-                        <GalleryHeader />
+                        <GalleryHeader currentVisibility={visibility} />
                         <GalleryUploadForm data={data} setData={setData} processing={processing} submitUpload={submitUpload} />
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">
                             <GalleryGrid media={media.data} handleDelete={handleDelete} />

@@ -30,6 +30,10 @@ class RolePermissionSeeder extends Seeder
                 'view-dashboard',
                 'manage-settings',
                 'view-activity-logs',
+                'view-gallery',
+                'upload-files',
+                'delete-files',
+                'manage-folders',
             ];
 
             foreach ($adminPermissions as $permission) {
@@ -43,6 +47,8 @@ class RolePermissionSeeder extends Seeder
         if ($userRole) {
             $userPermissions = [
                 'view-dashboard',
+                'view-gallery',
+                'upload-files',
             ];
 
             foreach ($userPermissions as $permission) {

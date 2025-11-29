@@ -10,14 +10,17 @@ A modern, production-ready starter kit for web apps using **Laravel 12**, **Reac
 - Complete auth system (Laravel Breeze)
 - Social login support (Google, Facebook via Socialite)
 - Role & Permission management (Spatie Permission)
-- 14 pre-defined permissions
+- **18 pre-defined permissions** (User, Role, Permission, File Manager, General)
 - Middleware & UI-based protection
 
 ### 📁 File & Media Management
-- Advanced file manager dengan folder structure
-- Public & private file storage
+- Advanced file manager dengan **nested folder structure**
+- **Public & private file storage** dengan visual indicators
 - Drag & drop upload (Dropzone)
 - Image preview & pagination
+- **Persistent visibility filter** (tidak reset setelah operations)
+- **Authenticated image display** untuk private files
+- Folder validation untuk data integrity
 - Spatie Media Library integration
 
 ### 🎯 Dynamic Menu System
@@ -134,8 +137,13 @@ To change the app port, edit `.env` (`APP_PORT`, `APP_URL`) and restart.
 - Admin (full access)
 - User (limited access)
 
-**Permissions:**
-`view-users`, `create-users`, `edit-users`, `delete-users`, `view-roles`, `create-roles`, `edit-roles`, `delete-roles`, `view-permissions`, `assign-permissions`, `view-dashboard`, `access-admin-panel`, `manage-settings`, `view-activity-logs`
+**Permissions (18 total):**
+
+- **User Management:** `view-users`, `create-users`, `edit-users`, `delete-users`
+- **Role Management:** `view-roles`, `create-roles`, `edit-roles`, `delete-roles`
+- **Permission Management:** `view-permissions`, `assign-permissions`
+- **File Manager:** `view-gallery`, `upload-files`, `delete-files`, `manage-folders`
+- **General:** `view-dashboard`, `manage-settings`, `view-activity-logs`, `manage-menus`
 
 **Example route protection:**
 
@@ -239,6 +247,49 @@ npm run type-check
 
 # Linting
 npm run lint
+```
+
+## 🔧 Troubleshooting
+
+### TypeScript `baseUrl` deprecation warning
+
+**Issue:** Warning about deprecated `baseUrl` option in tsconfig.json
+
+**Solution:** Already fixed in latest version. The project now uses Vite aliases instead of TypeScript `baseUrl`.
+
+### Gallery visibility filter resets after operations
+
+**Issue:** When deleting/uploading files in "Private Files" mode, the page redirects to "Public Files"
+
+**Solution:** Already fixed. All backend redirects now preserve the visibility parameter.
+
+### Public images not displaying
+
+**Issue:** Public images show broken image icons
+
+**Solutions:**
+1. Ensure storage symlink exists: `php artisan storage:link`
+2. Clear config cache: `php artisan config:clear && php artisan cache:clear`
+3. Check file permissions: `chmod -R 775 storage bootstrap/cache`
+
+### Database constraint violation on file upload
+
+**Issue:** Foreign key constraint fails when uploading to non-existent folder
+
+**Solution:** Already fixed. Folder validation added to prevent invalid folder_id.
+
+### WebSocket connection failed
+
+**Solution:**
+```bash
+# Start Reverb server
+php artisan reverb:start
+
+# Check .env configuration
+BROADCAST_CONNECTION=reverb
+REVERB_APP_ID=your-app-id
+REVERB_APP_KEY=your-app-key
+REVERB_APP_SECRET=your-app-secret
 ```
 
 ## 🚢 Deployment

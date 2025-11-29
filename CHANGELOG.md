@@ -13,11 +13,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI coding rules (.cursorrules, .clinerules)
 - Comprehensive README updates
 - This CHANGELOG file
+- Security audit report documentation
+- Folder validation in Gallery upload
+- Private image component for authenticated image display
+- Migration for folder_id column in media table
 
 ### Changed
 - Refactored all pages to use PageContainer component
 - Updated CustomSelect component styling for better design system alignment
 - Improved border colors and heights consistency across components
+
+### Fixed
+- **TypeScript Configuration**: Removed deprecated `baseUrl` option, added Vite alias for `@/*` imports (TypeScript 7.0 compatibility)
+- **Gallery Visibility Filter**: Fixed filter reset issue - visibility now persists across all operations (upload, delete, folder management)
+- **Public Image Display**: Fixed image loading by using Spatie Media's `getUrl()` method instead of manual URL generation
+- **Backend Redirects**: All Gallery controller methods now preserve visibility parameter to prevent double redirect
+- **Frontend Router**: Removed redundant `router.visit()` calls after successful operations (backend handles redirect)
+- **Database Foreign Key**: Added proper folder validation to prevent constraint violation errors
+- **Config Cache**: Fixed storage path issues by clearing config cache after migration
 
 ## [1.0.0] - 2025-11-29
 
@@ -85,6 +98,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Input validation
 
 ## Release Notes
+
+### Version 1.1.0 - Gallery & TypeScript Improvements (Upcoming)
+
+**Focus:** Bug fixes and improvements for Gallery file management system and TypeScript configuration.
+
+**Key Improvements:**
+1. **Gallery Visibility Filter** - Fixed persistent filter issue. Visibility (Public/Private) now maintains state across all operations.
+2. **Image Display** - Public images now display correctly using Spatie Media Library's URL generation.
+3. **TypeScript Compatibility** - Removed deprecated `baseUrl` for TypeScript 7.0 compatibility.
+4. **Better UX** - Eliminated double redirects, smoother navigation flow.
+
+**Technical Changes:**
+- Backend redirects now preserve `visibility` parameter
+- Frontend uses backend redirects (removed redundant client-side navigation)
+- Added folder validation to prevent database constraint errors
+- Improved Vite configuration with proper path aliases
+
+**Migration Notes:**
+- Run `php artisan config:clear && php artisan cache:clear` after updating
+- Check that `storage/app/public` is writable
+- Verify `public/storage` symlink exists
+
+---
 
 ### Version 1.0.0 - Initial Release
 

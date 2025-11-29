@@ -48,7 +48,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/storage', [\App\Http\Controllers\StorageController::class, 'store'])->name('storage.store');
         Route::delete('/storage', [\App\Http\Controllers\StorageController::class, 'destroy'])->name('storage.destroy');
         Route::get('/storage/{path}', [\App\Http\Controllers\StorageController::class, 'show'])->name('storage.show');
-        Route::get('gallery', [\App\Http\Controllers\GalleryController::class, 'index'])->name('gallery.index');
+
+        Route::middleware('permission:view-gallery')->group(function () {
+            Route::get('gallery', [\App\Http\Controllers\GalleryController::class, 'index'])->name('gallery.index');
+            Route::get('gallery/file/{id}', [\App\Http\Controllers\GalleryController::class, 'file'])->name('gallery.file');
+        });
+
+        Route::middleware('permission:upload-files')->group(function () {
+            Route::post('gallery', [\App\Http\Controllers\GalleryController::class, 'store'])->name('gallery.store');
+        });
+
+        Route::middleware('permission:delete-files')->group(function () {
+            Route::delete('gallery/{id}', [\App\Http\Controllers\GalleryController::class, 'destroy'])->name('gallery.destroy');
+        });
+
+        Route::middleware('permission:manage-folders')->group(function () {
+            Route::post('gallery/folder', [\App\Http\Controllers\GalleryController::class, 'createFolder'])->name('gallery.folder.create');
+            Route::put('gallery/folder/{id}', [\App\Http\Controllers\GalleryController::class, 'renameFolder'])->name('gallery.folder.rename');
+            Route::delete('gallery/folder/{id}', [\App\Http\Controllers\GalleryController::class, 'deleteFolder'])->name('gallery.folder.delete');
+        });
+
         Route::middleware('role:admin')->group(function () {
             Route::post('/menus/update-order', [\App\Http\Controllers\MenuController::class, 'updateOrder'])->name('menus.updateOrder');
             Route::get('menus/manage', [\App\Http\Controllers\MenuController::class, 'manage'])->name('menus.manage');
@@ -58,14 +77,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('menus/{menu}', [\App\Http\Controllers\MenuController::class, 'update'])->name('menus.update');
             Route::delete('menus/{menu}', [\App\Http\Controllers\MenuController::class, 'destroy'])->name('menus.destroy');
         });
-        Route::post('gallery', [\App\Http\Controllers\GalleryController::class, 'store'])->name('gallery.store');
-        Route::delete('gallery/{id}', [\App\Http\Controllers\GalleryController::class, 'destroy'])->name('gallery.destroy');
-        Route::get('gallery/file/{id}', [\App\Http\Controllers\GalleryController::class, 'file'])->name('gallery.file');
-        Route::post('gallery/folder', [\App\Http\Controllers\GalleryController::class, 'createFolder'])
-            ->middleware('role:admin')
-            ->name('gallery.folder.create');
-        Route::put('gallery/folder/{id}', [\App\Http\Controllers\GalleryController::class, 'renameFolder'])->name('gallery.folder.rename');
-        Route::delete('gallery/folder/{id}', [\App\Http\Controllers\GalleryController::class, 'deleteFolder'])->name('gallery.folder.delete');
     });
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
@@ -81,5 +92,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 });
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';

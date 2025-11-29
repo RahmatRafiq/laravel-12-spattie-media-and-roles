@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import PrivateImage from '@/components/private-image';
 import { Globe2, Lock } from 'lucide-react';
 
 interface MediaItem {
@@ -43,12 +44,22 @@ export default function GalleryGrid({ media, handleDelete }: GalleryGridProps) {
                         <CardTitle className="text-xs break-all text-center w-full">{item.file_name}</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col items-center w-full">
-                        <img
-                            src={item.original_url}
-                            alt={item.name}
-                            className="mb-2 h-32 w-full rounded object-cover border"
-                            onError={e => ((e.target as HTMLImageElement).style.display = 'none')}
-                        />
+                        {/* Use PrivateImage for private files, regular img for public files */}
+                        {item.disk === 'public' || item.disk.includes('profile-images') ? (
+                            <img
+                                src={item.original_url}
+                                alt={item.name}
+                                className="mb-2 h-32 w-full rounded object-cover border"
+                                onError={e => ((e.target as HTMLImageElement).style.display = 'none')}
+                            />
+                        ) : (
+                            <PrivateImage
+                                src={item.original_url}
+                                alt={item.name}
+                                className="mb-2 h-32 w-full rounded object-cover border"
+                                onError={() => console.error(`Failed to load private image: ${item.file_name}`)}
+                            />
+                        )}
                         <div className="mb-2 w-full text-[10px] text-muted-foreground break-all text-center">
                             {item.original_url}
                         </div>

@@ -30,6 +30,12 @@ class PermissionSeeder extends Seeder
             'view-dashboard',
             'manage-settings',
             'view-activity-logs',
+
+            // File management permissions
+            'view-gallery',
+            'upload-files',
+            'delete-files',
+            'manage-folders',
         ];
 
         foreach ($permissions as $permission) {
