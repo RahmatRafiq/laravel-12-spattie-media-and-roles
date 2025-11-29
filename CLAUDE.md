@@ -99,12 +99,13 @@ Button, Input, Label, Textarea, Checkbox, Select, Card, Alert, Badge, Avatar, Di
 
 ## 🔑 Permission System
 
-### 14 Permissions Available
+### 18 Permissions Available
 ```
-User:        view-users, create-users, edit-users, delete-users
-Role:        view-roles, create-roles, edit-roles, delete-roles
-Permission:  view-permissions, assign-permissions
-General:     view-dashboard, manage-settings, view-activity-logs, manage-menus
+User:         view-users, create-users, edit-users, delete-users
+Role:         view-roles, create-roles, edit-roles, delete-roles
+Permission:   view-permissions, assign-permissions
+File Manager: view-gallery, upload-files, delete-files, manage-folders
+General:      view-dashboard, manage-settings, view-activity-logs, manage-menus
 ```
 
 ### Usage Pattern
