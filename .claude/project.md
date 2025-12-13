@@ -152,13 +152,16 @@ resources/js/
 ├── components/
 │   ├── app-sidebar.tsx             # Sidebar dengan dynamic menu dari DB
 │   ├── app-header.tsx              # Application header
-│   ├── datatables.tsx              # DataTable wrapper + confirmation
+│   ├── datatables.tsx              # DataTable wrapper + confirmation + searchDelay
 │   ├── TreeDnD.tsx                 # Generic drag & drop tree
 │   ├── dropzoner.tsx               # File upload component
 │   ├── confirmation-dialog.tsx     # Reusable confirmation dialog
-│   ├── page-container.tsx          # Page wrapper (padding & max-width)
+│   ├── page-container.tsx          # Page wrapper (padding, max-width, centered)
 │   ├── page-section.tsx            # Section layout dengan sidebar
-│   ├── select.tsx                  # Custom react-select wrapper
+│   ├── select.tsx                  # Dark mode-aware react-select (CustomSelect)
+│   ├── custom-async-select.tsx     # Async select untuk API calls
+│   ├── private-image.tsx           # Display protected/authenticated images
+│   ├── toggle-tabs.tsx             # Filter tabs dengan custom labels
 │   └── ui/                         # 24 shadcn/ui components
 │
 ├── pages/

@@ -56,11 +56,15 @@ app/Models/
 ### Key Components
 ```
 resources/js/components/
-├── app-sidebar.tsx       → Dynamic menu dari database
-├── datatables.tsx        → Server-side DataTables + confirmations
-├── TreeDnD.tsx           → Drag & drop tree (generic)
-├── page-container.tsx    → Page wrapper (padding & max-width)
-└── ui/                   → 24 shadcn/ui components
+├── app-sidebar.tsx           → Dynamic menu dari database
+├── datatables.tsx            → Server-side DataTables + confirmations + searchDelay
+├── TreeDnD.tsx               → Drag & drop tree (generic)
+├── page-container.tsx        → Page wrapper (padding, max-width, centered)
+├── select.tsx                → Dark mode-aware react-select (CustomSelect)
+├── custom-async-select.tsx   → Async select untuk API calls
+├── private-image.tsx         → Display protected/authenticated images
+├── toggle-tabs.tsx           → Filter tabs (active/trashed/all) dengan custom labels
+└── ui/                       → 24 shadcn/ui components
 ```
 
 ---
@@ -88,9 +92,17 @@ export default function YourPage() {
 
 ### PageContainer Max Widths
 - `'none'` or `'full'` → Full width (datatables)
+- `'sm'`, `'md'`, `'lg'`, `'xl'` → Small to medium content
 - `'2xl'` → Simple forms
 - `'4xl'` → Complex forms with sections
 - `'7xl'` → Gallery/grid layouts
+
+**Centered Content Pattern:**
+```tsx
+<PageContainer maxWidth="full" centered centerWidth="2xl">
+    {/* Content centered within full-width container */}
+</PageContainer>
+```
 
 ### Available shadcn/ui Components
 Button, Input, Label, Textarea, Checkbox, Select, Card, Alert, Badge, Avatar, Dialog, Alert Dialog, Dropdown Menu, Sheet, Breadcrumb, Sidebar, Separator, Skeleton, Toggle, Tooltip, Collapsible, Table, Navigation Menu, Toggle Group
