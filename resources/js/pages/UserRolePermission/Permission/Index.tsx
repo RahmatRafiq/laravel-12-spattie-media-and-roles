@@ -1,15 +1,14 @@
+import DataTableWrapper, { DataTableWrapperRef } from '@/components/datatables';
 import Heading from '@/components/heading';
 import HeadingSmall from '@/components/heading-small';
 import PageContainer from '@/components/page-container';
-import DataTableWrapper, { DataTableWrapperRef } from '@/components/datatables';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import { BreadcrumbItem } from '@/types';
-import { DataTableColumn } from '@/types/DataTables';
-import { Permission } from '@/types/UserRolePermission';
+import type { BreadcrumbItem } from '@/types';
+import type { DataTableColumn } from '@/types/DataTables';
+import type { Permission } from '@/types/UserRolePermission';
 import { Head, Link, router } from '@inertiajs/react';
 import { useRef } from 'react';
-import ReactDOM from 'react-dom/client';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Permission Management', href: route('permissions.index') }];
 
@@ -17,47 +16,34 @@ export default function PermissionIndex({ success }: { success?: string }) {
     const dtRef = useRef<DataTableWrapperRef>(null);
 
     const columns: DataTableColumn<Permission>[] = [
-        { data: 'id', title: 'ID' },
-        { data: 'name', title: 'Name' },
+        { data: 'id', title: 'ID', className: 'all' },
+        { data: 'name', title: 'Name', className: 'all' },
+        { data: 'guard_name', title: 'Guard Name', className: 'tablet-p' },
+        { data: 'created_at', title: 'Created At', className: 'tablet-l' },
+        { data: 'updated_at', title: 'Updated At', className: 'desktop' },
         {
             data: null,
             title: 'Actions',
             orderable: false,
             searchable: false,
-            render: (data: Permission[keyof Permission] | null, type: 'display' | 'type' | 'sort' | 'export', row: Permission) => {
+            className: 'all',
+            render: (_data, _type, row: Permission) => {
+                const btn = 'inline-block px-3 py-2 text-sm font-medium rounded text-white transition-colors';
                 return `
-                <span class="inertia-link-cell" data-id="${row.id}"></span>
-                <button data-id="${row.id}" class="ml-2 my-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 btn-delete text-sm font-medium align-middle">
-                  Delete
-                </button>
-               `;
+                    <div class="flex flex-wrap gap-2 py-1">
+                        <a href="/dashboard/permissions/${row.id}/edit" class="${btn} bg-yellow-500 hover:bg-yellow-600">Edit</a>
+                        <button class="btn-delete ${btn} bg-red-600 hover:bg-red-700" data-id="${row.id}">Delete</button>
+                    </div>
+                `;
             },
         },
     ];
 
-    const handleDelete = (id: number) => {
+    const handleDelete = (id: number | string) => {
         router.delete(route('permissions.destroy', id), {
             preserveState: true,
             preserveScroll: true,
             onSuccess: () => dtRef.current?.reload(),
-        });
-    };
-
-    const drawCallback = () => {
-        document.querySelectorAll('.inertia-link-cell').forEach((cell) => {
-            const id = cell.getAttribute('data-id');
-            if (id && !cell.querySelector('a')) {
-                const root = ReactDOM.createRoot(cell);
-                root.render(
-                    <Link
-                        href={route('permissions.edit', id)}
-                        className="bg-yellow-500 hover:bg-yellow-600 text-white rounded px-3 py-2 my-1 text-sm font-medium align-middle"
-                        style={{ display: 'inline-block', minWidth: '80px', textAlign: 'center' }}
-                    >
-                        Edit
-                    </Link>,
-                );
-            }
         });
     };
 
@@ -80,7 +66,6 @@ export default function PermissionIndex({ success }: { success?: string }) {
                             type: 'POST',
                         }}
                         columns={columns}
-                        options={{ drawCallback }}
                         onRowDelete={handleDelete}
                         confirmationConfig={{
                             delete: {

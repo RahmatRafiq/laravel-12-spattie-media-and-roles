@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-interface PrivateImageProps {
+type PrivateImageProps = {
     src: string;
     alt: string;
     className?: string;
@@ -27,7 +27,7 @@ export default function PrivateImage({ src, alt, className, onError }: PrivateIm
                 const response = await fetch(src, {
                     credentials: 'include', // Important: include cookies for authentication
                     headers: {
-                        'Accept': 'image/*',
+                        Accept: 'image/*',
                     },
                 });
 
@@ -59,16 +59,16 @@ export default function PrivateImage({ src, alt, className, onError }: PrivateIm
 
     if (loading) {
         return (
-            <div className={`${className} flex items-center justify-center bg-muted animate-pulse`}>
-                <span className="text-xs text-muted-foreground">Loading...</span>
+            <div className={`${className} bg-muted flex animate-pulse items-center justify-center`}>
+                <span className="text-muted-foreground text-xs">Loading...</span>
             </div>
         );
     }
 
     if (error || !blobUrl) {
         return (
-            <div className={`${className} flex items-center justify-center bg-muted`}>
-                <span className="text-xs text-destructive">Failed to load</span>
+            <div className={`${className} bg-muted flex items-center justify-center`}>
+                <span className="text-destructive text-xs">Failed to load</span>
             </div>
         );
     }

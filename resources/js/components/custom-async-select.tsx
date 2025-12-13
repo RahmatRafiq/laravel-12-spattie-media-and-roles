@@ -1,35 +1,27 @@
 import { useEffect, useState } from 'react';
-import type { Props as SelectProps, StylesConfig } from 'react-select';
-import Select from 'react-select';
-import CreatableSelect from 'react-select/creatable';
+import type { GroupBase, StylesConfig } from 'react-select';
+import type { AsyncProps } from 'react-select/async';
+import AsyncSelect from 'react-select/async';
 
-type CustomSelectProps<OptionType> = SelectProps<OptionType> & {
-    isCreatable?: boolean;
-};
-
-export default function CustomSelect<OptionType>(props: CustomSelectProps<OptionType>) {
-    const { isCreatable, ...restProps } = props;
+export default function CustomAsyncSelect<OptionType, IsMulti extends boolean = false, Group extends GroupBase<OptionType> = GroupBase<OptionType>>(
+    props: AsyncProps<OptionType, IsMulti, Group>,
+) {
     const [isDark, setIsDark] = useState(false);
 
     useEffect(() => {
-        // Check initial dark mode
         const checkDarkMode = () => {
             setIsDark(document.documentElement.classList.contains('dark'));
         };
-
         checkDarkMode();
-
-        // Watch for class changes on html element
         const observer = new MutationObserver(checkDarkMode);
         observer.observe(document.documentElement, {
             attributes: true,
             attributeFilter: ['class'],
         });
-
         return () => observer.disconnect();
     }, []);
 
-    const customStyles: StylesConfig<OptionType, boolean> = {
+    const customStyles: StylesConfig<OptionType, IsMulti, Group> = {
         control: (provided, state) => ({
             ...provided,
             backgroundColor: isDark ? 'oklch(0.205 0 0)' : 'oklch(1 0 0)',
@@ -117,10 +109,11 @@ export default function CustomSelect<OptionType>(props: CustomSelectProps<Option
             ...provided,
             color: isDark ? 'oklch(0.708 0 0)' : 'oklch(0.556 0 0)',
         }),
+        loadingMessage: (provided) => ({
+            ...provided,
+            color: isDark ? 'oklch(0.708 0 0)' : 'oklch(0.556 0 0)',
+        }),
     };
 
-    if (isCreatable) {
-        return <CreatableSelect {...restProps} styles={customStyles} classNamePrefix="react-select" className="w-full" />;
-    }
-    return <Select {...restProps} styles={customStyles} classNamePrefix="react-select" className="w-full" />;
+    return <AsyncSelect {...props} styles={customStyles} classNamePrefix="react-select" className="w-full" />;
 }
