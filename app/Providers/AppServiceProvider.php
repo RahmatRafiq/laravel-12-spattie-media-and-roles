@@ -24,6 +24,9 @@ class AppServiceProvider extends ServiceProvider
             broadcast(new \App\Events\ActivityLogCreated($activity));
         });
 
+        Inertia::share('env', fn () => config('app.env'));
+        Inertia::share('isLocalEnv', fn () => in_array(config('app.env'), ['local', 'development', 'testing']));
+
         Inertia::share('appSettings', function () {
             return AppSetting::getInstance();
         });

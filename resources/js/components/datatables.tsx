@@ -178,6 +178,7 @@ const DataTableWrapperInner = forwardRef<DataTableWrapperRef, DataTableWrapperPr
         processing: true,
         serverSide: true,
         paging: true,
+        searchDelay: 500, // Add 500ms debounce for search
         responsive: {
             breakpoints: [
                 { name: 'desktop', width: Infinity },

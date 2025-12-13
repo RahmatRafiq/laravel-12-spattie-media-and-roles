@@ -25,6 +25,8 @@ export interface NavItem {
 
 export interface SharedData {
     name: string;
+    env: string;
+    isLocalEnv: boolean;
     quote: { message: string; author: string };
     auth: Auth;
     ziggy: Config & { location: string };
@@ -44,6 +46,9 @@ export interface User {
         size: number;
         original_url: string;
     };
+    roles: string[];
+    permissions: string[];
+    is_admin: boolean;
     [key: string]: unknown; // This allows for additional properties...
 }
 

@@ -1,16 +1,15 @@
+import DataTableWrapper, { DataTableWrapperRef } from '@/components/datatables';
 import Heading from '@/components/heading';
 import HeadingSmall from '@/components/heading-small';
 import PageContainer from '@/components/page-container';
-import DataTableWrapper, { DataTableWrapperRef } from '@/components/datatables';
 import ToggleTabs from '@/components/toggle-tabs';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import { BreadcrumbItem } from '@/types';
-import { DataTableColumn } from '@/types/DataTables';
-import { User } from '@/types/UserRolePermission';
+import type { BreadcrumbItem } from '@/types';
+import type { DataTableColumn } from '@/types/DataTables';
+import type { User } from '@/types/UserRolePermission';
 import { Head, Link, router } from '@inertiajs/react';
 import { useRef, useState } from 'react';
-import ReactDOM from 'react-dom/client';
 
 const columns: DataTableColumn<User>[] = [
     { data: 'id', title: 'ID', className: 'all' },
@@ -23,16 +22,22 @@ const columns: DataTableColumn<User>[] = [
         orderable: false,
         searchable: false,
         className: 'all',
-        render: (data: User[keyof User] | null, type: 'display' | 'type' | 'sort' | 'export', row: User) => {
-            let html = '';
+        render: (_data, _type, row: User) => {
+            const btn = 'inline-block px-3 py-2 text-sm font-medium rounded text-white transition-colors';
             if (row.trashed) {
-                html += `<button class="btn-restore ml-2 my-1 px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm font-medium align-middle" data-id="${row.id}">Restore</button>`;
-                html += `<button class="btn-force-delete ml-2 my-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm font-medium align-middle" data-id="${row.id}">Force Delete</button>`;
-            } else {
-                html += `<span class="inertia-link-cell" data-id="${row.id}"></span>`;
-                html += `<button class="btn-delete ml-2 my-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm font-medium align-middle" data-id="${row.id}">Delete</button>`;
+                return `
+                    <div class="flex flex-wrap gap-2 py-1">
+                        <button class="btn-restore ${btn} bg-green-600 hover:bg-green-700" data-id="${row.id}">Restore</button>
+                        <button class="btn-force-delete ${btn} bg-red-600 hover:bg-red-700" data-id="${row.id}">Force Delete</button>
+                    </div>
+                `;
             }
-            return html;
+            return `
+                <div class="flex flex-wrap gap-2 py-1">
+                    <a href="/dashboard/users/${row.id}/edit" class="${btn} bg-yellow-500 hover:bg-yellow-600">Edit</a>
+                    <button class="btn-delete ${btn} bg-red-600 hover:bg-red-700" data-id="${row.id}">Delete</button>
+                </div>
+            `;
         },
     },
 ];
@@ -72,24 +77,6 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
         }
     };
 
-    const drawCallback = () => {
-        document.querySelectorAll('.inertia-link-cell').forEach((cell) => {
-            const id = cell.getAttribute('data-id');
-            if (id && !cell.querySelector('a')) {
-                const root = ReactDOM.createRoot(cell);
-                root.render(
-                    <Link
-                        href={route('users.edit', id)}
-                        className="bg-yellow-500 hover:bg-yellow-600 text-white rounded px-3 py-2 my-1 text-sm font-medium align-middle"
-                        style={{ display: 'inline-block', minWidth: '80px', textAlign: 'center' }}
-                    >
-                        Edit
-                    </Link>,
-                );
-            }
-        });
-    };
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Users" />
@@ -112,7 +99,6 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
                             type: 'POST',
                         }}
                         columns={columns}
-                        options={{ drawCallback }}
                         onRowDelete={handleDelete}
                         onRowRestore={handleRestore}
                         onRowForceDelete={handleForceDelete}
