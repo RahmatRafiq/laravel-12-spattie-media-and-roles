@@ -38,35 +38,38 @@ class PermissionController extends Controller
      */
     public function json(Request $request)
     {
-        $searchTerm = $request->input('search.value', '');
-        $permissionsQuery = $this->permissionService->getDataTableData(['search' => $searchTerm]);
+        $search = $request->input('search.value', '');
 
-        $columns = ['id', 'name', 'created_at', 'updated_at'];
+        $filters = [
+            'search' => $search,
+        ];
 
-        $recordsTotalCallback = $searchTerm
+        $query = $this->permissionService->getDataTableData($filters);
+
+        $recordsTotalCallback = $search
             ? fn () => $this->permissionService->getAllPermissions()->count()
             : null;
 
+        $columns = ['id', 'name', 'guard_name', 'created_at', 'updated_at'];
         if ($request->filled('order')) {
-            $orderColumnIndex = $request->order[0]['column'];
-            $orderColumn = $columns[$orderColumnIndex] ?? 'id';
-            $orderDirection = $request->order[0]['dir'];
-            $permissionsQuery->orderBy($orderColumn, $orderDirection);
+            $orderColumn = $columns[$request->order[0]['column']] ?? 'id';
+            $query->orderBy($orderColumn, $request->order[0]['dir']);
         }
 
-        $dataTableResponse = DataTable::paginate($permissionsQuery, $request, $recordsTotalCallback);
+        $data = DataTable::paginate($query, $request, $recordsTotalCallback);
 
-        $dataTableResponse['data'] = collect($dataTableResponse['data'])->map(function ($permission) {
+        $data['data'] = collect($data['data'])->map(function ($permission) {
             return [
                 'id' => $permission->id,
                 'name' => $permission->name,
+                'guard_name' => $permission->guard_name,
                 'created_at' => $permission->created_at->toDateTimeString(),
                 'updated_at' => $permission->updated_at->toDateTimeString(),
                 'actions' => '',
             ];
         });
 
-        return response()->json($dataTableResponse);
+        return response()->json($data);
     }
 
     /**

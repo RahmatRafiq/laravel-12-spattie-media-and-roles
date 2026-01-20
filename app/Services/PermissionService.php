@@ -105,13 +105,6 @@ class PermissionService
      */
     public function getDataTableData(array $filters): \Illuminate\Database\Eloquent\Builder
     {
-        $searchTerm = $filters['search'] ?? null;
-        $query = $this->permissionRepository->query();
-
-        if (! empty($searchTerm)) {
-            $query->where('name', 'like', "%{$searchTerm}%");
-        }
-
-        return $query;
+        return $this->permissionRepository->forDataTable($filters);
     }
 }
