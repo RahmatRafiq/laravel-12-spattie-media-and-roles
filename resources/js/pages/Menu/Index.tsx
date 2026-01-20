@@ -115,7 +115,7 @@ function MenuIndexPage() {
     return (
         <AppLayout breadcrumbs={[{ title: 'Dashboard', href: '/dashboard' }, { title: 'Menu Management', href: '#' }]}>
             <Head title="Menu Management" />
-            <PageContainer maxWidth="4xl">
+            <PageContainer maxWidth="7xl">
                 <Heading title="Menu Management" description="Manage your application's navigation menu structure." />
                     <div className="flex items-center justify-between mb-4">
                         <HeadingSmall title="Menu List" description="View and organize your application's menus." />

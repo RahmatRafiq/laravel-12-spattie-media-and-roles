@@ -100,7 +100,7 @@ export default function AppSettings({ settings, availableColors }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="App Settings" />
-            <PageContainer maxWidth="4xl">
+            <PageContainer maxWidth="7xl">
                 <Heading title="App Settings" description="Manage your application's global configuration, SEO, theme, and contact info." />
                 <form onSubmit={handleSubmit} className="space-y-8">
                         <Card>
