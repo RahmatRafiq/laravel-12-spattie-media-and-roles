@@ -62,7 +62,7 @@ function Tree<T>({ items, getId, getChildren, setChildren, renderItem }: { items
                         <React.Fragment key={getId(item)}>
                             <DefaultTreeItem item={item} getId={getId} renderItem={renderItem}>
                                 {children && children.length > 0 && (
-                                    <div className="ml-6 mt-1">
+                                    <div className="ml-3 sm:ml-6 mt-1">
                                         <Tree items={children} getId={getId} getChildren={getChildren} setChildren={setChildren} renderItem={renderItem} />
                                     </div>
                                 )}

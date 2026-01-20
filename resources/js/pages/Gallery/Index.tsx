@@ -155,13 +155,14 @@ export default function Gallery({
             <Head title="File Manager" />
             <PageContainer maxWidth="7xl">
                 <Heading title="File Manager" description="Manage your application's files and folders." />
-                <div className="flex flex-row items-start gap-6 mt-4 min-h-[60vh]">
-                    <aside className="hidden md:block w-64 min-w-[240px] h-full">
+                <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6 mt-4 min-h-[60vh]">
+                    {/* Mobile: Collapsible Sidebar */}
+                    <aside className="w-full md:w-64 md:min-w-[240px] h-full">
                         <div className="bg-card rounded shadow p-0 h-full flex flex-col">
                             <div className="p-4 border-b">
                                 <HeadingSmall title="Folders" description="Browse and organize your folders." />
                             </div>
-                            <div className="flex-1 overflow-y-auto">
+                            <div className="flex-1 overflow-y-auto max-h-[300px] md:max-h-none">
                                 <Sidebar
                                     folders={folders}
                                     currentFolderId={currentFolderId}
@@ -175,7 +176,7 @@ export default function Gallery({
                             </div>
                         </div>
                     </aside>
-                    <div className="flex-1 flex flex-col gap-4">
+                    <div className="flex-1 flex flex-col gap-4 w-full md:w-auto">
                         <nav className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
                             {breadcrumbs.map((bc, i) => (
                                 <span key={i} className="flex items-center gap-1">

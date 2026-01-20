@@ -47,28 +47,33 @@ function MenuIndexPage() {
         });
     };
     const renderMenuItem = (item: MenuTreeItem) => (
-        <div className="flex items-center gap-3 rounded-lg border border-border bg-background px-4 py-3 mb-2 shadow-sm hover:bg-accent/20 transition-all group min-h-[48px]">
-            <span className="cursor-move text-muted-foreground text-xl select-none">≡</span>
-            <span className="font-semibold text-base text-foreground truncate max-w-[180px]">{item.title}</span>
-            {item.route && <span className="text-xs text-muted-foreground ml-1">({item.route})</span>}
-            {item.permission && <span className="text-xs bg-muted px-2 py-0.5 rounded ml-1">{item.permission}</span>}
-            <div className="flex-1" />
-            <Link href={route('menus.edit', item.id)} title="Edit Menu" className="ml-2">
-                <Button type="button" size="icon" variant="outline" className="w-8 h-8" aria-label="Edit Menu">
-                    <Pencil size={16} />
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 rounded-lg border border-border bg-background px-3 sm:px-4 py-3 mb-2 shadow-sm hover:bg-accent/20 transition-all group min-h-[48px]">
+            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                <span className="cursor-move text-muted-foreground text-xl select-none flex-shrink-0">≡</span>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 flex-1 min-w-0">
+                    <span className="font-semibold text-sm sm:text-base text-foreground truncate">{item.title}</span>
+                    {item.route && <span className="text-xs text-muted-foreground truncate">({item.route})</span>}
+                    {item.permission && <span className="text-xs bg-muted px-2 py-0.5 rounded inline-block w-fit">{item.permission}</span>}
+                </div>
+            </div>
+            <div className="flex gap-2 self-end sm:self-auto ml-auto sm:ml-0">
+                <Link href={route('menus.edit', item.id)} title="Edit Menu">
+                    <Button type="button" size="icon" variant="outline" className="w-8 h-8" aria-label="Edit Menu">
+                        <Pencil size={16} />
+                    </Button>
+                </Link>
+                <Button
+                    type="button"
+                    size="icon"
+                    variant="outline"
+                    className="w-8 h-8 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+                    title="Delete Menu"
+                    aria-label="Delete Menu"
+                    onClick={() => handleDeleteMenu(item.id)}
+                >
+                    <Trash2 size={16} />
                 </Button>
-            </Link>
-            <Button
-                type="button"
-                size="icon"
-                variant="outline"
-                className="ml-2 w-8 h-8 text-red-600 hover:bg-red-50"
-                title="Delete Menu"
-                aria-label="Delete Menu"
-                onClick={() => handleDeleteMenu(item.id)}
-            >
-                <Trash2 size={16} />
-            </Button>
+            </div>
         </div>
     );
     const { menus, success } = (usePage().props as unknown) as { menus: MenuTreeItem[], success?: string };
@@ -117,10 +122,10 @@ function MenuIndexPage() {
             <Head title="Menu Management" />
             <PageContainer maxWidth="7xl">
                 <Heading title="Menu Management" description="Manage your application's navigation menu structure." />
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4">
                         <HeadingSmall title="Menu List" description="View and organize your application's menus." />
-                        <Link href={route('menus.create')} className="ml-4">
-                            <Button type="button" size="sm" className="font-semibold">
+                        <Link href={route('menus.create')} className="w-full sm:w-auto">
+                            <Button type="button" size="sm" className="font-semibold w-full sm:w-auto">
                                 + Add Menu
                             </Button>
                         </Link>
