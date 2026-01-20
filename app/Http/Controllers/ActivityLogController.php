@@ -27,7 +27,7 @@ class ActivityLogController extends Controller
         $logs = $this->activityLogService->getLatestLogs(50);
 
         return Inertia::render('ActivityLogList', [
-            'initialLogs' => ActivityLogResource::collection($logs),
+            'initialLogs' => ActivityLogResource::collection($logs)->resolve(),
         ]);
     }
 }
