@@ -4,6 +4,8 @@ namespace App\Http\Controllers\UserRolePermission;
 
 use App\Helpers\DataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UserRolePermission\StorePermissionRequest;
+use App\Http\Requests\UserRolePermission\UpdatePermissionRequest;
 use App\Services\PermissionService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -87,13 +89,9 @@ class PermissionController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(StorePermissionRequest $request)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|unique:permissions,name',
-        ]);
-
-        $this->permissionService->createPermission($validatedData);
+        $this->permissionService->createPermission($request->validated());
 
         return redirect()->route('permissions.index')->with('success', 'Permission created successfully.');
     }
@@ -119,15 +117,9 @@ class PermissionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function update(UpdatePermissionRequest $request, $id)
     {
-        $permission = $this->permissionService->findPermission($id);
-
-        $validatedData = $request->validate([
-            'name' => 'required|unique:permissions,name,'.$permission->id,
-        ]);
-
-        $this->permissionService->updatePermission($id, $validatedData);
+        $this->permissionService->updatePermission($id, $request->validated());
 
         return redirect()->route('permissions.index')->with('success', 'Permission updated successfully.');
     }

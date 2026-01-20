@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\UserRolePermission;
 
-use App\DataTransferObjects\UserData;
 use App\Helpers\DataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UserRolePermission\StoreUserRequest;
+use App\Http\Requests\UserRolePermission\UpdateUserRequest;
 use App\Models\User;
 use App\Services\RoleService;
 use App\Services\UserService;
@@ -96,17 +97,9 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'role_id' => 'required|exists:roles,id',
-        ]);
-
-        $userData = UserData::fromArray($validatedData);
-        $this->userService->createUser($userData->toArray());
+        $this->userService->createUser($request->validated());
 
         return redirect()
             ->route('users.index')
@@ -136,17 +129,9 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function update(UpdateUserRequest $request, $id)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,'.$id,
-            'password' => 'nullable|string|min:8|confirmed',
-            'role_id' => 'required|exists:roles,id',
-        ]);
-
-        $userData = UserData::fromArray($validatedData);
-        $this->userService->updateUser($id, $userData->forUpdate());
+        $this->userService->updateUser($id, $request->validated());
 
         return redirect()
             ->route('users.index')

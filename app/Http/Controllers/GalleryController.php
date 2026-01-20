@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Gallery\CreateFolderRequest;
+use App\Http\Requests\Gallery\RenameFolderRequest;
+use App\Http\Requests\Gallery\UploadFileRequest;
 use App\Models\FilemanagerFolder;
 use App\Services\GalleryService;
 use Illuminate\Http\Request;
@@ -20,15 +23,12 @@ class GalleryController extends Controller
         private GalleryService $galleryService
     ) {}
 
-    public function createFolder(Request $request)
+    public function createFolder(CreateFolderRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'parent_id' => 'nullable|exists:filemanager_folders,id',
-        ]);
+        $validated = $request->validated();
         $folder = FilemanagerFolder::create([
-            'name' => $request->input('name'),
-            'parent_id' => $request->input('parent_id'),
+            'name' => $validated['name'],
+            'parent_id' => $validated['parent_id'] ?? null,
             'path' => null,
         ]);
 
@@ -39,13 +39,11 @@ class GalleryController extends Controller
             ->with('success', 'Folder created successfully.');
     }
 
-    public function renameFolder(Request $request, $id)
+    public function renameFolder(RenameFolderRequest $request, $id)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
+        $validated = $request->validated();
         $folder = FilemanagerFolder::findOrFail($id);
-        $folder->name = $request->input('name');
+        $folder->name = $validated['name'];
         $folder->save();
 
         // Preserve visibility from request
@@ -155,19 +153,10 @@ class GalleryController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(UploadFileRequest $request)
     {
-        $request->validate([
-            'file' => [
-                'required',
-                'file',
-                'max:10240', // 10MB
-                'mimes:jpg,jpeg,png,gif,webp,svg,pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,rar,mp4,mov,avi',
-            ],
-            'visibility' => 'nullable|in:public,private',
-        ]);
-
-        $visibility = $request->input('visibility', 'public');
+        $validated = $request->validated();
+        $visibility = $validated['visibility'] ?? 'public';
         $folderId = $request->query('folder_id');
 
         // Validate folder_id exists if provided

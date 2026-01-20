@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers\UserRolePermission;
 
-use App\DataTransferObjects\RoleData;
 use App\Helpers\DataTable;
-use App\Helpers\Guards;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UserRolePermission\StoreRoleRequest;
+use App\Http\Requests\UserRolePermission\UpdateRoleRequest;
 use App\Services\PermissionService;
 use App\Services\RoleService;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class RoleController extends Controller
@@ -91,16 +90,9 @@ class RoleController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(StoreRoleRequest $request)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|unique:roles,name',
-            'guard_name' => ['required', 'string', 'max:255', Rule::in(Guards::list())],
-            'permissions' => 'required|array',
-        ]);
-
-        $roleData = RoleData::fromArray($validatedData);
-        $this->roleService->createRole($roleData->forSave());
+        $this->roleService->createRole($request->validated());
 
         return redirect()
             ->route('roles.index')
@@ -130,18 +122,9 @@ class RoleController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function update(UpdateRoleRequest $request, $id)
     {
-        $role = $this->roleService->findRole($id);
-
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255|unique:roles,name,'.$role->id,
-            'guard_name' => ['required', 'string', 'max:255', Rule::in(Guards::list())],
-            'permissions' => 'required|array',
-        ]);
-
-        $roleData = RoleData::fromArray($validatedData);
-        $this->roleService->updateRole($id, $roleData->forSave());
+        $this->roleService->updateRole($id, $request->validated());
 
         return redirect()
             ->route('roles.index')

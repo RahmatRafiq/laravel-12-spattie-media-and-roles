@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Menu\StoreMenuRequest;
+use App\Http\Requests\Menu\UpdateMenuRequest;
+use App\Http\Requests\Menu\UpdateOrderRequest;
 use App\Services\MenuService;
 use App\Services\PermissionService;
 use Illuminate\Http\Request;
@@ -39,17 +42,9 @@ class MenuController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(StoreMenuRequest $request)
     {
-        $validatedMenuData = $request->validate([
-            'title' => 'required|string|max:255',
-            'route' => 'nullable|string|max:255',
-            'icon' => 'nullable|string|max:255',
-            'permission' => 'nullable|string|max:255',
-            'parent_id' => 'nullable|exists:menus,id',
-        ]);
-
-        $this->menuService->createMenu($validatedMenuData);
+        $this->menuService->createMenu($request->validated());
 
         return redirect()->route('menus.manage')->with('success', 'Menu created successfully.');
     }
@@ -79,17 +74,9 @@ class MenuController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function update(UpdateMenuRequest $request, $id)
     {
-        $validatedMenuData = $request->validate([
-            'title' => 'required|string|max:255',
-            'route' => 'nullable|string|max:255',
-            'icon' => 'nullable|string|max:255',
-            'permission' => 'nullable|string|max:255',
-            'parent_id' => 'nullable|exists:menus,id',
-        ]);
-
-        $this->menuService->updateMenu($id, $validatedMenuData);
+        $this->menuService->updateMenu($id, $request->validated());
 
         return redirect()->route('menus.manage')->with('success', 'Menu updated successfully.');
     }
@@ -113,13 +100,10 @@ class MenuController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function updateOrder(Request $request)
+    public function updateOrder(UpdateOrderRequest $request)
     {
-        $validatedData = $request->validate([
-            'tree' => 'required',
-        ]);
-
-        $menuTree = json_decode($request->input('tree'), true);
+        $validated = $request->validated();
+        $menuTree = json_decode($validated['tree'], true);
 
         if (! is_array($menuTree)) {
             return response()->json(['success' => false, 'message' => 'Invalid tree data'], 422);

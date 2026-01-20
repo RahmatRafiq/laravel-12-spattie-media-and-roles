@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\Storage\DeleteFileRequest;
+use App\Http\Requests\Storage\StoreFileRequest;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -14,12 +15,8 @@ class StorageController extends Controller
         return Storage::disk('temp')->response($path);
     }
 
-    public function store(Request $request)
+    public function store(StoreFileRequest $request)
     {
-        $request->validate([
-            'file' => 'required|file|max:2048',
-        ]);
-
         $name = Str::orderedUuid().'_'.$request->file('file')->getClientOriginalName();
 
         $path = Storage::disk('temp')
@@ -34,16 +31,14 @@ class StorageController extends Controller
         ]);
     }
 
-    public function destroy(Request $request)
+    public function destroy(DeleteFileRequest $request)
     {
         try {
-            $request->validate([
-                'filename' => 'required|string',
-            ]);
+            $validated = $request->validated();
 
-            Storage::disk('media')->delete($request->filename);
+            Storage::disk('media')->delete($validated['filename']);
 
-            Media::where('file_name', $request->filename)->first();
+            Media::where('file_name', $validated['filename'])->first();
 
             return response()->json([
                 'message' => 'File deleted',
