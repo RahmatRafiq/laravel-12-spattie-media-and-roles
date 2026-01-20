@@ -12,8 +12,6 @@ class PermissionController extends Controller
 {
     /**
      * PermissionController constructor
-     *
-     * @param  PermissionService  $permissionService
      */
     public function __construct(
         private PermissionService $permissionService
@@ -36,7 +34,6 @@ class PermissionController extends Controller
     /**
      * Get permissions data for DataTables
      *
-     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function json(Request $request)
@@ -85,7 +82,6 @@ class PermissionController extends Controller
     /**
      * Store a newly created permission
      *
-     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
@@ -117,7 +113,6 @@ class PermissionController extends Controller
     /**
      * Update the specified permission
      *
-     * @param  Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse
      */

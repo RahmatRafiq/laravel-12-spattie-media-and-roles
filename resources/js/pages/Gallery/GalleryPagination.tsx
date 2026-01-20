@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from '@inertiajs/react';
 
@@ -14,6 +13,21 @@ interface GalleryPaginationProps {
 
 export default function GalleryPagination({ links }: GalleryPaginationProps) {
     if (!links) return null;
+
+    // SECURITY: Sanitize label to prevent XSS
+    const sanitizeLabel = (label: string): string => {
+        // Laravel pagination typically uses &laquo; &raquo; for arrows
+        // Convert HTML entities to text
+        return label
+            .replace(/&laquo;/g, '«')
+            .replace(/&raquo;/g, '»')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&amp;/g, '&')
+            .replace(/&quot;/g, '"')
+            .replace(/<[^>]*>/g, ''); // Remove any HTML tags
+    };
+
     return (
         <div className="mt-4 flex gap-2">
             {links.map((link, i) =>
@@ -25,11 +39,9 @@ export default function GalleryPagination({ links }: GalleryPaginationProps) {
                         size="sm"
                         className="px-2 py-1"
                     >
-                        <Link
-                            href={link.url}
-                            preserveScroll
-                            dangerouslySetInnerHTML={{ __html: link.label }}
-                        />
+                        <Link href={link.url} preserveScroll>
+                            {sanitizeLabel(link.label)}
+                        </Link>
                     </Button>
                 ) : (
                     <Button
@@ -38,8 +50,9 @@ export default function GalleryPagination({ links }: GalleryPaginationProps) {
                         size="sm"
                         className="px-2 py-1"
                         disabled
-                        dangerouslySetInnerHTML={{ __html: link.label }}
-                    />
+                    >
+                        {sanitizeLabel(link.label)}
+                    </Button>
                 )
             )}
         </div>

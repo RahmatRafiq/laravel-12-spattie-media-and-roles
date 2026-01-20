@@ -11,8 +11,6 @@ class GalleryService
 {
     /**
      * GalleryService constructor
-     *
-     * @param  GalleryRepositoryInterface  $galleryRepository
      */
     public function __construct(
         private GalleryRepositoryInterface $galleryRepository
@@ -21,8 +19,6 @@ class GalleryService
     /**
      * Classify disks by visibility (public/private)
      * Extracted from GalleryController::index()
-     *
-     * @return array
      */
     public function classifyDisksByVisibility(): array
     {
@@ -48,9 +44,6 @@ class GalleryService
 
     /**
      * Check if disk is public based on configuration
-     *
-     * @param  array|null  $diskConfig
-     * @return bool
      */
     private function isPublicDisk(?array $diskConfig): bool
     {
@@ -65,10 +58,6 @@ class GalleryService
 
     /**
      * Get media query by visibility
-     *
-     * @param  string  $visibility
-     * @param  string  $collection
-     * @return Builder
      */
     public function getMediaByVisibility(string $visibility, string $collection = 'gallery'): Builder
     {
@@ -80,9 +69,6 @@ class GalleryService
 
     /**
      * Get query builder for DataTables
-     *
-     * @param  array  $filters
-     * @return Builder
      */
     public function getDataTableData(array $filters): Builder
     {
@@ -101,9 +87,6 @@ class GalleryService
 
     /**
      * Get media by collection
-     *
-     * @param  string  $collection
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getByCollection(string $collection): \Illuminate\Database\Eloquent\Collection
     {
@@ -112,8 +95,6 @@ class GalleryService
 
     /**
      * Get all unique collections
-     *
-     * @return array
      */
     public function getAllCollections(): array
     {
@@ -125,9 +106,6 @@ class GalleryService
 
     /**
      * Find media by ID
-     *
-     * @param  int  $id
-     * @return Media
      */
     public function findMedia(int $id): Media
     {
@@ -136,9 +114,6 @@ class GalleryService
 
     /**
      * Find media by UUID
-     *
-     * @param  string  $uuid
-     * @return Media|null
      */
     public function findMediaByUuid(string $uuid): ?Media
     {
@@ -147,9 +122,6 @@ class GalleryService
 
     /**
      * Delete media
-     *
-     * @param  int  $id
-     * @return bool
      */
     public function deleteMedia(int $id): bool
     {
@@ -158,8 +130,6 @@ class GalleryService
 
     /**
      * Get media statistics
-     *
-     * @return array
      */
     public function getStatistics(): array
     {
@@ -168,9 +138,6 @@ class GalleryService
 
     /**
      * Generate URL for media based on visibility
-     *
-     * @param  Media  $media
-     * @return string
      */
     public function getMediaUrl(Media $media): string
     {
@@ -185,10 +152,6 @@ class GalleryService
 
     /**
      * Check if user can access media file
-     *
-     * @param  Media  $media
-     * @param  \App\Models\User  $user
-     * @return bool
      */
     public function canAccessMedia(Media $media, \App\Models\User $user): bool
     {
@@ -218,12 +181,6 @@ class GalleryService
 
     /**
      * Create media from uploaded file
-     *
-     * @param  \Illuminate\Http\UploadedFile  $file
-     * @param  int  $userId
-     * @param  string  $visibility
-     * @param  int|null  $folderId
-     * @return Media
      */
     public function createMediaFromUpload(
         \Illuminate\Http\UploadedFile $file,
@@ -262,9 +219,6 @@ class GalleryService
 
     /**
      * Get media visibility from disk or custom properties
-     *
-     * @param  Media  $media
-     * @return string
      */
     public function getMediaVisibility(Media $media): string
     {

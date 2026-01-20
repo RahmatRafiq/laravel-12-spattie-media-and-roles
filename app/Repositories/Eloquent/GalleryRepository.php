@@ -11,8 +11,6 @@ class GalleryRepository extends BaseRepository implements GalleryRepositoryInter
 {
     /**
      * GalleryRepository constructor
-     *
-     * @param  Media  $model
      */
     public function __construct(Media $model)
     {
@@ -21,8 +19,6 @@ class GalleryRepository extends BaseRepository implements GalleryRepositoryInter
 
     /**
      * Get all unique disk names from media
-     *
-     * @return array
      */
     public function getAllDisks(): array
     {
@@ -34,10 +30,6 @@ class GalleryRepository extends BaseRepository implements GalleryRepositoryInter
 
     /**
      * Get media by collection and disks
-     *
-     * @param  string  $collection
-     * @param  array  $disks
-     * @return Builder
      */
     public function getByCollectionAndDisks(string $collection, array $disks): Builder
     {
@@ -56,9 +48,6 @@ class GalleryRepository extends BaseRepository implements GalleryRepositoryInter
 
     /**
      * Get query builder for DataTables
-     *
-     * @param  array  $filters
-     * @return Builder
      */
     public function forDataTable(array $filters = []): Builder
     {
@@ -71,9 +60,6 @@ class GalleryRepository extends BaseRepository implements GalleryRepositoryInter
 
     /**
      * Get media by collection name
-     *
-     * @param  string  $collection
-     * @return Collection
      */
     public function getByCollection(string $collection): Collection
     {
@@ -84,8 +70,6 @@ class GalleryRepository extends BaseRepository implements GalleryRepositoryInter
 
     /**
      * Get folders tree structure
-     *
-     * @return array
      */
     public function getFoldersTree(): array
     {
@@ -96,9 +80,6 @@ class GalleryRepository extends BaseRepository implements GalleryRepositoryInter
 
     /**
      * Find media by UUID
-     *
-     * @param  string  $uuid
-     * @return Media|null
      */
     public function findByUuid(string $uuid): ?Media
     {
@@ -107,9 +88,6 @@ class GalleryRepository extends BaseRepository implements GalleryRepositoryInter
 
     /**
      * Delete media and its file
-     *
-     * @param  int  $id
-     * @return bool
      */
     public function deleteMedia(int $id): bool
     {
@@ -124,8 +102,6 @@ class GalleryRepository extends BaseRepository implements GalleryRepositoryInter
 
     /**
      * Get media statistics
-     *
-     * @return array
      */
     public function getStatistics(): array
     {
@@ -147,10 +123,6 @@ class GalleryRepository extends BaseRepository implements GalleryRepositoryInter
 
     /**
      * Format bytes to human readable format
-     *
-     * @param  int  $bytes
-     * @param  int  $precision
-     * @return string
      */
     private function formatBytes(int $bytes, int $precision = 2): string
     {

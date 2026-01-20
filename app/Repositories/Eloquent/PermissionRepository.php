@@ -10,8 +10,6 @@ class PermissionRepository extends BaseRepository implements PermissionRepositor
 {
     /**
      * PermissionRepository constructor
-     *
-     * @param  Permission  $model
      */
     public function __construct(Permission $model)
     {
@@ -20,8 +18,6 @@ class PermissionRepository extends BaseRepository implements PermissionRepositor
 
     /**
      * Get all permissions grouped by category
-     *
-     * @return array
      */
     public function getGroupedByCategory(): array
     {
@@ -54,8 +50,6 @@ class PermissionRepository extends BaseRepository implements PermissionRepositor
 
     /**
      * Get permissions for select dropdown
-     *
-     * @return array
      */
     public function getPermissionOptions(): array
     {
@@ -64,9 +58,6 @@ class PermissionRepository extends BaseRepository implements PermissionRepositor
 
     /**
      * Find permission by name
-     *
-     * @param  string  $name
-     * @return Permission|null
      */
     public function findByName(string $name): ?Permission
     {
@@ -75,9 +66,6 @@ class PermissionRepository extends BaseRepository implements PermissionRepositor
 
     /**
      * Get permissions assigned to a role
-     *
-     * @param  int  $roleId
-     * @return Collection
      */
     public function getByRole(int $roleId): Collection
     {
@@ -88,9 +76,6 @@ class PermissionRepository extends BaseRepository implements PermissionRepositor
 
     /**
      * Bulk create permissions
-     *
-     * @param  array  $permissions
-     * @return bool
      */
     public function bulkCreate(array $permissions): bool
     {

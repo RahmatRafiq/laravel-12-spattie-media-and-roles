@@ -10,8 +10,6 @@ class ActivityLogController extends Controller
 {
     /**
      * ActivityLogController constructor
-     *
-     * @param  ActivityLogService  $activityLogService
      */
     public function __construct(
         private ActivityLogService $activityLogService

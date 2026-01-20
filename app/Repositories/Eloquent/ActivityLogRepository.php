@@ -10,8 +10,6 @@ class ActivityLogRepository extends BaseRepository implements ActivityLogReposit
 {
     /**
      * ActivityLogRepository constructor
-     *
-     * @param  Activity  $model
      */
     public function __construct(Activity $model)
     {
@@ -20,9 +18,6 @@ class ActivityLogRepository extends BaseRepository implements ActivityLogReposit
 
     /**
      * Get latest activity logs with causer
-     *
-     * @param  int  $limit
-     * @return Collection
      */
     public function getLatestWithCauser(int $limit = 50): Collection
     {
@@ -34,10 +29,6 @@ class ActivityLogRepository extends BaseRepository implements ActivityLogReposit
 
     /**
      * Get activity logs for specific subject
-     *
-     * @param  string  $subjectType
-     * @param  int  $subjectId
-     * @return Collection
      */
     public function getForSubject(string $subjectType, int $subjectId): Collection
     {
@@ -50,9 +41,6 @@ class ActivityLogRepository extends BaseRepository implements ActivityLogReposit
 
     /**
      * Get activity logs by causer
-     *
-     * @param  int  $causerId
-     * @return Collection
      */
     public function getByCauser(int $causerId): Collection
     {
@@ -63,9 +51,6 @@ class ActivityLogRepository extends BaseRepository implements ActivityLogReposit
 
     /**
      * Get activity logs by event type
-     *
-     * @param  string  $event
-     * @return Collection
      */
     public function getByEvent(string $event): Collection
     {
@@ -78,7 +63,6 @@ class ActivityLogRepository extends BaseRepository implements ActivityLogReposit
     /**
      * Clear old activity logs
      *
-     * @param  int  $daysToKeep
      * @return int Number of deleted records
      */
     public function clearOldLogs(int $daysToKeep = 30): int
@@ -89,8 +73,6 @@ class ActivityLogRepository extends BaseRepository implements ActivityLogReposit
 
     /**
      * Get activity statistics
-     *
-     * @return array
      */
     public function getStatistics(): array
     {

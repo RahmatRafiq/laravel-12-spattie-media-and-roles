@@ -11,8 +11,6 @@ class RoleRepository extends BaseRepository implements RoleRepositoryInterface
 {
     /**
      * RoleRepository constructor
-     *
-     * @param  Role  $model
      */
     public function __construct(Role $model)
     {
@@ -21,8 +19,6 @@ class RoleRepository extends BaseRepository implements RoleRepositoryInterface
 
     /**
      * Get all roles with permissions loaded
-     *
-     * @return Collection
      */
     public function getRolesWithPermissions(): Collection
     {
@@ -33,9 +29,6 @@ class RoleRepository extends BaseRepository implements RoleRepositoryInterface
 
     /**
      * Get query builder for DataTables
-     *
-     * @param  array  $filters
-     * @return Builder
      */
     public function forDataTable(array $filters = []): Builder
     {
@@ -56,9 +49,6 @@ class RoleRepository extends BaseRepository implements RoleRepositoryInterface
 
     /**
      * Search roles by name or guard name
-     *
-     * @param  string  $query
-     * @return Collection
      */
     public function searchRoles(string $query): Collection
     {
@@ -73,9 +63,6 @@ class RoleRepository extends BaseRepository implements RoleRepositoryInterface
 
     /**
      * Find role by name
-     *
-     * @param  string  $name
-     * @return Role|null
      */
     public function findByName(string $name): ?Role
     {
@@ -84,10 +71,6 @@ class RoleRepository extends BaseRepository implements RoleRepositoryInterface
 
     /**
      * Sync permissions for a role
-     *
-     * @param  int  $roleId
-     * @param  array  $permissionIds
-     * @return void
      */
     public function syncPermissions(int $roleId, array $permissionIds): void
     {
@@ -97,8 +80,6 @@ class RoleRepository extends BaseRepository implements RoleRepositoryInterface
 
     /**
      * Get role options for select dropdown
-     *
-     * @return array
      */
     public function getRoleOptions(): array
     {

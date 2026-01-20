@@ -20,6 +20,11 @@ class Gallery extends Model implements HasMedia
         'folder_id',
     ];
 
+    protected $casts = [
+        'user_id' => 'integer',
+        'folder_id' => 'integer',
+    ];
+
     /**
      * Get the user that owns the gallery.
      */
@@ -43,12 +48,11 @@ class Gallery extends Model implements HasMedia
     {
         $this->addMediaCollection('gallery')
             ->acceptsMimeTypes([
-                // Images
+                // Images (SVG removed due to XSS risk - use sanitized SVG upload if needed)
                 'image/jpeg',
                 'image/png',
                 'image/gif',
                 'image/webp',
-                'image/svg+xml',
                 // Documents
                 'application/pdf',
                 'application/msword',
@@ -58,7 +62,7 @@ class Gallery extends Model implements HasMedia
                 'application/vnd.ms-powerpoint',
                 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
                 'text/plain',
-                // Archives
+                // Archives (consider removing for security)
                 'application/zip',
                 'application/x-rar-compressed',
                 // Videos
@@ -66,6 +70,7 @@ class Gallery extends Model implements HasMedia
                 'video/quicktime',
                 'video/x-msvideo',
             ])
+            ->maxFileSize(10 * 1024 * 1024) // 10MB limit
             ->useDisk('public'); // Default to public disk
     }
 

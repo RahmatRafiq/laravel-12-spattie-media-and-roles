@@ -10,18 +10,15 @@ class MenuController extends Controller
 {
     /**
      * MenuController constructor
-     *
-     * @param  MenuService  $menuService
-     * @param  PermissionService  $permissionService
      */
     public function __construct(
         private MenuService $menuService,
         private PermissionService $permissionService
     ) {}
+
     /**
      * Show the form for creating a new menu
      *
-     * @param  Request  $request
      * @return \Inertia\Response
      */
     public function create(Request $request)
@@ -40,7 +37,6 @@ class MenuController extends Controller
     /**
      * Store a newly created menu
      *
-     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
@@ -80,7 +76,6 @@ class MenuController extends Controller
     /**
      * Update the specified menu
      *
-     * @param  Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse
      */
@@ -116,7 +111,6 @@ class MenuController extends Controller
     /**
      * Update menu order and hierarchy
      *
-     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function updateOrder(Request $request)

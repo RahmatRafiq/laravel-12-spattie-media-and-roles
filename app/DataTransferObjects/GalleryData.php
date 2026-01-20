@@ -8,11 +8,6 @@ class GalleryData
 {
     /**
      * GalleryData constructor
-     *
-     * @param  string  $visibility
-     * @param  string  $collection
-     * @param  int|null  $folderId
-     * @param  string|null  $search
      */
     public function __construct(
         public readonly string $visibility,
@@ -23,9 +18,6 @@ class GalleryData
 
     /**
      * Create DTO from HTTP request
-     *
-     * @param  Request  $request
-     * @return self
      */
     public static function fromRequest(Request $request): self
     {
@@ -39,9 +31,6 @@ class GalleryData
 
     /**
      * Create DTO from array
-     *
-     * @param  array  $data
-     * @return self
      */
     public static function fromArray(array $data): self
     {
@@ -55,8 +44,6 @@ class GalleryData
 
     /**
      * Convert DTO to array
-     *
-     * @return array
      */
     public function toArray(): array
     {
@@ -70,8 +57,6 @@ class GalleryData
 
     /**
      * Check if visibility is public
-     *
-     * @return bool
      */
     public function isPublic(): bool
     {
@@ -80,8 +65,6 @@ class GalleryData
 
     /**
      * Check if visibility is private
-     *
-     * @return bool
      */
     public function isPrivate(): bool
     {

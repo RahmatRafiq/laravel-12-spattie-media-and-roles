@@ -6,6 +6,7 @@ use App\Models\FilemanagerFolder;
 use App\Services\GalleryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -14,8 +15,6 @@ class GalleryController extends Controller
 {
     /**
      * GalleryController constructor
-     *
-     * @param  GalleryService  $galleryService
      */
     public function __construct(
         private GalleryService $galleryService
@@ -87,7 +86,6 @@ class GalleryController extends Controller
     /**
      * Display a listing of gallery media
      *
-     * @param  Request  $request
      * @return \Inertia\Response
      */
     public function index(Request $request)
@@ -155,7 +153,6 @@ class GalleryController extends Controller
     /**
      * Store a newly uploaded file
      *
-     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
@@ -194,28 +191,38 @@ class GalleryController extends Controller
     /**
      * Serve protected media file
      *
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function file(int $id)
     {
         $media = $this->galleryService->findMedia($id);
 
-        // Security check for private files
-        if ($media->disk !== 'public') {
-            if (! Auth::check()) {
-                abort(403, 'Authentication required');
-            }
-
-            // Use service to check access
-            if (! $this->galleryService->canAccessMedia($media, Auth::user())) {
-                abort(403, 'Unauthorized access to this file');
-            }
+        // SECURITY: Always check authorization, not just for private files
+        if (! Auth::check()) {
+            abort(403, 'Authentication required');
         }
 
+        // SECURITY: Check user permission to access this file
+        if (! $this->galleryService->canAccessMedia($media, Auth::user())) {
+            abort(403, 'Unauthorized access to this file');
+        }
+
+        // SECURITY: Prevent path traversal attacks
         $filePath = $media->file_name;
+
+        // Validate filename doesn't contain path traversal patterns
+        if (str_contains($filePath, '..') || str_contains($filePath, './') || str_contains($filePath, '\\')) {
+            abort(403, 'Invalid file path');
+        }
+
         if (! Storage::disk($media->disk)->exists($filePath)) {
             $subfolderPath = $media->id.'/'.$media->file_name;
+
+            // Double-check subfolder path for traversal attempts
+            if (str_contains($subfolderPath, '..') || str_contains($subfolderPath, './') || str_contains($subfolderPath, '\\')) {
+                abort(403, 'Invalid file path');
+            }
+
             if (Storage::disk($media->disk)->exists($subfolderPath)) {
                 $filePath = $subfolderPath;
             } else {
@@ -224,9 +231,19 @@ class GalleryController extends Controller
         }
 
         $fullPath = Storage::disk($media->disk)->path($filePath);
+
+        // SECURITY: Validate resolved path is within disk root
+        $diskRoot = Storage::disk($media->disk)->path('');
+        $realFullPath = realpath($fullPath);
+        $realDiskRoot = realpath($diskRoot);
+
+        if (! $realFullPath || ! $realDiskRoot || ! str_starts_with($realFullPath, $realDiskRoot)) {
+            abort(403, 'Invalid file path');
+        }
+
         $mime = $media->mime_type ?? 'application/octet-stream';
 
-        return response()->file($fullPath, [
+        return response()->file($realFullPath, [
             'Content-Type' => $mime,
             'Content-Disposition' => 'inline; filename="'.basename($filePath).'"',
         ]);
@@ -251,14 +268,19 @@ class GalleryController extends Controller
         $folderId = $media->folder_id;
         $visibility = $this->galleryService->getMediaVisibility($media);
 
-        // Delete physical file if exists
-        if (Storage::disk($media->disk)->exists($media->file_name)) {
-            Storage::disk($media->disk)->delete($media->file_name);
+        // SECURITY: Use database transaction to prevent race conditions
+        try {
+            DB::transaction(function () use ($media) {
+                // Spatie Media Library handles file deletion automatically
+                // when model is deleted (via observer)
+                $media->delete();
+            });
+
+            return redirect()->route('gallery.index', ['folder_id' => $folderId, 'visibility' => $visibility])
+                ->with('success', 'File deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->route('gallery.index', ['folder_id' => $folderId, 'visibility' => $visibility])
+                ->with('error', 'Failed to delete file: '.$e->getMessage());
         }
-
-        $media->delete();
-
-        return redirect()->route('gallery.index', ['folder_id' => $folderId, 'visibility' => $visibility])
-            ->with('success', 'File deleted successfully.');
     }
 }

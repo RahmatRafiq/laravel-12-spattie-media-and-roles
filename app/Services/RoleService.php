@@ -10,8 +10,6 @@ class RoleService
 {
     /**
      * RoleService constructor
-     *
-     * @param  RoleRepositoryInterface  $roleRepository
      */
     public function __construct(
         private RoleRepositoryInterface $roleRepository
@@ -19,9 +17,6 @@ class RoleService
 
     /**
      * Get query builder for DataTables
-     *
-     * @param  array  $filters
-     * @return Builder
      */
     public function getDataTableData(array $filters): Builder
     {
@@ -30,8 +25,6 @@ class RoleService
 
     /**
      * Get all roles with permissions
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getAllRoles(): \Illuminate\Database\Eloquent\Collection
     {
@@ -40,8 +33,6 @@ class RoleService
 
     /**
      * Get role options for dropdown
-     *
-     * @return array
      */
     public function getRoleOptions(): array
     {
@@ -50,9 +41,6 @@ class RoleService
 
     /**
      * Create a new role
-     *
-     * @param  array  $data
-     * @return Role
      */
     public function createRole(array $data): Role
     {
@@ -71,10 +59,6 @@ class RoleService
 
     /**
      * Update an existing role
-     *
-     * @param  int  $id
-     * @param  array  $data
-     * @return Role
      */
     public function updateRole(int $id, array $data): Role
     {
@@ -93,9 +77,6 @@ class RoleService
 
     /**
      * Delete a role
-     *
-     * @param  int  $id
-     * @return bool
      */
     public function deleteRole(int $id): bool
     {
@@ -104,9 +85,6 @@ class RoleService
 
     /**
      * Find role by ID
-     *
-     * @param  int  $id
-     * @return Role
      */
     public function findRole(int $id): Role
     {
@@ -115,9 +93,6 @@ class RoleService
 
     /**
      * Search roles
-     *
-     * @param  string  $query
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function searchRoles(string $query): \Illuminate\Database\Eloquent\Collection
     {

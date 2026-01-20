@@ -10,8 +10,6 @@ class MenuService
 {
     /**
      * MenuService constructor
-     *
-     * @param  MenuRepositoryInterface  $menuRepository
      */
     public function __construct(
         private MenuRepositoryInterface $menuRepository
@@ -20,8 +18,6 @@ class MenuService
     /**
      * Get menus for current authenticated user
      * Filters by permissions
-     *
-     * @return \Illuminate\Support\Collection
      */
     public function getMenusForCurrentUser(): \Illuminate\Support\Collection
     {
@@ -36,9 +32,6 @@ class MenuService
 
     /**
      * Get menus for a specific user
-     *
-     * @param  User  $user
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getMenusForUser(User $user): \Illuminate\Database\Eloquent\Collection
     {
@@ -47,8 +40,6 @@ class MenuService
 
     /**
      * Get all root menus with children
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getAllMenusWithChildren(): \Illuminate\Database\Eloquent\Collection
     {
@@ -57,8 +48,6 @@ class MenuService
 
     /**
      * Get all root menus with children (alias for controller usage)
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getRootMenusWithChildren(): \Illuminate\Database\Eloquent\Collection
     {
@@ -67,8 +56,6 @@ class MenuService
 
     /**
      * Get all menus as flat list
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getAllMenusFlat(): \Illuminate\Database\Eloquent\Collection
     {
@@ -77,8 +64,6 @@ class MenuService
 
     /**
      * Get all menus ordered
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getAllMenus(): \Illuminate\Database\Eloquent\Collection
     {
@@ -87,9 +72,6 @@ class MenuService
 
     /**
      * Get all menus except specified ID
-     *
-     * @param  int  $excludeId
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getAllMenusExcept(int $excludeId): \Illuminate\Database\Eloquent\Collection
     {
@@ -98,9 +80,6 @@ class MenuService
 
     /**
      * Create a new menu
-     *
-     * @param  array  $data
-     * @return Menu
      */
     public function createMenu(array $data): Menu
     {
@@ -116,10 +95,6 @@ class MenuService
 
     /**
      * Update an existing menu
-     *
-     * @param  int  $id
-     * @param  array  $data
-     * @return Menu
      */
     public function updateMenu(int $id, array $data): Menu
     {
@@ -135,9 +110,6 @@ class MenuService
 
     /**
      * Delete a menu
-     *
-     * @param  int  $id
-     * @return bool
      */
     public function deleteMenu(int $id): bool
     {
@@ -146,9 +118,6 @@ class MenuService
 
     /**
      * Update menu order
-     *
-     * @param  array  $menuOrder
-     * @return bool
      */
     public function updateMenuOrder(array $menuOrder): bool
     {
@@ -157,9 +126,6 @@ class MenuService
 
     /**
      * Find menu by ID
-     *
-     * @param  int  $id
-     * @return Menu
      */
     public function findMenu(int $id): Menu
     {
@@ -168,9 +134,6 @@ class MenuService
 
     /**
      * Get child menus of a parent
-     *
-     * @param  int  $parentId
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getChildMenus(int $parentId): \Illuminate\Database\Eloquent\Collection
     {

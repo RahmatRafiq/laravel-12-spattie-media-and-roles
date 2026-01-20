@@ -8,13 +8,6 @@ class UserData
 {
     /**
      * UserData constructor
-     *
-     * @param  int|null  $id
-     * @param  string  $name
-     * @param  string  $email
-     * @param  string|null  $password
-     * @param  int|null  $roleId
-     * @param  array  $permissions
      */
     public function __construct(
         public readonly ?int $id,
@@ -27,9 +20,6 @@ class UserData
 
     /**
      * Create DTO from HTTP request
-     *
-     * @param  Request  $request
-     * @return self
      */
     public static function fromRequest(Request $request): self
     {
@@ -47,9 +37,6 @@ class UserData
 
     /**
      * Create DTO from array
-     *
-     * @param  array  $data
-     * @return self
      */
     public static function fromArray(array $data): self
     {
@@ -65,8 +52,6 @@ class UserData
 
     /**
      * Convert DTO to array
-     *
-     * @return array
      */
     public function toArray(): array
     {
@@ -82,8 +67,6 @@ class UserData
 
     /**
      * Get data for create operation (without ID)
-     *
-     * @return array
      */
     public function forCreate(): array
     {
@@ -95,8 +78,6 @@ class UserData
 
     /**
      * Get data for update operation (without ID and null password)
-     *
-     * @return array
      */
     public function forUpdate(): array
     {

@@ -9,8 +9,6 @@ class ActivityLogService
 {
     /**
      * ActivityLogService constructor
-     *
-     * @param  ActivityLogRepositoryInterface  $activityLogRepository
      */
     public function __construct(
         private ActivityLogRepositoryInterface $activityLogRepository
@@ -18,9 +16,6 @@ class ActivityLogService
 
     /**
      * Get latest activity logs
-     *
-     * @param  int  $limit
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getLatestLogs(int $limit = 50): \Illuminate\Database\Eloquent\Collection
     {
@@ -29,10 +24,6 @@ class ActivityLogService
 
     /**
      * Get activity logs for specific subject
-     *
-     * @param  string  $subjectType
-     * @param  int  $subjectId
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getLogsForSubject(string $subjectType, int $subjectId): \Illuminate\Database\Eloquent\Collection
     {
@@ -41,9 +32,6 @@ class ActivityLogService
 
     /**
      * Get activity logs by causer (user)
-     *
-     * @param  int  $userId
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getLogsByUser(int $userId): \Illuminate\Database\Eloquent\Collection
     {
@@ -52,9 +40,6 @@ class ActivityLogService
 
     /**
      * Get activity logs by event type
-     *
-     * @param  string  $event
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getLogsByEvent(string $event): \Illuminate\Database\Eloquent\Collection
     {
@@ -64,7 +49,6 @@ class ActivityLogService
     /**
      * Clear old activity logs
      *
-     * @param  int  $daysToKeep
      * @return int Number of deleted records
      */
     public function clearOldLogs(int $daysToKeep = 30): int
@@ -74,8 +58,6 @@ class ActivityLogService
 
     /**
      * Get activity statistics
-     *
-     * @return array
      */
     public function getStatistics(): array
     {
@@ -84,11 +66,6 @@ class ActivityLogService
 
     /**
      * Log custom activity
-     *
-     * @param  string  $description
-     * @param  string  $event
-     * @param  array  $properties
-     * @return Activity
      */
     public function logActivity(string $description, string $event = 'custom', array $properties = []): Activity
     {

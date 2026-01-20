@@ -9,8 +9,6 @@ class PermissionService
 {
     /**
      * PermissionService constructor
-     *
-     * @param  PermissionRepositoryInterface  $permissionRepository
      */
     public function __construct(
         private PermissionRepositoryInterface $permissionRepository
@@ -18,8 +16,6 @@ class PermissionService
 
     /**
      * Get all permissions
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getAllPermissions(): \Illuminate\Database\Eloquent\Collection
     {
@@ -28,8 +24,6 @@ class PermissionService
 
     /**
      * Get permissions grouped by category
-     *
-     * @return array
      */
     public function getGroupedPermissions(): array
     {
@@ -38,8 +32,6 @@ class PermissionService
 
     /**
      * Get permission options for dropdown
-     *
-     * @return array
      */
     public function getPermissionOptions(): array
     {
@@ -48,9 +40,6 @@ class PermissionService
 
     /**
      * Get permissions for a specific role
-     *
-     * @param  int  $roleId
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getPermissionsByRole(int $roleId): \Illuminate\Database\Eloquent\Collection
     {
@@ -59,9 +48,6 @@ class PermissionService
 
     /**
      * Create a new permission
-     *
-     * @param  array  $data
-     * @return Permission
      */
     public function createPermission(array $data): Permission
     {
@@ -73,9 +59,6 @@ class PermissionService
 
     /**
      * Bulk create permissions
-     *
-     * @param  array  $permissions
-     * @return bool
      */
     public function bulkCreatePermissions(array $permissions): bool
     {
@@ -84,9 +67,6 @@ class PermissionService
 
     /**
      * Find permission by name
-     *
-     * @param  string  $name
-     * @return Permission|null
      */
     public function findByName(string $name): ?Permission
     {
@@ -95,9 +75,6 @@ class PermissionService
 
     /**
      * Find permission by ID
-     *
-     * @param  int  $id
-     * @return Permission
      */
     public function findPermission(int $id): Permission
     {
@@ -106,10 +83,6 @@ class PermissionService
 
     /**
      * Update an existing permission
-     *
-     * @param  int  $id
-     * @param  array  $data
-     * @return Permission
      */
     public function updatePermission(int $id, array $data): Permission
     {
@@ -121,9 +94,6 @@ class PermissionService
 
     /**
      * Delete a permission
-     *
-     * @param  int  $id
-     * @return bool
      */
     public function deletePermission(int $id): bool
     {
@@ -132,9 +102,6 @@ class PermissionService
 
     /**
      * Get query builder for DataTables
-     *
-     * @param  array  $filters
-     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function getDataTableData(array $filters): \Illuminate\Database\Eloquent\Builder
     {

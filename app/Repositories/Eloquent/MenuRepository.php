@@ -11,8 +11,6 @@ class MenuRepository extends BaseRepository implements MenuRepositoryInterface
 {
     /**
      * MenuRepository constructor
-     *
-     * @param  Menu  $model
      */
     public function __construct(Menu $model)
     {
@@ -21,8 +19,6 @@ class MenuRepository extends BaseRepository implements MenuRepositoryInterface
 
     /**
      * Get root menus with children ordered
-     *
-     * @return Collection
      */
     public function getRootMenusWithChildren(): Collection
     {
@@ -36,9 +32,6 @@ class MenuRepository extends BaseRepository implements MenuRepositoryInterface
 
     /**
      * Get menus filtered by user permissions
-     *
-     * @param  User  $user
-     * @return Collection
      */
     public function getMenusForUser(User $user): Collection
     {
@@ -59,9 +52,6 @@ class MenuRepository extends BaseRepository implements MenuRepositoryInterface
 
     /**
      * Update menu order
-     *
-     * @param  array  $menuOrder
-     * @return bool
      */
     public function updateOrder(array $menuOrder): bool
     {
@@ -78,8 +68,6 @@ class MenuRepository extends BaseRepository implements MenuRepositoryInterface
 
     /**
      * Get all menus as flat list
-     *
-     * @return Collection
      */
     public function getAllFlat(): Collection
     {
@@ -88,9 +76,6 @@ class MenuRepository extends BaseRepository implements MenuRepositoryInterface
 
     /**
      * Get menu by route name
-     *
-     * @param  string  $route
-     * @return Menu|null
      */
     public function findByRoute(string $route): ?Menu
     {
@@ -99,9 +84,6 @@ class MenuRepository extends BaseRepository implements MenuRepositoryInterface
 
     /**
      * Get child menus of a parent
-     *
-     * @param  int  $parentId
-     * @return Collection
      */
     public function getChildMenus(int $parentId): Collection
     {

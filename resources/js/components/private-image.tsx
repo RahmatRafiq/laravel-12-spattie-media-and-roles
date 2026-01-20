@@ -17,7 +17,10 @@ export default function PrivateImage({ src, alt, className, onError }: PrivateIm
     const [error, setError] = React.useState(false);
 
     React.useEffect(() => {
+        // SECURITY: Prevent memory leaks with proper cleanup
         let objectUrl: string | null = null;
+        let isMounted = true;
+        const abortController = new AbortController();
 
         const fetchImage = async () => {
             try {
@@ -29,6 +32,7 @@ export default function PrivateImage({ src, alt, className, onError }: PrivateIm
                     headers: {
                         Accept: 'image/*',
                     },
+                    signal: abortController.signal,
                 });
 
                 if (!response.ok) {
@@ -37,20 +41,35 @@ export default function PrivateImage({ src, alt, className, onError }: PrivateIm
 
                 const blob = await response.blob();
                 objectUrl = URL.createObjectURL(blob);
-                setBlobUrl(objectUrl);
+
+                // Only update state if component is still mounted
+                if (isMounted) {
+                    setBlobUrl(objectUrl);
+                }
             } catch (err) {
+                // Ignore abort errors
+                if (err instanceof Error && err.name === 'AbortError') {
+                    return;
+                }
+
                 console.error('Failed to load private image:', err);
-                setError(true);
-                onError?.();
+                if (isMounted) {
+                    setError(true);
+                    onError?.();
+                }
             } finally {
-                setLoading(false);
+                if (isMounted) {
+                    setLoading(false);
+                }
             }
         };
 
         fetchImage();
 
-        // Cleanup blob URL on unmount
+        // Cleanup: abort fetch and revoke blob URL
         return () => {
+            isMounted = false;
+            abortController.abort();
             if (objectUrl) {
                 URL.revokeObjectURL(objectUrl);
             }

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\UserRolePermission;
 use App\DataTransferObjects\UserData;
 use App\Helpers\DataTable;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\RoleService;
 use App\Services\UserService;
@@ -16,9 +15,6 @@ class UserController extends Controller
 {
     /**
      * UserController constructor
-     *
-     * @param  UserService  $userService
-     * @param  RoleService  $roleService
      */
     public function __construct(
         private UserService $userService,
@@ -28,7 +24,6 @@ class UserController extends Controller
     /**
      * Display a listing of users
      *
-     * @param  Request  $request
      * @return \Inertia\Response
      */
     public function index(Request $request)
@@ -44,7 +39,6 @@ class UserController extends Controller
     /**
      * Get users data for DataTables
      *
-     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function json(Request $request)
@@ -100,7 +94,6 @@ class UserController extends Controller
     /**
      * Store a newly created user
      *
-     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
@@ -140,7 +133,6 @@ class UserController extends Controller
     /**
      * Update the specified user
      *
-     * @param  Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse
      */
@@ -164,7 +156,6 @@ class UserController extends Controller
     /**
      * Soft delete the specified user
      *
-     * @param  User  $user
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(User $user)

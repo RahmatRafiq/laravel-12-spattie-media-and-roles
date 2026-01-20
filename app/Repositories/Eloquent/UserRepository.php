@@ -11,8 +11,6 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 {
     /**
      * UserRepository constructor
-     *
-     * @param  User  $model
      */
     public function __construct(User $model)
     {
@@ -21,8 +19,6 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
     /**
      * Get all active users with roles
-     *
-     * @return Collection
      */
     public function getActiveUsers(): Collection
     {
@@ -33,8 +29,6 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
     /**
      * Get only trashed users with roles
-     *
-     * @return Collection
      */
     public function getTrashedUsers(): Collection
     {
@@ -45,8 +39,6 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
     /**
      * Get all users including trashed with roles
-     *
-     * @return Collection
      */
     public function getAllIncludingTrashed(): Collection
     {
@@ -57,8 +49,6 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
     /**
      * Get users with their roles loaded
-     *
-     * @return Collection
      */
     public function getUsersWithRoles(): Collection
     {
@@ -69,9 +59,6 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
     /**
      * Search users by name or email
-     *
-     * @param  string  $query
-     * @return Collection
      */
     public function searchUsers(string $query): Collection
     {
@@ -86,9 +73,6 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
     /**
      * Get query builder for DataTables
-     *
-     * @param  array  $filters
-     * @return Builder
      */
     public function forDataTable(array $filters = []): Builder
     {
@@ -115,9 +99,6 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
     /**
      * Find a trashed user by ID
-     *
-     * @param  int  $id
-     * @return User|null
      */
     public function findTrashed(int $id): ?User
     {
@@ -126,9 +107,6 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
     /**
      * Restore a soft deleted user
-     *
-     * @param  int  $id
-     * @return bool
      */
     public function restore(int $id): bool
     {
@@ -143,9 +121,6 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
     /**
      * Permanently delete a user
-     *
-     * @param  int  $id
-     * @return bool
      */
     public function forceDelete(int $id): bool
     {
@@ -160,9 +135,6 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
     /**
      * Get total count based on filter
-     *
-     * @param  string|null  $filter
-     * @return int
      */
     public function getTotalCount(?string $filter = null): int
     {

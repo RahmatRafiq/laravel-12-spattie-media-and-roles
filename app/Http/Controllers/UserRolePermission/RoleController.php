@@ -16,9 +16,6 @@ class RoleController extends Controller
 {
     /**
      * RoleController constructor
-     *
-     * @param  RoleService  $roleService
-     * @param  PermissionService  $permissionService
      */
     public function __construct(
         private RoleService $roleService,
@@ -40,7 +37,6 @@ class RoleController extends Controller
     /**
      * Get roles data for DataTables
      *
-     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function json(Request $request)
@@ -93,7 +89,6 @@ class RoleController extends Controller
     /**
      * Store a newly created role
      *
-     * @param  Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
@@ -132,7 +127,6 @@ class RoleController extends Controller
     /**
      * Update the specified role
      *
-     * @param  Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse
      */

@@ -8,14 +8,6 @@ class MenuData
 {
     /**
      * MenuData constructor
-     *
-     * @param  int|null  $id
-     * @param  string  $title
-     * @param  string|null  $route
-     * @param  string|null  $icon
-     * @param  string|null  $permission
-     * @param  int|null  $parentId
-     * @param  int  $order
      */
     public function __construct(
         public readonly ?int $id,
@@ -29,9 +21,6 @@ class MenuData
 
     /**
      * Create DTO from HTTP request
-     *
-     * @param  Request  $request
-     * @return self
      */
     public static function fromRequest(Request $request): self
     {
@@ -48,9 +37,6 @@ class MenuData
 
     /**
      * Create DTO from array
-     *
-     * @param  array  $data
-     * @return self
      */
     public static function fromArray(array $data): self
     {
@@ -67,8 +53,6 @@ class MenuData
 
     /**
      * Convert DTO to array
-     *
-     * @return array
      */
     public function toArray(): array
     {
@@ -85,8 +69,6 @@ class MenuData
 
     /**
      * Get data for create/update operation
-     *
-     * @return array
      */
     public function forSave(): array
     {
@@ -98,8 +80,6 @@ class MenuData
 
     /**
      * Check if menu is root level
-     *
-     * @return bool
      */
     public function isRoot(): bool
     {
@@ -108,8 +88,6 @@ class MenuData
 
     /**
      * Check if menu has permission
-     *
-     * @return bool
      */
     public function hasPermission(): bool
     {

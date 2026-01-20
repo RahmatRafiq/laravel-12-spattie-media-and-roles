@@ -8,11 +8,6 @@ class RoleData
 {
     /**
      * RoleData constructor
-     *
-     * @param  int|null  $id
-     * @param  string  $name
-     * @param  string  $guardName
-     * @param  array  $permissions
      */
     public function __construct(
         public readonly ?int $id,
@@ -23,9 +18,6 @@ class RoleData
 
     /**
      * Create DTO from HTTP request
-     *
-     * @param  Request  $request
-     * @return self
      */
     public static function fromRequest(Request $request): self
     {
@@ -39,9 +31,6 @@ class RoleData
 
     /**
      * Create DTO from array
-     *
-     * @param  array  $data
-     * @return self
      */
     public static function fromArray(array $data): self
     {
@@ -55,8 +44,6 @@ class RoleData
 
     /**
      * Convert DTO to array
-     *
-     * @return array
      */
     public function toArray(): array
     {
@@ -70,8 +57,6 @@ class RoleData
 
     /**
      * Get data for create/update operation
-     *
-     * @return array
      */
     public function forSave(): array
     {

@@ -12,8 +12,6 @@ class UserService
 {
     /**
      * UserService constructor
-     *
-     * @param  UserRepositoryInterface  $userRepository
      */
     public function __construct(
         private UserRepositoryInterface $userRepository
@@ -21,9 +19,6 @@ class UserService
 
     /**
      * Get query builder for DataTables
-     *
-     * @param  array  $filters
-     * @return Builder
      */
     public function getDataTableData(array $filters): Builder
     {
@@ -32,9 +27,6 @@ class UserService
 
     /**
      * Get total count for DataTables
-     *
-     * @param  string|null  $filter
-     * @return int
      */
     public function getTotalCount(?string $filter = null): int
     {
@@ -43,8 +35,6 @@ class UserService
 
     /**
      * Get all users with roles
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getAllUsers(): \Illuminate\Database\Eloquent\Collection
     {
@@ -53,9 +43,6 @@ class UserService
 
     /**
      * Get user by ID with trashed
-     *
-     * @param  int  $id
-     * @return User
      */
     public function getUserWithTrashed(int $id): User
     {
@@ -64,9 +51,6 @@ class UserService
 
     /**
      * Create a new user
-     *
-     * @param  array  $data
-     * @return User
      */
     public function createUser(array $data): User
     {
@@ -88,10 +72,6 @@ class UserService
 
     /**
      * Update an existing user
-     *
-     * @param  int  $id
-     * @param  array  $data
-     * @return User
      */
     public function updateUser(int $id, array $data): User
     {
@@ -121,9 +101,6 @@ class UserService
 
     /**
      * Soft delete a user
-     *
-     * @param  int  $id
-     * @return bool
      */
     public function deleteUser(int $id): bool
     {
@@ -132,9 +109,6 @@ class UserService
 
     /**
      * Restore a soft deleted user
-     *
-     * @param  int  $id
-     * @return bool
      */
     public function restoreUser(int $id): bool
     {
@@ -143,9 +117,6 @@ class UserService
 
     /**
      * Permanently delete a user
-     *
-     * @param  int  $id
-     * @return bool
      */
     public function forceDeleteUser(int $id): bool
     {
@@ -154,8 +125,6 @@ class UserService
 
     /**
      * Get trashed users
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getTrashedUsers(): \Illuminate\Database\Eloquent\Collection
     {
@@ -164,9 +133,6 @@ class UserService
 
     /**
      * Search users
-     *
-     * @param  string  $query
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function searchUsers(string $query): \Illuminate\Database\Eloquent\Collection
     {

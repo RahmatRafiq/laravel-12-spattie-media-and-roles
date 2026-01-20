@@ -22,8 +22,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     /**
      * BaseRepository constructor
-     *
-     * @param  Model  $model
      */
     public function __construct(Model $model)
     {
@@ -32,9 +30,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     /**
      * Get all records
-     *
-     * @param  array  $columns
-     * @return Collection
      */
     public function all(array $columns = ['*']): Collection
     {
@@ -49,10 +44,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     /**
      * Find a record by ID
-     *
-     * @param  int  $id
-     * @param  array  $columns
-     * @return Model|null
      */
     public function find(int $id, array $columns = ['*']): ?Model
     {
@@ -68,9 +59,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
     /**
      * Find a record by ID or fail
      *
-     * @param  int  $id
-     * @param  array  $columns
-     * @return Model
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
@@ -87,9 +75,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     /**
      * Create a new record
-     *
-     * @param  array  $data
-     * @return Model
      */
     public function create(array $data): Model
     {
@@ -98,10 +83,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     /**
      * Update a record by ID
-     *
-     * @param  int  $id
-     * @param  array  $data
-     * @return Model
      */
     public function update(int $id, array $data): Model
     {
@@ -113,9 +94,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     /**
      * Delete a record by ID
-     *
-     * @param  int  $id
-     * @return bool
      */
     public function delete(int $id): bool
     {
@@ -126,9 +104,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     /**
      * Load relationships
-     *
-     * @param  array  $relations
-     * @return self
      */
     public function with(array $relations): self
     {
@@ -139,10 +114,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     /**
      * Paginate records
-     *
-     * @param  int  $perPage
-     * @param  array  $columns
-     * @return LengthAwarePaginator
      */
     public function paginate(int $perPage = 15, array $columns = ['*']): LengthAwarePaginator
     {
@@ -157,11 +128,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     /**
      * Find records by column value
-     *
-     * @param  string  $column
-     * @param  mixed  $value
-     * @param  array  $columns
-     * @return Collection
      */
     public function findBy(string $column, mixed $value, array $columns = ['*']): Collection
     {
@@ -176,11 +142,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     /**
      * Find first record by column value
-     *
-     * @param  string  $column
-     * @param  mixed  $value
-     * @param  array  $columns
-     * @return Model|null
      */
     public function findFirstBy(string $column, mixed $value, array $columns = ['*']): ?Model
     {
@@ -195,8 +156,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     /**
      * Count all records
-     *
-     * @return int
      */
     public function count(): int
     {
@@ -205,9 +164,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     /**
      * Check if record exists
-     *
-     * @param  int  $id
-     * @return bool
      */
     public function exists(int $id): bool
     {
@@ -216,8 +172,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     /**
      * Get new query builder instance
-     *
-     * @return Builder
      */
     protected function newQuery(): Builder
     {
@@ -232,8 +186,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     /**
      * Reset relations
-     *
-     * @return void
      */
     protected function resetRelations(): void
     {

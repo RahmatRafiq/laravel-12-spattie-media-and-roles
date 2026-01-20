@@ -54,7 +54,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('gallery/file/{id}', [\App\Http\Controllers\GalleryController::class, 'file'])->name('gallery.file');
         });
 
-        Route::middleware('permission:upload-files')->group(function () {
+        Route::middleware(['permission:upload-files', 'throttle:10,1'])->group(function () {
             Route::post('gallery', [\App\Http\Controllers\GalleryController::class, 'store'])->name('gallery.store');
         });
 
@@ -92,5 +92,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 });
 
-require __DIR__ . '/settings.php';
-require __DIR__ . '/auth.php';
+require __DIR__.'/settings.php';
+require __DIR__.'/auth.php';

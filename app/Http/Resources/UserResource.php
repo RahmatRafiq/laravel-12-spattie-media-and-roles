@@ -9,9 +9,6 @@ class UserResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
-     *
-     * @param  Request  $request
-     * @return array
      */
     public function toArray(Request $request): array
     {
@@ -33,9 +30,6 @@ class UserResource extends JsonResource
 
     /**
      * Get additional data for the resource
-     *
-     * @param  Request  $request
-     * @return array
      */
     public function with(Request $request): array
     {
