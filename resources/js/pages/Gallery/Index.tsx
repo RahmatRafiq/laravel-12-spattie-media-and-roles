@@ -72,7 +72,7 @@ export default function Gallery({
         );
     };
 
-    const deleteFolder = async (id: number, parent_id: number | null = null) => {
+    const deleteFolder = async (id: number) => {
         await router.delete(route('gallery.folder.delete', { id, visibility }), {
             preserveScroll: true,
             onSuccess: () => {

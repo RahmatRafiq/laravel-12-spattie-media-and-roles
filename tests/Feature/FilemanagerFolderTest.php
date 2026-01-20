@@ -7,7 +7,11 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->seed(\Database\Seeders\PermissionSeeder::class);
+    $this->seed([
+        \Database\Seeders\PermissionSeeder::class,
+        \Database\Seeders\RoleSeeder::class,
+        \Database\Seeders\RolePermissionSeeder::class,
+    ]);
 });
 
 test('admin can create folder', function () {

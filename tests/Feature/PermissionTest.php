@@ -26,7 +26,10 @@ test('can create permission', function () {
     $user = User::factory()->create();
     $user->givePermissionTo(['view-permissions', 'assign-permissions']);
     $this->actingAs($user)
-        ->post(route('permissions.store'), ['name' => 'test-permission'])
+        ->post(route('permissions.store'), [
+            'name' => 'test-permission',
+            'guard_name' => 'web',
+        ])
         ->assertRedirect(route('permissions.index'));
     $this->assertDatabaseHas('permissions', ['name' => 'test-permission']);
 });
@@ -36,7 +39,10 @@ test('can update permission', function () {
     $user->givePermissionTo(['view-permissions', 'assign-permissions']);
     $permission = Permission::factory()->create(['name' => 'old-name']);
     $this->actingAs($user)
-        ->put(route('permissions.update', $permission->id), ['name' => 'new-name'])
+        ->put(route('permissions.update', $permission->id), [
+            'name' => 'new-name',
+            'guard_name' => 'web',
+        ])
         ->assertRedirect(route('permissions.index'));
     $this->assertDatabaseHas('permissions', ['name' => 'new-name']);
 });
