@@ -4,6 +4,7 @@ import HeadingSmall from '@/components/heading-small';
 import PageContainer from '@/components/page-container';
 import { useConfirmation } from '@/hooks/use-confirmation';
 import AppLayout from '@/layouts/app-layout';
+import { GalleryProps, FileManagerFolder } from '@/types';
 import { toast } from '@/utils/toast';
 import { Head, router, useForm, useRemember } from '@inertiajs/react';
 import React from 'react';
@@ -11,7 +12,7 @@ import GalleryGrid from './GalleryGrid';
 import GalleryHeader from './GalleryHeader';
 import GalleryPagination from './GalleryPagination';
 import GalleryUploadForm from './GalleryUploadForm';
-import Sidebar, { FilemanagerFolder } from './Sidebar';
+import Sidebar from './Sidebar';
 
 export default function Gallery({
     media,
@@ -19,7 +20,7 @@ export default function Gallery({
     selected_collection,
     folders = [],
     selected_folder_id = null,
-}: GalleryProps & { folders?: FilemanagerFolder[]; selected_folder_id?: number | null }) {
+}: GalleryProps & { folders?: FileManagerFolder[]; selected_folder_id?: number | null }) {
     const { confirmationState, openConfirmation, handleConfirm, handleCancel } = useConfirmation();
 
     const { data, setData, post, processing, reset } = useForm<{

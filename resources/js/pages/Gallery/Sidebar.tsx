@@ -3,16 +3,10 @@ import { FolderOpen, Folder as FolderIcon, ChevronDown, ChevronRight, Plus, Penc
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-
-export interface FilemanagerFolder {
-    id: number;
-    name: string;
-    parent_id: number | null;
-    path?: string | null;
-}
+import { FileManagerFolder } from '@/types';
 
 interface SidebarProps {
-    folders: FilemanagerFolder[];
+    folders: FileManagerFolder[];
     currentFolderId: number | null;
     onFolderClick: (folderId: number | null) => void;
     onCreateFolder: (name: string, parentId: number | null) => void;

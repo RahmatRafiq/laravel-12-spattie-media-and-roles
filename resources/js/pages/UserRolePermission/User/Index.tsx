@@ -5,9 +5,8 @@ import PageContainer from '@/components/page-container';
 import ToggleTabs from '@/components/toggle-tabs';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import type { BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, User } from '@/types';
 import type { DataTableColumn } from '@/types/DataTables';
-import type { User } from '@/types/UserRolePermission';
 import { Head, Link, router } from '@inertiajs/react';
 import { useRef, useState } from 'react';
 

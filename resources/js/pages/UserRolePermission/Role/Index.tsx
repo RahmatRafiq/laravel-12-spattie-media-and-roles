@@ -4,9 +4,8 @@ import HeadingSmall from '@/components/heading-small';
 import PageContainer from '@/components/page-container';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import type { BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, Role } from '@/types';
 import type { DataTableColumn } from '@/types/DataTables';
-import type { Role } from '@/types/UserRolePermission';
 import { Head, Link, router } from '@inertiajs/react';
 import { useRef } from 'react';
 
