@@ -21,9 +21,9 @@ class MenuService
      * Get menus for current authenticated user
      * Filters by permissions
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Support\Collection
      */
-    public function getMenusForCurrentUser(): \Illuminate\Database\Eloquent\Collection
+    public function getMenusForCurrentUser(): \Illuminate\Support\Collection
     {
         $user = auth()->user();
 
@@ -31,7 +31,7 @@ class MenuService
             return collect([]);
         }
 
-        return $this->menuRepository->getMenusForUser($user);
+        return collect($this->menuRepository->getMenusForUser($user));
     }
 
     /**
@@ -56,6 +56,16 @@ class MenuService
     }
 
     /**
+     * Get all root menus with children (alias for controller usage)
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getRootMenusWithChildren(): \Illuminate\Database\Eloquent\Collection
+    {
+        return $this->menuRepository->getRootMenusWithChildren();
+    }
+
+    /**
      * Get all menus as flat list
      *
      * @return \Illuminate\Database\Eloquent\Collection
@@ -63,6 +73,27 @@ class MenuService
     public function getAllMenusFlat(): \Illuminate\Database\Eloquent\Collection
     {
         return $this->menuRepository->getAllFlat();
+    }
+
+    /**
+     * Get all menus ordered
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getAllMenus(): \Illuminate\Database\Eloquent\Collection
+    {
+        return $this->menuRepository->all();
+    }
+
+    /**
+     * Get all menus except specified ID
+     *
+     * @param  int  $excludeId
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getAllMenusExcept(int $excludeId): \Illuminate\Database\Eloquent\Collection
+    {
+        return Menu::where('id', '!=', $excludeId)->orderBy('order')->get();
     }
 
     /**

@@ -2,34 +2,32 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ActivityLogResource;
+use App\Services\ActivityLogService;
 use Inertia\Inertia;
-use Spatie\Activitylog\Models\Activity;
 
 class ActivityLogController extends Controller
 {
+    /**
+     * ActivityLogController constructor
+     *
+     * @param  ActivityLogService  $activityLogService
+     */
+    public function __construct(
+        private ActivityLogService $activityLogService
+    ) {}
+
+    /**
+     * Display a listing of activity logs
+     *
+     * @return \Inertia\Response
+     */
     public function index()
     {
-        $logs = Activity::with('causer')
-            ->latest()
-            ->limit(50)
-            ->get()
-            ->map(function ($activity) {
-                return [
-                    'id' => $activity->id,
-                    'description' => $activity->description,
-                    'subject_type' => $activity->subject_type,
-                    'subject_id' => $activity->subject_id,
-                    'event' => $activity->event,
-                    'causer_type' => $activity->causer_type,
-                    'causer_id' => $activity->causer_id,
-                    'properties' => $activity->properties,
-                    'created_at' => $activity->created_at,
-                    'causer_name' => $activity->causer ? $activity->causer->name : 'System',
-                ];
-            });
+        $logs = $this->activityLogService->getLatestLogs(50);
 
         return Inertia::render('ActivityLogList', [
-            'initialLogs' => $logs,
+            'initialLogs' => ActivityLogResource::collection($logs),
         ]);
     }
 }

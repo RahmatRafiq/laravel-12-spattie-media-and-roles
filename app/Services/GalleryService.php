@@ -182,4 +182,96 @@ class GalleryService
         // For private files, use protected route
         return route('gallery.file', $media->id);
     }
+
+    /**
+     * Check if user can access media file
+     *
+     * @param  Media  $media
+     * @param  \App\Models\User  $user
+     * @return bool
+     */
+    public function canAccessMedia(Media $media, \App\Models\User $user): bool
+    {
+        // Public files are accessible to all authenticated users
+        if ($media->disk === 'public') {
+            return true;
+        }
+
+        // Admin can access all files
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+
+        // Check ownership based on model type
+        if ($media->model_type === \App\Models\Gallery::class) {
+            $gallery = \App\Models\Gallery::find($media->model_id);
+
+            return $gallery && $gallery->user_id === $user->id;
+        }
+
+        if ($media->model_type === \App\Models\User::class) {
+            return $media->model_id === $user->id;
+        }
+
+        return false;
+    }
+
+    /**
+     * Create media from uploaded file
+     *
+     * @param  \Illuminate\Http\UploadedFile  $file
+     * @param  int  $userId
+     * @param  string  $visibility
+     * @param  int|null  $folderId
+     * @return Media
+     */
+    public function createMediaFromUpload(
+        \Illuminate\Http\UploadedFile $file,
+        int $userId,
+        string $visibility = 'public',
+        ?int $folderId = null
+    ): Media {
+        $diskName = $visibility === 'public' ? 'public' : 'local';
+
+        // Create Gallery record
+        $gallery = \App\Models\Gallery::create([
+            'name' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+            'user_id' => $userId,
+            'folder_id' => $folderId,
+        ]);
+
+        // Add media to gallery
+        $gallery->addMedia($file)
+            ->usingName(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME))
+            ->withCustomProperties(['visibility' => $visibility, 'uploaded_by' => $userId])
+            ->toMediaCollection('gallery', $diskName);
+
+        // Update media with folder_id if provided
+        if ($folderId) {
+            $media = $gallery->getFirstMedia('gallery');
+            if ($media) {
+                $media->folder_id = (int) $folderId;
+                $media->save();
+            }
+
+            return $media;
+        }
+
+        return $gallery->getFirstMedia('gallery');
+    }
+
+    /**
+     * Get media visibility from disk or custom properties
+     *
+     * @param  Media  $media
+     * @return string
+     */
+    public function getMediaVisibility(Media $media): string
+    {
+        if ($media->disk === 'local' || $media->disk === 'private') {
+            return 'private';
+        }
+
+        return $media->custom_properties['visibility'] ?? 'public';
+    }
 }

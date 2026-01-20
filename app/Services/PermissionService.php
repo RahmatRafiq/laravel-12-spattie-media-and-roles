@@ -92,4 +92,59 @@ class PermissionService
     {
         return $this->permissionRepository->findByName($name);
     }
+
+    /**
+     * Find permission by ID
+     *
+     * @param  int  $id
+     * @return Permission
+     */
+    public function findPermission(int $id): Permission
+    {
+        return $this->permissionRepository->findOrFail($id);
+    }
+
+    /**
+     * Update an existing permission
+     *
+     * @param  int  $id
+     * @param  array  $data
+     * @return Permission
+     */
+    public function updatePermission(int $id, array $data): Permission
+    {
+        return $this->permissionRepository->update($id, [
+            'name' => $data['name'],
+            'guard_name' => $data['guard_name'] ?? 'web',
+        ]);
+    }
+
+    /**
+     * Delete a permission
+     *
+     * @param  int  $id
+     * @return bool
+     */
+    public function deletePermission(int $id): bool
+    {
+        return $this->permissionRepository->delete($id);
+    }
+
+    /**
+     * Get query builder for DataTables
+     *
+     * @param  array  $filters
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function getDataTableData(array $filters): \Illuminate\Database\Eloquent\Builder
+    {
+        $searchTerm = $filters['search'] ?? null;
+        $query = $this->permissionRepository->query();
+
+        if (! empty($searchTerm)) {
+            $query->where('name', 'like', "%{$searchTerm}%");
+        }
+
+        return $query;
+    }
 }
