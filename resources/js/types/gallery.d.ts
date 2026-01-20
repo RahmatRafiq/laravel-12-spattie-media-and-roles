@@ -1,24 +1,34 @@
-interface MediaItem {
+/**
+ * Gallery & Media Types
+ * Domain: File manager, media items, folders, galleries
+ */
+
+export interface MediaItem {
     id: number;
     file_name: string;
     name: string;
     original_url: string;
     disk: string;
     collection_name: string;
+    size?: number;
+    mime_type?: string;
+    custom_properties?: Record<string, unknown>;
 }
 
-interface PaginationLink {
-    url: string | null;
-    label: string;
-    active: boolean;
-}
-interface FilemanagerFolder {
+export interface FileManagerFolder {
     id: number;
     name: string;
     parent_id: number | null;
     path?: string | null;
 }
-interface GalleryProps {
+
+export interface PaginationLink {
+    url: string | null;
+    label: string;
+    active: boolean;
+}
+
+export interface GalleryProps {
     media: {
         data: MediaItem[];
         links?: PaginationLink[];

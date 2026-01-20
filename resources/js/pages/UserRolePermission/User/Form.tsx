@@ -6,8 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import UserRolePermissionLayout from '@/layouts/UserRolePermission/layout';
-import { BreadcrumbItem } from '@/types';
-import type { Role, User } from '@/types/UserRolePermission';
+import { BreadcrumbItem, Role, User } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEvent } from 'react';
 

@@ -1,81 +1,48 @@
-import { LucideIcon } from 'lucide-react';
-import type { Config } from 'ziggy-js';
+/**
+ * Main Type Entry Point
+ * Re-exports all domain-specific types for convenient importing
+ */
 
-export interface Auth {
-    user: User;
-}
+// Authentication & User Types
+export type {
+    User,
+    ProfileImage,
+    Auth,
+    Role,
+    Permission,
+} from './auth';
 
-export interface BreadcrumbItem {
-    title: string;
-    href: string;
-}
+// Navigation Types
+export type {
+    NavItem,
+    NavGroup,
+    BreadcrumbItem,
+} from './navigation';
 
-export interface NavGroup {
-    title: string;
-    items: NavItem[];
-}
+// Gallery & Media Types
+export type {
+    MediaItem,
+    FileManagerFolder,
+    PaginationLink,
+    GalleryProps,
+} from './gallery';
 
-export interface NavItem {
-    title: string;
-    href: string;
-    icon?: LucideIcon | null;
-    isActive?: boolean;
-    children?: NavItem[];
-}
+// Application Types
+export type {
+    AppSetting,
+    SocialLinks,
+    SharedData,
+    FlashMessage,
+} from './app';
 
-export interface SharedData {
-    name: string;
-    env: string;
-    isLocalEnv: boolean;
-    quote: { message: string; author: string };
-    auth: Auth;
-    ziggy: Config & { location: string };
-    [key: string]: unknown;
-}
-
-export interface User {
-    id: number;
-    name: string;
-    email: string;
-    avatar?: string;
-    email_verified_at: string | null;
-    created_at: string;
-    updated_at: string;
-    profile_image?: {
-        file_name: string;
-        size: number;
-        original_url: string;
-    };
-    roles: string[];
-    permissions: string[];
-    is_admin: boolean;
-    [key: string]: unknown; // This allows for additional properties...
-}
-
-export interface AppSetting {
-    id: number;
-    app_name: string;
-    app_description?: string;
-    app_logo?: string;
-    app_favicon?: string;
-    seo_title?: string;
-    seo_description?: string;
-    seo_keywords?: string;
-    seo_og_image?: string;
-    primary_color: string;
-    secondary_color: string;
-    accent_color: string;
-    theme_mode: string;
-    contact_email?: string;
-    contact_phone?: string;
-    contact_address?: string;
-    social_links?: {
-        facebook?: string;
-        twitter?: string;
-        instagram?: string;
-        linkedin?: string;
-        youtube?: string;
-    };
-    maintenance_mode: boolean;
-    maintenance_message?: string;
-}
+// DataTable Types (keep existing comprehensive types)
+export type {
+    RenderFunction,
+    AjaxConfig,
+    ExpandConfig,
+    ConfirmationConfig,
+    DataTableColumn,
+    DataTableOptions,
+    DataTableWrapperProps,
+    DataTableWrapperRef,
+} from './DataTables';

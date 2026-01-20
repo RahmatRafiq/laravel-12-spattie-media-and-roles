@@ -1,0 +1,110 @@
+<?php
+
+namespace App\Repositories\Eloquent;
+
+use App\Repositories\Contracts\PermissionRepositoryInterface;
+use Illuminate\Database\Eloquent\Collection;
+use Spatie\Permission\Models\Permission;
+
+class PermissionRepository extends BaseRepository implements PermissionRepositoryInterface
+{
+    /**
+     * PermissionRepository constructor
+     *
+     * @param  Permission  $model
+     */
+    public function __construct(Permission $model)
+    {
+        parent::__construct($model);
+    }
+
+    /**
+     * Get all permissions grouped by category
+     *
+     * @return array
+     */
+    public function getGroupedByCategory(): array
+    {
+        $permissions = $this->all();
+
+        $grouped = [
+            'User Management' => [],
+            'Role & Permission' => [],
+            'File Management' => [],
+            'General' => [],
+        ];
+
+        foreach ($permissions as $permission) {
+            $name = $permission->name;
+
+            if (str_contains($name, 'user')) {
+                $grouped['User Management'][] = $permission;
+            } elseif (str_contains($name, 'role') || str_contains($name, 'permission')) {
+                $grouped['Role & Permission'][] = $permission;
+            } elseif (str_contains($name, 'gallery') || str_contains($name, 'file') || str_contains($name, 'folder')) {
+                $grouped['File Management'][] = $permission;
+            } else {
+                $grouped['General'][] = $permission;
+            }
+        }
+
+        // Remove empty categories
+        return array_filter($grouped, fn ($items) => ! empty($items));
+    }
+
+    /**
+     * Get permissions for select dropdown
+     *
+     * @return array
+     */
+    public function getPermissionOptions(): array
+    {
+        return $this->model->pluck('name', 'id')->toArray();
+    }
+
+    /**
+     * Find permission by name
+     *
+     * @param  string  $name
+     * @return Permission|null
+     */
+    public function findByName(string $name): ?Permission
+    {
+        return $this->model->where('name', $name)->first();
+    }
+
+    /**
+     * Get permissions assigned to a role
+     *
+     * @param  int  $roleId
+     * @return Collection
+     */
+    public function getByRole(int $roleId): Collection
+    {
+        return $this->model->whereHas('roles', function ($query) use ($roleId) {
+            $query->where('roles.id', $roleId);
+        })->get();
+    }
+
+    /**
+     * Bulk create permissions
+     *
+     * @param  array  $permissions
+     * @return bool
+     */
+    public function bulkCreate(array $permissions): bool
+    {
+        try {
+            foreach ($permissions as $permission) {
+                $this->model->firstOrCreate([
+                    'name' => $permission['name'],
+                    'guard_name' => $permission['guard_name'] ?? 'web',
+                ]);
+            }
+
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+}
