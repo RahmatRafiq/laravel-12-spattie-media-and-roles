@@ -53,27 +53,32 @@ export default function GalleryUploadForm({ data, setData, processing, submitUpl
     };
 
     return (
-        <form onSubmit={submitUpload} className="flex items-center gap-2 mb-4">
+        <form onSubmit={submitUpload} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-4">
             <input
                 type="file"
                 onChange={handleFileChange}
                 accept=".jpg,.jpeg,.png,.gif,.webp,.svg,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar,.mp4,.mov,.avi"
                 required
+                className="w-full sm:flex-1 text-sm"
             />
-            <CustomSelect
-                value={{ value: data.visibility, label: data.visibility === 'public' ? 'Public' : 'Private' }}
-                className="rounded border px-2 py-1"
-                options={[
-                    { value: 'public', label: 'Public' },
-                    { value: 'private', label: 'Private' }
-                ]}
-                onChange={(option) => {
-                    if (option && !Array.isArray(option) && typeof option === 'object' && 'value' in option) {
-                        setData('visibility', option.value as 'public' | 'private');
-                    }
-                }}
-            />
-            <Button type="submit" disabled={processing}>Upload</Button>
+            <div className="w-full sm:w-auto sm:min-w-[140px]">
+                <CustomSelect
+                    value={{ value: data.visibility, label: data.visibility === 'public' ? 'Public' : 'Private' }}
+                    className="rounded border px-2 py-1"
+                    options={[
+                        { value: 'public', label: 'Public' },
+                        { value: 'private', label: 'Private' }
+                    ]}
+                    onChange={(option) => {
+                        if (option && !Array.isArray(option) && typeof option === 'object' && 'value' in option) {
+                            setData('visibility', option.value as 'public' | 'private');
+                        }
+                    }}
+                />
+            </div>
+            <Button type="submit" disabled={processing} className="w-full sm:w-auto">
+                {processing ? 'Uploading...' : 'Upload'}
+            </Button>
         </form>
     );
 }

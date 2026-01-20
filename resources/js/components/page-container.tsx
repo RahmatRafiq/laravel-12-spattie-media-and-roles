@@ -10,15 +10,15 @@ type PageContainerProps = {
 }
 
 const maxWidthClasses = {
-    sm: 'max-w-sm mx-auto',
-    md: 'max-w-md mx-auto',
-    lg: 'max-w-lg mx-auto',
-    xl: 'max-w-xl mx-auto',
-    '2xl': 'max-w-2xl mx-auto',
-    '4xl': 'max-w-4xl mx-auto',
-    '7xl': 'max-w-7xl mx-auto',
-    full: 'w-full',
-    none: '',
+    sm: 'max-w-sm mx-auto',     // 24rem / 384px - Very narrow, single column, centered
+    md: 'max-w-md mx-auto',     // 28rem / 448px - Small dialogs, centered
+    lg: 'max-w-lg mx-auto',     // 32rem / 512px - Medium forms, centered
+    xl: 'max-w-xl mx-auto',     // 36rem / 576px - Standard forms, centered
+    '2xl': 'max-w-2xl mx-auto', // 42rem / 672px - Simple forms with sections, centered
+    '4xl': 'max-w-4xl mx-auto', // 56rem / 896px - Complex forms, centered (good default for settings)
+    '7xl': 'max-w-7xl mx-auto', // 80rem / 1280px - Wide layouts, centered (for very wide content)
+    full: 'w-full',             // Full viewport width, no max-width
+    none: '',                   // No constraints
 };
 
 const centerWidthClasses = {
@@ -32,16 +32,21 @@ const centerWidthClasses = {
 };
 
 /**
- * PageContainer provides consistent padding for pages within AppLayout
- * Use maxWidth prop to control content width:
- * - 'full' or 'none' for full-width content like datatables
- * - '2xl' for simple forms
- * - '4xl' for complex forms with multiple sections
- * - '7xl' for gallery/grid layouts
+ * PageContainer provides consistent padding and max-width for pages
  *
- * Use centered prop with centerWidth for centered content within full-width container:
- * - <PageContainer maxWidth="full" centered centerWidth="2xl">
- *   This creates a full-width container with centered content limited to max-w-2xl
+ * USAGE GUIDELINES:
+ * - Use '7xl' for most pages (settings, forms, management) - RECOMMENDED DEFAULT
+ * - Use 'full' for datatables and full-width content
+ * - Use '4xl' only for truly narrow forms
+ * - Use '2xl' for authentication/simple single-column forms
+ *
+ * EXAMPLES:
+ * - App Settings, Menu Management, Role Management: maxWidth="7xl"
+ * - DataTables (User List, Gallery): maxWidth="full"
+ * - Login, Register: maxWidth="2xl"
+ *
+ * OVERRIDE PADDING:
+ * <PageContainer className="px-8 py-10"> - className is merged after defaults
  */
 export default function PageContainer({ children, maxWidth = 'none', className, centered = false, centerWidth = '2xl' }: PageContainerProps) {
     if (centered && (maxWidth === 'full' || maxWidth === 'none')) {

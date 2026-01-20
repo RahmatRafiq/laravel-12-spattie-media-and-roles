@@ -9,8 +9,7 @@ import { FormEvent } from 'react';
 import CustomSelect from '@/components/select';
 import AppLayout from '@/layouts/app-layout';
 import UserRolePermissionLayout from '@/layouts/UserRolePermission/layout';
-import { BreadcrumbItem } from '@/types';
-import type { Permission, Role } from '@/types/UserRolePermission';
+import { BreadcrumbItem, Permission, Role } from '@/types';
 
 export default function RoleForm({ role, permissions }: { role?: Role; permissions: Permission[] }) {
     const isEdit = !!role;

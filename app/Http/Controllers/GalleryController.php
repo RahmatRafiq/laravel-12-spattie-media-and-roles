@@ -2,25 +2,33 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Gallery\CreateFolderRequest;
+use App\Http\Requests\Gallery\RenameFolderRequest;
+use App\Http\Requests\Gallery\UploadFileRequest;
 use App\Models\FilemanagerFolder;
-use App\Models\Gallery;
+use App\Services\GalleryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class GalleryController extends Controller
 {
-    public function createFolder(Request $request)
+    /**
+     * GalleryController constructor
+     */
+    public function __construct(
+        private GalleryService $galleryService
+    ) {}
+
+    public function createFolder(CreateFolderRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'parent_id' => 'nullable|exists:filemanager_folders,id',
-        ]);
+        $validated = $request->validated();
         $folder = FilemanagerFolder::create([
-            'name' => $request->input('name'),
-            'parent_id' => $request->input('parent_id'),
+            'name' => $validated['name'],
+            'parent_id' => $validated['parent_id'] ?? null,
             'path' => null,
         ]);
 
@@ -31,13 +39,11 @@ class GalleryController extends Controller
             ->with('success', 'Folder created successfully.');
     }
 
-    public function renameFolder(Request $request, $id)
+    public function renameFolder(RenameFolderRequest $request, $id)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
+        $validated = $request->validated();
         $folder = FilemanagerFolder::findOrFail($id);
-        $folder->name = $request->input('name');
+        $folder->name = $validated['name'];
         $folder->save();
 
         // Preserve visibility from request
@@ -75,6 +81,11 @@ class GalleryController extends Controller
             ->with('success', 'Folder deleted successfully.');
     }
 
+    /**
+     * Display a listing of gallery media
+     *
+     * @return \Inertia\Response
+     */
     public function index(Request $request)
     {
         $visibility = $request->query('visibility', 'public');
@@ -88,19 +99,12 @@ class GalleryController extends Controller
         }
 
         $folders = FilemanagerFolder::all();
-        $allCollections = Media::select('collection_name')->distinct()->pluck('collection_name')->toArray();
-        $allDisks = Media::select('disk')->distinct()->pluck('disk')->toArray();
-        $publicDisks = [];
-        $privateDisks = [];
-        foreach ($allDisks as $disk) {
-            $diskConfig = config('filesystems.disks.'.$disk);
-            if ($diskConfig && ($diskConfig['driver'] ?? null) === 'local' && isset($diskConfig['url']) && str_contains($diskConfig['url'], '/storage')) {
-                $publicDisks[] = $disk;
-            } else {
-                $privateDisks[] = $disk;
-            }
-        }
-        $selectedDisks = $visibility === 'public' ? $publicDisks : $privateDisks;
+        $allCollections = $this->galleryService->getAllCollections();
+
+        // Get disks by visibility
+        $disks = $this->galleryService->classifyDisksByVisibility();
+        $selectedDisks = $visibility === 'public' ? $disks['public'] : $disks['private'];
+
         $query = Media::query();
         $query->where('collection_name', $collection ?: 'gallery');
         if (! empty($selectedDisks)) {
@@ -115,26 +119,17 @@ class GalleryController extends Controller
         $paginator = $query->orderBy('created_at', 'desc')
             ->paginate(20)
             ->appends($request->query());
-        $items = collect($paginator->items())->map(function ($m) {
-            // For public files, use Spatie's getUrl() which handles the correct path structure
-            // For private files, use protected route
-            $url = null;
-            if ($m->disk === 'public' || str_contains($m->disk, 'profile-images')) {
-                // Use Spatie's built-in URL generation for public files
-                $url = $m->getUrl();
-            } else {
-                // Use protected route for private files
-                $url = route('gallery.file', $m->id);
-            }
 
+        // Transform media items using service
+        $items = collect($paginator->items())->map(function ($media) {
             return [
-                'id' => $m->id,
-                'file_name' => $m->file_name,
-                'name' => $m->name ?? $m->file_name,
-                'original_url' => $url,
-                'disk' => $m->disk,
-                'collection_name' => $m->collection_name,
-                'custom_properties' => $m->custom_properties,
+                'id' => $media->id,
+                'file_name' => $media->file_name,
+                'name' => $media->name ?? $media->file_name,
+                'original_url' => $this->galleryService->getMediaUrl($media),
+                'disk' => $media->disk,
+                'collection_name' => $media->collection_name,
+                'custom_properties' => $media->custom_properties,
             ];
         })->toArray();
         $paginationArray = $paginator->toArray();
@@ -153,21 +148,15 @@ class GalleryController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    /**
+     * Store a newly uploaded file
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function store(UploadFileRequest $request)
     {
-        $request->validate([
-            'file' => [
-                'required',
-                'file',
-                'max:10240', // 10MB
-                'mimes:jpg,jpeg,png,gif,webp,svg,pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,rar,mp4,mov,avi',
-            ],
-            'visibility' => 'nullable|in:public,private',
-        ]);
-
-        $visibility = $request->input('visibility', 'public');
-        $diskName = $visibility === 'public' ? 'public' : 'local';
-        $uploaded = $request->file('file');
+        $validated = $request->validated();
+        $visibility = $validated['visibility'] ?? 'public';
         $folderId = $request->query('folder_id');
 
         // Validate folder_id exists if provided
@@ -176,80 +165,85 @@ class GalleryController extends Controller
                 ->with('error', 'Folder not found. Please select a valid folder or upload to root.');
         }
 
-        // Create Gallery record to attach media
-        $gallery = Gallery::create([
-            'name' => pathinfo($uploaded->getClientOriginalName(), PATHINFO_FILENAME),
-            'user_id' => Auth::id(),
-            'folder_id' => $folderId,
-        ]);
-
-        // Add media to gallery
-        $gallery->addMedia($uploaded)
-            ->usingName(pathinfo($uploaded->getClientOriginalName(), PATHINFO_FILENAME))
-            ->withCustomProperties(['visibility' => $visibility, 'uploaded_by' => Auth::id()])
-            ->toMediaCollection('gallery', $diskName);
-
-        // Update media with folder_id if provided (using direct column, not JSON)
-        if ($folderId) {
-            $media = $gallery->getFirstMedia('gallery');
-            if ($media) {
-                $media->folder_id = (int) $folderId;
-                $media->save();
-            }
-        }
+        // Use service to create media from upload
+        $this->galleryService->createMediaFromUpload(
+            $request->file('file'),
+            Auth::id(),
+            $visibility,
+            $folderId
+        );
 
         return redirect()->route('gallery.index', ['folder_id' => $folderId, 'visibility' => $visibility])
             ->with('success', 'File uploaded successfully.');
     }
 
+    /**
+     * Serve protected media file
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function file(int $id)
     {
-        $media = Media::findOrFail($id);
+        $media = $this->galleryService->findMedia($id);
 
-        // Security check for private files
-        if ($media->disk !== 'public') {
-            if (! Auth::check()) {
-                abort(403, 'Authentication required');
-            }
-
-            // Check ownership: only file owner or admin can access
-            $user = Auth::user();
-            $isAdmin = $user->hasRole('admin');
-            $isOwner = false;
-
-            // Check ownership based on model type
-            if ($media->model_type === Gallery::class) {
-                // Media attached to Gallery - check gallery owner
-                $gallery = Gallery::find($media->model_id);
-                $isOwner = $gallery && $gallery->user_id === $user->id;
-            } elseif ($media->model_type === \App\Models\User::class) {
-                // Media attached directly to User (e.g., profile images)
-                $isOwner = $media->model_id === $user->id;
-            }
-
-            if (! $isOwner && ! $isAdmin) {
-                abort(403, 'Unauthorized access to this file');
-            }
+        // SECURITY: Always check authorization, not just for private files
+        if (! Auth::check()) {
+            abort(403, 'Authentication required');
         }
 
+        // SECURITY: Check user permission to access this file
+        if (! $this->galleryService->canAccessMedia($media, Auth::user())) {
+            abort(403, 'Unauthorized access to this file');
+        }
+
+        // SECURITY: Prevent path traversal attacks
         $filePath = $media->file_name;
+
+        // Validate filename doesn't contain path traversal patterns
+        if (str_contains($filePath, '..') || str_contains($filePath, './') || str_contains($filePath, '\\')) {
+            abort(403, 'Invalid file path');
+        }
+
         if (! Storage::disk($media->disk)->exists($filePath)) {
             $subfolderPath = $media->id.'/'.$media->file_name;
+
+            // Double-check subfolder path for traversal attempts
+            if (str_contains($subfolderPath, '..') || str_contains($subfolderPath, './') || str_contains($subfolderPath, '\\')) {
+                abort(403, 'Invalid file path');
+            }
+
             if (Storage::disk($media->disk)->exists($subfolderPath)) {
                 $filePath = $subfolderPath;
             } else {
                 abort(404);
             }
         }
+
         $fullPath = Storage::disk($media->disk)->path($filePath);
+
+        // SECURITY: Validate resolved path is within disk root
+        $diskRoot = Storage::disk($media->disk)->path('');
+        $realFullPath = realpath($fullPath);
+        $realDiskRoot = realpath($diskRoot);
+
+        if (! $realFullPath || ! $realDiskRoot || ! str_starts_with($realFullPath, $realDiskRoot)) {
+            abort(403, 'Invalid file path');
+        }
+
         $mime = $media->mime_type ?? 'application/octet-stream';
 
-        return response()->file($fullPath, [
+        return response()->file($realFullPath, [
             'Content-Type' => $mime,
             'Content-Disposition' => 'inline; filename="'.basename($filePath).'"',
         ]);
     }
 
+    /**
+     * Delete the specified media file
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy($id)
     {
         $media = Media::find($id);
@@ -259,24 +253,23 @@ class GalleryController extends Controller
                 ->with('error', 'File not found.');
         }
 
-        // Get folder_id from column instead of JSON
+        // Get folder_id and visibility before deleting
         $folderId = $media->folder_id;
+        $visibility = $this->galleryService->getMediaVisibility($media);
 
-        // Determine visibility from disk or custom properties
-        $visibility = 'public'; // default
-        if ($media->disk === 'local' || $media->disk === 'private') {
-            $visibility = 'private';
-        } elseif (isset($media->custom_properties['visibility'])) {
-            $visibility = $media->custom_properties['visibility'];
+        // SECURITY: Use database transaction to prevent race conditions
+        try {
+            DB::transaction(function () use ($media) {
+                // Spatie Media Library handles file deletion automatically
+                // when model is deleted (via observer)
+                $media->delete();
+            });
+
+            return redirect()->route('gallery.index', ['folder_id' => $folderId, 'visibility' => $visibility])
+                ->with('success', 'File deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->route('gallery.index', ['folder_id' => $folderId, 'visibility' => $visibility])
+                ->with('error', 'Failed to delete file: '.$e->getMessage());
         }
-
-        if (Storage::disk($media->disk)->exists($media->file_name)) {
-            Storage::disk($media->disk)->delete($media->file_name);
-        }
-
-        $media->delete();
-
-        return redirect()->route('gallery.index', ['folder_id' => $folderId, 'visibility' => $visibility])
-            ->with('success', 'File deleted successfully.');
     }
 }

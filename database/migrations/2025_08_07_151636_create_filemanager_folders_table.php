@@ -12,8 +12,11 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->foreignId('parent_id')->nullable()->constrained('filemanager_folders')->onDelete('cascade');
-            $table->string('path')->nullable();
+            $table->string('path')->nullable()->index();
             $table->timestamps();
+
+            // Unique constraint: prevent duplicate folder names within same parent
+            $table->unique(['parent_id', 'name']);
         });
     }
 

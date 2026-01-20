@@ -2,108 +2,128 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Menu;
-use App\Models\Permission;
+use App\Http\Requests\Menu\StoreMenuRequest;
+use App\Http\Requests\Menu\UpdateMenuRequest;
+use App\Http\Requests\Menu\UpdateOrderRequest;
+use App\Services\MenuService;
+use App\Services\PermissionService;
 use Illuminate\Http\Request;
 
 class MenuController extends Controller
 {
+    /**
+     * MenuController constructor
+     */
+    public function __construct(
+        private MenuService $menuService,
+        private PermissionService $permissionService
+    ) {}
+
+    /**
+     * Show the form for creating a new menu
+     *
+     * @return \Inertia\Response
+     */
     public function create(Request $request)
     {
-        $parent_id = $request->query('parent_id');
-        $allMenus = Menu::orderBy('order')->get();
-        $permissions = Permission::orderBy('name')->get(['id', 'name']);
+        $parentMenuId = $request->query('parent_id');
+        $allMenus = $this->menuService->getAllMenus();
+        $allPermissions = $this->permissionService->getAllPermissions();
 
         return inertia('Menu/Form', [
             'allMenus' => $allMenus,
-            'permissions' => $permissions,
-            'menu' => $parent_id ? ['parent_id' => (int) $parent_id] : null,
+            'permissions' => $allPermissions,
+            'menu' => $parentMenuId ? ['parent_id' => (int) $parentMenuId] : null,
         ]);
     }
 
-    public function store(Request $request)
+    /**
+     * Store a newly created menu
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function store(StoreMenuRequest $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'route' => 'nullable|string|max:255',
-            'icon' => 'nullable|string|max:255',
-            'permission' => 'nullable|string|max:255',
-            'parent_id' => 'nullable|exists:menus,id',
-        ]);
-        $menu = Menu::create($validated);
+        $this->menuService->createMenu($request->validated());
 
         return redirect()->route('menus.manage')->with('success', 'Menu created successfully.');
     }
 
+    /**
+     * Show the form for editing the specified menu
+     *
+     * @param  int  $id
+     * @return \Inertia\Response
+     */
     public function edit($id)
     {
-        $menu = Menu::with('children')->findOrFail($id);
-        $allMenus = Menu::where('id', '!=', $id)->orderBy('order')->get();
-        $permissions = Permission::orderBy('name')->get(['id', 'name']);
+        $menuToEdit = $this->menuService->findMenu($id);
+        $otherMenus = $this->menuService->getAllMenusExcept($id);
+        $allPermissions = $this->permissionService->getAllPermissions();
 
         return inertia('Menu/Form', [
-            'menu' => $menu,
-            'allMenus' => $allMenus,
-            'permissions' => $permissions,
+            'menu' => $menuToEdit,
+            'allMenus' => $otherMenus,
+            'permissions' => $allPermissions,
         ]);
     }
 
-    public function update(Request $request, $id)
+    /**
+     * Update the specified menu
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update(UpdateMenuRequest $request, $id)
     {
-        $menu = Menu::findOrFail($id);
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'route' => 'nullable|string|max:255',
-            'icon' => 'nullable|string|max:255',
-            'permission' => 'nullable|string|max:255',
-            'parent_id' => 'nullable|exists:menus,id',
-        ]);
-        $menu->update($validated);
+        $this->menuService->updateMenu($id, $request->validated());
 
         return redirect()->route('menus.manage')->with('success', 'Menu updated successfully.');
     }
 
+    /**
+     * Display menu management page
+     *
+     * @return \Inertia\Response
+     */
     public function manage()
     {
-        $menus = Menu::with('children')->whereNull('parent_id')->orderBy('order')->get();
+        $rootMenus = $this->menuService->getRootMenusWithChildren();
 
         return inertia('Menu/Index', [
-            'menus' => $menus,
+            'menus' => $rootMenus,
         ]);
     }
 
-    public function updateOrder(Request $request)
+    /**
+     * Update menu order and hierarchy
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateOrder(UpdateOrderRequest $request)
     {
-        $data = $request->validate([
-            'tree' => 'required',
-        ]);
-        $tree = json_decode($request->input('tree'), true);
-        if (! is_array($tree)) {
+        $validated = $request->validated();
+        $menuTree = json_decode($validated['tree'], true);
+
+        if (! is_array($menuTree)) {
             return response()->json(['success' => false, 'message' => 'Invalid tree data'], 422);
         }
-        $this->updateMenuTree($tree);
+
+        $this->menuService->updateMenuOrder($menuTree);
 
         return redirect()->route('menus.manage')
             ->with('success', 'Menu order updated successfully.');
     }
 
-    private function updateMenuTree(array $tree, $parentId = null)
-    {
-        foreach ($tree as $order => $item) {
-            Menu::where('id', $item['id'])->update([
-                'order' => $order,
-                'parent_id' => $parentId,
-            ]);
-            if (! empty($item['children']) && is_array($item['children'])) {
-                $this->updateMenuTree($item['children'], $item['id']);
-            }
-        }
-    }
-
+    /**
+     * Remove the specified menu
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy($id)
     {
-        $menu = Menu::findOrFail($id);
-        $menu->delete();
+        $this->menuService->deleteMenu($id);
 
         return redirect()->route('menus.manage')->with('success', 'Menu deleted successfully.');
     }

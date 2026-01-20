@@ -4,60 +4,67 @@ namespace App\Http\Controllers\UserRolePermission;
 
 use App\Helpers\DataTable;
 use App\Http\Controllers\Controller;
-use App\Models\Role;
+use App\Http\Requests\UserRolePermission\StoreUserRequest;
+use App\Http\Requests\UserRolePermission\UpdateUserRequest;
 use App\Models\User;
+use App\Services\RoleService;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Spatie\Permission\Models\Role as SpatieRole;
 
 class UserController extends Controller
 {
+    /**
+     * UserController constructor
+     */
+    public function __construct(
+        private UserService $userService,
+        private RoleService $roleService
+    ) {}
+
+    /**
+     * Display a listing of users
+     *
+     * @return \Inertia\Response
+     */
     public function index(Request $request)
     {
         $filter = $request->query('filter', 'active');
 
         return Inertia::render('UserRolePermission/User/Index', [
             'filter' => $filter,
-            'roles' => Role::all(),
+            'roles' => $this->roleService->getAllRoles(),
         ]);
     }
 
+    /**
+     * Get users data for DataTables
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function json(Request $request)
     {
         $search = $request->input('search.value', '');
         $filter = $request->query('filter') ?? $request->input('filter', 'active');
 
-        $baseQuery = match ($filter) {
-            'trashed' => User::onlyTrashed()->with('roles'),
-            'all' => User::withTrashed()->with('roles'),
-            default => User::with('roles'),
-        };
+        $filters = [
+            'search' => $search,
+            'status' => $filter,
+        ];
 
-        $recordsTotalCallback = null;
-        if ($search) {
-            $recordsTotalCallback = function () use ($filter) {
-                return match ($filter) {
-                    'trashed' => User::onlyTrashed()->count(),
-                    'all' => User::withTrashed()->count(),
-                    default => User::count(),
-                };
-            };
-        }
+        $query = $this->userService->getDataTableData($filters);
 
-        if ($search) {
-            $baseQuery->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
+        $recordsTotalCallback = $search
+            ? fn () => $this->userService->getTotalCount($filter)
+            : null;
 
         $columns = ['id', 'name', 'email', 'created_at', 'updated_at'];
         if ($request->filled('order')) {
             $orderColumn = $columns[$request->order[0]['column']] ?? 'id';
-            $baseQuery->orderBy($orderColumn, $request->order[0]['dir']);
+            $query->orderBy($orderColumn, $request->order[0]['dir']);
         }
 
-        $data = DataTable::paginate($baseQuery, $request, $recordsTotalCallback);
+        $data = DataTable::paginate($query, $request, $recordsTotalCallback);
 
         $data['data'] = collect($data['data'])->map(function ($user) {
             return [
@@ -65,7 +72,7 @@ class UserController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'roles' => $user->roles->pluck('name')->toArray(),
-                'trashed' => ! is_null($user->deleted_at),
+                'trashed' => $user->deleted_at !== null,
                 'actions' => '',
             ];
         });
@@ -73,98 +80,119 @@ class UserController extends Controller
         return response()->json($data);
     }
 
+    /**
+     * Show the form for creating a new user
+     *
+     * @return \Inertia\Response
+     */
     public function create()
     {
-        $roles = Role::all();
-
         return Inertia::render('UserRolePermission/User/Form', [
-            'roles' => $roles,
+            'roles' => $this->roleService->getAllRoles(),
         ]);
     }
 
-    public function store(Request $request)
+    /**
+     * Store a newly created user
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function store(StoreUserRequest $request)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'role_id' => 'required|exists:roles,id',
-        ]);
+        $this->userService->createUser($request->validated());
 
-        $user = User::create([
-            'name' => $validatedData['name'],
-            'email' => $validatedData['email'],
-            'password' => bcrypt($validatedData['password']),
-        ]);
-
-        $role = SpatieRole::findById($validatedData['role_id']);
-        $user->assignRole($role);
-
-        return redirect()->route('users.index')->with('success', 'User created successfully.');
+        return redirect()
+            ->route('users.index')
+            ->with('success', 'User created successfully.');
     }
 
+    /**
+     * Show the form for editing the specified user
+     *
+     * @param  int  $id
+     * @return \Inertia\Response
+     */
     public function edit($id)
     {
-        $user = User::withTrashed()->findOrFail($id);
-        $roles = Role::all();
-        $user->role_id = $user->roles->first()->id ?? null;
+        $user = $this->userService->getUserWithTrashed($id);
+        $user->role_id = $user->roles->first()?->id;
 
         return Inertia::render('UserRolePermission/User/Form', [
             'user' => $user,
-            'roles' => $roles,
+            'roles' => $this->roleService->getAllRoles(),
         ]);
     }
 
-    public function update(Request $request, $id)
+    /**
+     * Update the specified user
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update(UpdateUserRequest $request, $id)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,'.$id,
-            'password' => 'nullable|string|min:8|confirmed',
-            'role_id' => 'required|exists:roles,id',
-        ]);
+        $this->userService->updateUser($id, $request->validated());
 
-        $user = User::withTrashed()->findOrFail($id);
-        $user->name = $validatedData['name'];
-        $user->email = $validatedData['email'];
-        if ($request->filled('password')) {
-            $user->password = bcrypt($validatedData['password']);
-        }
-        $user->save();
-
-        $role = SpatieRole::findById($validatedData['role_id']);
-        $user->syncRoles([$role]);
-
-        return redirect()->route('users.index')->with('success', 'User updated successfully.');
+        return redirect()
+            ->route('users.index')
+            ->with('success', 'User updated successfully.');
     }
 
+    /**
+     * Soft delete the specified user
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(User $user)
     {
-        $user->delete();
+        $this->userService->deleteUser($user->id);
 
-        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+        return redirect()
+            ->route('users.index')
+            ->with('success', 'User deleted successfully.');
     }
 
+    /**
+     * Display trashed users
+     *
+     * @return \Inertia\Response
+     */
     public function trashed()
     {
-        $users = User::onlyTrashed()->with('roles')->get();
+        $users = $this->userService->getTrashedUsers();
 
         return Inertia::render('UserRolePermission/User/Trashed', [
             'users' => $users,
         ]);
     }
 
+    /**
+     * Restore a soft deleted user
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function restore($id)
     {
-        User::onlyTrashed()->where('id', $id)->restore();
+        $this->userService->restoreUser($id);
 
-        return redirect()->route('users.index')->with('success', 'User restored successfully.');
+        return redirect()
+            ->route('users.index')
+            ->with('success', 'User restored successfully.');
     }
 
+    /**
+     * Permanently delete a user
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function forceDelete($id)
     {
-        User::onlyTrashed()->where('id', $id)->forceDelete();
+        $this->userService->forceDeleteUser($id);
 
-        return redirect()->route('users.index')->with('success', 'User permanently deleted.');
+        return redirect()
+            ->route('users.index')
+            ->with('success', 'User permanently deleted.');
     }
 }

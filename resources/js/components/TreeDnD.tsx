@@ -13,6 +13,7 @@ import {
     useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Z_INDEX } from '@/lib/constants';
 
 export interface TreeDnDProps<T> {
     items: T[];
@@ -36,7 +37,7 @@ function DefaultTreeItem<T>({ item, children, getId, renderItem }: { item: T; ch
         transform: CSS.Transform.toString(transform),
         transition,
         opacity: isDragging ? 0.5 : 1,
-        zIndex: isDragging ? 10 : undefined,
+        zIndex: isDragging ? Z_INDEX.DRAGGING : undefined,
     };
     return (
         <li ref={setNodeRef} style={style} className="mb-1">
@@ -61,7 +62,7 @@ function Tree<T>({ items, getId, getChildren, setChildren, renderItem }: { items
                         <React.Fragment key={getId(item)}>
                             <DefaultTreeItem item={item} getId={getId} renderItem={renderItem}>
                                 {children && children.length > 0 && (
-                                    <div className="ml-6 mt-1">
+                                    <div className="ml-3 sm:ml-6 mt-1">
                                         <Tree items={children} getId={getId} getChildren={getChildren} setChildren={setChildren} renderItem={renderItem} />
                                     </div>
                                 )}

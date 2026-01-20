@@ -18,6 +18,10 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('folder_id')->nullable()->constrained('filemanager_folders')->onDelete('set null');
             $table->timestamps();
+
+            // Add indexes separately to avoid constraint naming conflicts
+            $table->index('user_id');
+            $table->index('folder_id');
         });
     }
 
