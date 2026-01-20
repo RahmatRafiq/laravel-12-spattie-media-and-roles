@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import type { GroupBase, StylesConfig } from 'react-select';
+import { Z_INDEX } from '@/lib/constants';
 
 /**
  * OKLCH Color Tokens for React Select
@@ -70,7 +71,7 @@ export function useSelectStyles<
                 padding: '0.25rem',
                 boxShadow: isDark ? '0 4px 12px rgba(0, 0, 0, 0.4)' : '0 4px 8px rgba(0, 0, 0, 0.1)',
                 border: `1px solid ${isDark ? COLORS.borderDark : COLORS.borderLight}`,
-                zIndex: 9999,
+                zIndex: Z_INDEX.SELECT_MENU,
             }),
             option: (provided, state) => ({
                 ...provided,

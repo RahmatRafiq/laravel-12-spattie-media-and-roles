@@ -17,6 +17,7 @@ export type {
     NavItem,
     NavGroup,
     BreadcrumbItem,
+    MenuItem,
 } from './navigation';
 
 // Gallery & Media Types

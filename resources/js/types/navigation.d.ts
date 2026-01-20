@@ -22,3 +22,14 @@ export interface BreadcrumbItem {
     title: string;
     href: string;
 }
+
+export interface MenuItem {
+    id: number;
+    title: string;
+    route?: string | null;
+    icon?: string | null;
+    permission?: string | null;
+    parent_id?: number | null;
+    order?: number;
+    children?: MenuItem[];
+}

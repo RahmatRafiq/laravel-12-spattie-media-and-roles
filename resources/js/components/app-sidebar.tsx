@@ -10,22 +10,11 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
+import { type NavItem, type MenuItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { FileText, Github } from 'lucide-react';
 import AppLogo from './app-logo';
 import { getIcon } from '@/lib/icon-registry';
-
-type MenuItem = {
-    id: number;
-    title: string;
-    route?: string | null;
-    icon?: string | null;
-    permission?: string | null;
-    parent_id?: number | null;
-    order?: number;
-    children?: MenuItem[];
-};
 
 const footerNavItems: NavItem[] = [
     {
