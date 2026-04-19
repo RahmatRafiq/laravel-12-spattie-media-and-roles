@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\FilemanagerFolder;
 use App\Repositories\Contracts\GalleryRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Config;
@@ -134,6 +135,70 @@ class GalleryService
     public function getStatistics(): array
     {
         return $this->galleryRepository->getStatistics();
+    }
+
+    /**
+     * Create a new folder
+     */
+    public function createFolder(string $name, ?int $parentId = null): FilemanagerFolder
+    {
+        $path = $name;
+        if ($parentId) {
+            $parent = FilemanagerFolder::findOrFail($parentId);
+            $path = $parent->path ? "{$parent->path}/{$name}" : $name;
+        }
+
+        return FilemanagerFolder::create([
+            'name' => $name,
+            'parent_id' => $parentId,
+            'path' => $path,
+        ]);
+    }
+
+    /**
+     * Rename a folder
+     */
+    public function renameFolder(int $id, string $newName): FilemanagerFolder
+    {
+        $folder = FilemanagerFolder::findOrFail($id);
+        $folder->name = $newName;
+
+        if ($folder->parent_id) {
+            $parent = FilemanagerFolder::findOrFail($folder->parent_id);
+            $folder->path = $parent->path ? "{$parent->path}/{$newName}" : $newName;
+        } else {
+            $folder->path = $newName;
+        }
+
+        $folder->save();
+        $this->updateChildrenPaths($folder);
+
+        return $folder;
+    }
+
+    /**
+     * Delete a folder
+     */
+    public function deleteFolder(int $id): bool
+    {
+        $folder = FilemanagerFolder::findOrFail($id);
+        
+        // Handle orphaned galleries (SoC from Model)
+        $folder->galleries()->update(['folder_id' => null]);
+        
+        return $folder->delete();
+    }
+
+    /**
+     * Update paths for all children recursively
+     */
+    public function updateChildrenPaths(FilemanagerFolder $folder): void
+    {
+        foreach ($folder->children as $child) {
+            $child->path = $folder->path ? "{$folder->path}/{$child->name}" : $child->name;
+            $child->save();
+            $this->updateChildrenPaths($child);
+        }
     }
 
     /**

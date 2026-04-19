@@ -26,11 +26,10 @@ class GalleryController extends Controller
     public function createFolder(CreateFolderRequest $request)
     {
         $validated = $request->validated();
-        $folder = FilemanagerFolder::create([
-            'name' => $validated['name'],
-            'parent_id' => $validated['parent_id'] ?? null,
-            'path' => null,
-        ]);
+        $folder = $this->galleryService->createFolder(
+            $validated['name'],
+            $validated['parent_id'] ?? null
+        );
 
         // Preserve visibility from request
         $visibility = $request->query('visibility', 'public');
@@ -42,9 +41,7 @@ class GalleryController extends Controller
     public function renameFolder(RenameFolderRequest $request, $id)
     {
         $validated = $request->validated();
-        $folder = FilemanagerFolder::findOrFail($id);
-        $folder->name = $validated['name'];
-        $folder->save();
+        $folder = $this->galleryService->renameFolder((int) $id, $validated['name']);
 
         // Preserve visibility from request
         $visibility = $request->query('visibility', 'public');
@@ -72,7 +69,7 @@ class GalleryController extends Controller
         }
 
         $parentId = $folder->parent_id;
-        $folder->delete();
+        $this->galleryService->deleteFolder((int) $id);
 
         // Preserve visibility from request
         $visibility = $request->query('visibility', 'public');

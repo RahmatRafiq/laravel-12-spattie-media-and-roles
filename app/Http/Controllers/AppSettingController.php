@@ -3,17 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AppSetting\UpdateAppSettingRequest;
-use App\Models\AppSetting;
+use App\Services\AppSettingService;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class AppSettingController extends Controller
 {
+    public function __construct(
+        protected AppSettingService $appSettingService
+    ) {}
+
     public function index(): Response
     {
-        $settings = AppSetting::getInstance();
-        $availableColors = AppSetting::getAvailableColors();
+        $settings = $this->appSettingService->getSettings();
+        $availableColors = $this->appSettingService->getAvailableColors();
 
         return Inertia::render('AppSetting/Index', [
             'settings' => $settings,
@@ -23,7 +27,7 @@ class AppSettingController extends Controller
 
     public function update(UpdateAppSettingRequest $request): RedirectResponse
     {
-        AppSetting::updateSettings($request->validated());
+        $this->appSettingService->updateSettings($request->validated());
 
         return redirect()->route('app-settings.index')->with('success', 'App settings have been updated successfully.');
     }

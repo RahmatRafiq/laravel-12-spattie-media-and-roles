@@ -6,12 +6,14 @@ use App\Repositories\Contracts\ActivityLogRepositoryInterface;
 use App\Repositories\Contracts\GalleryRepositoryInterface;
 use App\Repositories\Contracts\MenuRepositoryInterface;
 use App\Repositories\Contracts\PermissionRepositoryInterface;
+use App\Repositories\Contracts\AppSettingRepositoryInterface;
 use App\Repositories\Contracts\RoleRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Eloquent\ActivityLogRepository;
 use App\Repositories\Eloquent\GalleryRepository;
 use App\Repositories\Eloquent\MenuRepository;
 use App\Repositories\Eloquent\PermissionRepository;
+use App\Repositories\Eloquent\AppSettingRepository;
 use App\Repositories\Eloquent\RoleRepository;
 use App\Repositories\Eloquent\UserRepository;
 use Illuminate\Support\ServiceProvider;
@@ -28,6 +30,7 @@ class RepositoryServiceProvider extends ServiceProvider
         GalleryRepositoryInterface::class => GalleryRepository::class,
         MenuRepositoryInterface::class => MenuRepository::class,
         ActivityLogRepositoryInterface::class => ActivityLogRepository::class,
+        AppSettingRepositoryInterface::class => AppSettingRepository::class,
     ];
 
     /**

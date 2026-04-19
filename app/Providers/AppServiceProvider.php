@@ -28,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
         Inertia::share('isLocalEnv', fn () => in_array(config('app.env'), ['local', 'development', 'testing']));
 
         Inertia::share('appSettings', function () {
-            return AppSetting::getInstance();
+            return app(\App\Services\AppSettingService::class)->getSettings();
         });
 
         Inertia::share('sidebarMenus', function () {
