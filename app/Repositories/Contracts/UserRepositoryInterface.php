@@ -34,9 +34,14 @@ interface UserRepositoryInterface extends BaseRepositoryInterface
     public function searchUsers(string $query): Collection;
 
     /**
-     * Get query builder for DataTables
+     * Find user by ID including trashed
      */
-    public function forDataTable(array $filters = []): Builder;
+    public function findWithTrashed(int $id): User;
+
+    /**
+     * Get Query Builder for DataTables
+     */
+    public function getDataTableQuery(string $status = 'active'): Builder;
 
     /**
      * Find a trashed user by ID
@@ -52,9 +57,4 @@ interface UserRepositoryInterface extends BaseRepositoryInterface
      * Permanently delete a user
      */
     public function forceDelete(int $id): bool;
-
-    /**
-     * Get total count based on filter
-     */
-    public function getTotalCount(?string $filter = null): int;
 }

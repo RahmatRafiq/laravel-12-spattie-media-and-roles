@@ -17,6 +17,14 @@ class PermissionRepository extends BaseRepository implements PermissionRepositor
     }
 
     /**
+     * Get Query Builder for DataTables
+     */
+    public function getDataTableQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return $this->model->newQuery();
+    }
+
+    /**
      * Get all permissions grouped by category
      */
     public function getGroupedByCategory(): array
@@ -91,22 +99,5 @@ class PermissionRepository extends BaseRepository implements PermissionRepositor
         } catch (\Exception $e) {
             return false;
         }
-    }
-
-    /**
-     * Get query builder for DataTables
-     */
-    public function forDataTable(array $filters = []): \Illuminate\Database\Eloquent\Builder
-    {
-        $search = $filters['search'] ?? null;
-
-        $query = $this->model->newQuery();
-
-        // Apply search filter
-        if (! empty($search)) {
-            $query->where('name', 'like', "%{$search}%");
-        }
-
-        return $query;
     }
 }

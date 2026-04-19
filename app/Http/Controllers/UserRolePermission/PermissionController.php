@@ -26,11 +26,7 @@ class PermissionController extends Controller
      */
     public function index()
     {
-        $permissions = $this->permissionService->getAllPermissions();
-
-        return Inertia::render('UserRolePermission/Permission/Index', [
-            'permissions' => $permissions,
-        ]);
+        return Inertia::render('UserRolePermission/Permission/Index');
     }
 
     /**
@@ -40,36 +36,22 @@ class PermissionController extends Controller
      */
     public function json(Request $request)
     {
-        $search = $request->input('search.value', '');
+        $query = $this->permissionService->getDataTableQuery();
 
-        $filters = [
-            'search' => $search,
-        ];
+        $data = DataTable::process(
+            $query, 
+            $request,
+            searchableColumns: ['name', 'guard_name'],
+            orderableColumns: ['id', 'name', 'guard_name', 'created_at', 'updated_at']
+        );
 
-        $query = $this->permissionService->getDataTableData($filters);
-
-        $recordsTotalCallback = $search
-            ? fn () => $this->permissionService->getAllPermissions()->count()
-            : null;
-
-        $columns = ['id', 'name', 'guard_name', 'created_at', 'updated_at'];
-        if ($request->filled('order')) {
-            $orderColumn = $columns[$request->order[0]['column']] ?? 'id';
-            $query->orderBy($orderColumn, $request->order[0]['dir']);
-        }
-
-        $data = DataTable::paginate($query, $request, $recordsTotalCallback);
-
-        $data['data'] = collect($data['data'])->map(function ($permission) {
-            return [
-                'id' => $permission->id,
-                'name' => $permission->name,
-                'guard_name' => $permission->guard_name,
-                'created_at' => $permission->created_at->toDateTimeString(),
-                'updated_at' => $permission->updated_at->toDateTimeString(),
-                'actions' => '',
-            ];
-        });
+        $data['data'] = $data['data']->map(fn ($permission) => [
+            'id' => $permission->id,
+            'name' => $permission->name,
+            'guard_name' => $permission->guard_name,
+            'created_at' => $permission->created_at->toDateTimeString(),
+            'updated_at' => $permission->updated_at->toDateTimeString(),
+        ]);
 
         return response()->json($data);
     }

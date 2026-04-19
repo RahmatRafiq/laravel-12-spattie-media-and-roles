@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
 
 class UserService
 {
@@ -18,19 +17,11 @@ class UserService
     ) {}
 
     /**
-     * Get query builder for DataTables
+     * Get Query Builder for DataTables
      */
-    public function getDataTableData(array $filters): Builder
+    public function getDataTableQuery(string $status = 'active'): Builder
     {
-        return $this->userRepository->forDataTable($filters);
-    }
-
-    /**
-     * Get total count for DataTables
-     */
-    public function getTotalCount(?string $filter = null): int
-    {
-        return $this->userRepository->getTotalCount($filter);
+        return $this->userRepository->getDataTableQuery($status);
     }
 
     /**
@@ -46,7 +37,7 @@ class UserService
      */
     public function getUserWithTrashed(int $id): User
     {
-        return User::withTrashed()->findOrFail($id);
+        return $this->userRepository->findWithTrashed($id);
     }
 
     /**
@@ -63,8 +54,7 @@ class UserService
 
         // Assign role
         if (isset($data['role_id'])) {
-            $role = Role::findById($data['role_id']);
-            $user->assignRole($role);
+            $user->assignRole((int) $data['role_id']);
         }
 
         return $user->fresh(['roles']);
@@ -75,7 +65,7 @@ class UserService
      */
     public function updateUser(int $id, array $data): User
     {
-        $user = User::withTrashed()->findOrFail($id);
+        $user = $this->userRepository->findWithTrashed($id);
 
         // Update basic info
         $updateData = [
@@ -92,8 +82,7 @@ class UserService
 
         // Sync roles
         if (isset($data['role_id'])) {
-            $role = Role::findById($data['role_id']);
-            $user->syncRoles([$role]);
+            $user->syncRoles([(int) $data['role_id']]);
         }
 
         return $user->fresh(['roles']);

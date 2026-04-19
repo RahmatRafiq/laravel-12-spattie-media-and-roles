@@ -2,89 +2,53 @@
 
 namespace App\Http\Controllers\UserRolePermission;
 
-use App\Helpers\DataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRolePermission\StoreUserRequest;
 use App\Http\Requests\UserRolePermission\UpdateUserRequest;
 use App\Models\User;
 use App\Services\RoleService;
 use App\Services\UserService;
+use App\Helpers\DataTable;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class UserController extends Controller
 {
-    /**
-     * UserController constructor
-     */
     public function __construct(
-        private UserService $userService,
-        private RoleService $roleService
+        protected UserService $userService,
+        protected RoleService $roleService
     ) {}
 
-    /**
-     * Display a listing of users
-     *
-     * @return \Inertia\Response
-     */
     public function index(Request $request)
     {
-        $filter = $request->query('filter', 'active');
-
         return Inertia::render('UserRolePermission/User/Index', [
-            'filter' => $filter,
+            'filter' => $request->query('filter', 'active'),
             'roles' => $this->roleService->getAllRoles(),
         ]);
     }
 
-    /**
-     * Get users data for DataTables
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function json(Request $request)
     {
-        $search = $request->input('search.value', '');
-        $filter = $request->query('filter') ?? $request->input('filter', 'active');
+        $query = $this->userService->getDataTableQuery($request->input('filter', 'active'));
 
-        $filters = [
-            'search' => $search,
-            'status' => $filter,
-        ];
+        $data = DataTable::process(
+            $query, 
+            $request,
+            searchableColumns: ['name', 'email', 'roles.name'],
+            orderableColumns: ['id', 'name', 'email', 'created_at', 'updated_at']
+        );
 
-        $query = $this->userService->getDataTableData($filters);
-
-        $recordsTotalCallback = $search
-            ? fn () => $this->userService->getTotalCount($filter)
-            : null;
-
-        $columns = ['id', 'name', 'email', 'created_at', 'updated_at'];
-        if ($request->filled('order')) {
-            $orderColumn = $columns[$request->order[0]['column']] ?? 'id';
-            $query->orderBy($orderColumn, $request->order[0]['dir']);
-        }
-
-        $data = DataTable::paginate($query, $request, $recordsTotalCallback);
-
-        $data['data'] = collect($data['data'])->map(function ($user) {
-            return [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'roles' => $user->roles->pluck('name')->toArray(),
-                'trashed' => $user->deleted_at !== null,
-                'actions' => '',
-            ];
-        });
+        $data['data'] = $data['data']->map(fn ($user) => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'roles' => $user->roles->pluck('name')->toArray(),
+            'trashed' => $user->deleted_at !== null,
+        ]);
 
         return response()->json($data);
     }
 
-    /**
-     * Show the form for creating a new user
-     *
-     * @return \Inertia\Response
-     */
     public function create()
     {
         return Inertia::render('UserRolePermission/User/Form', [
@@ -92,26 +56,12 @@ class UserController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created user
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function store(StoreUserRequest $request)
     {
         $this->userService->createUser($request->validated());
-
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'User created successfully.');
+        return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
-    /**
-     * Show the form for editing the specified user
-     *
-     * @param  int  $id
-     * @return \Inertia\Response
-     */
     public function edit($id)
     {
         $user = $this->userService->getUserWithTrashed($id);
@@ -123,76 +73,27 @@ class UserController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified user
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function update(UpdateUserRequest $request, $id)
     {
         $this->userService->updateUser($id, $request->validated());
-
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'User updated successfully.');
+        return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 
-    /**
-     * Soft delete the specified user
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function destroy(User $user)
     {
         $this->userService->deleteUser($user->id);
-
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'User deleted successfully.');
+        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
 
-    /**
-     * Display trashed users
-     *
-     * @return \Inertia\Response
-     */
-    public function trashed()
-    {
-        $users = $this->userService->getTrashedUsers();
-
-        return Inertia::render('UserRolePermission/User/Trashed', [
-            'users' => $users,
-        ]);
-    }
-
-    /**
-     * Restore a soft deleted user
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function restore($id)
     {
         $this->userService->restoreUser($id);
-
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'User restored successfully.');
+        return redirect()->route('users.index')->with('success', 'User restored successfully.');
     }
 
-    /**
-     * Permanently delete a user
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function forceDelete($id)
     {
         $this->userService->forceDeleteUser($id);
-
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'User permanently deleted.');
+        return redirect()->route('users.index')->with('success', 'User permanently deleted.');
     }
 }

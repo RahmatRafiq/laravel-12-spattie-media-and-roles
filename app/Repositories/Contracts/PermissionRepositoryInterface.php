@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Collection;
 interface PermissionRepositoryInterface extends BaseRepositoryInterface
 {
     /**
+     * Get Query Builder for DataTables
+     */
+    public function getDataTableQuery(): \Illuminate\Database\Eloquent\Builder;
+
+    /**
      * Get all permissions grouped by category
      */
     public function getGroupedByCategory(): array;

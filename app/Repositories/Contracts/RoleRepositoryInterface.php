@@ -13,9 +13,9 @@ interface RoleRepositoryInterface extends BaseRepositoryInterface
     public function getRolesWithPermissions(): Collection;
 
     /**
-     * Get query builder for DataTables
+     * Get Query Builder for DataTables
      */
-    public function forDataTable(array $filters = []): Builder;
+    public function getDataTableQuery(): \Illuminate\Database\Eloquent\Builder;
 
     /**
      * Search roles by name or guard name

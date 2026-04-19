@@ -28,9 +28,7 @@ class RoleController extends Controller
      */
     public function index()
     {
-        return Inertia::render('UserRolePermission/Role/Index', [
-            'roles' => $this->roleService->getAllRoles(),
-        ]);
+        return Inertia::render('UserRolePermission/Role/Index');
     }
 
     /**
@@ -40,34 +38,22 @@ class RoleController extends Controller
      */
     public function json(Request $request)
     {
-        $search = $request->input('search.value', '');
+        $query = $this->roleService->getDataTableQuery();
 
-        $filters = [
-            'search' => $search,
-        ];
+        $data = DataTable::process(
+            $query, 
+            $request,
+            searchableColumns: ['name', 'guard_name'],
+            orderableColumns: ['id', 'name', 'guard_name', 'created_at', 'updated_at']
+        );
 
-        $query = $this->roleService->getDataTableData($filters);
-
-        $recordsTotalCallback = $search
-            ? fn () => $this->roleService->getAllRoles()->count()
-            : null;
-
-        $columns = ['id', 'name', 'guard_name', 'created_at', 'updated_at'];
-        if ($request->filled('order')) {
-            $orderColumn = $columns[$request->order[0]['column']] ?? 'id';
-            $query->orderBy($orderColumn, $request->order[0]['dir']);
-        }
-
-        $data = DataTable::paginate($query, $request, $recordsTotalCallback);
-
-        $data['data'] = collect($data['data'])->map(fn ($role) => [
+        $data['data'] = $data['data']->map(fn ($role) => [
             'id' => $role->id,
             'name' => $role->name,
             'guard_name' => $role->guard_name,
             'created_at' => $role->created_at->toDateTimeString(),
             'updated_at' => $role->updated_at->toDateTimeString(),
             'permissions_list' => $role->permissions->pluck('name')->implode(', '),
-            'actions' => '',
         ]);
 
         return response()->json($data);

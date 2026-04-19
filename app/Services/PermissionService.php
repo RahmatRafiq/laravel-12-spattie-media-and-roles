@@ -101,10 +101,10 @@ class PermissionService
     }
 
     /**
-     * Get query builder for DataTables
+     * Get Query Builder for DataTables
      */
-    public function getDataTableData(array $filters): \Illuminate\Database\Eloquent\Builder
+    public function getDataTableQuery(): \Illuminate\Database\Eloquent\Builder
     {
-        return $this->permissionRepository->forDataTable($filters);
+        return $this->permissionRepository->getDataTableQuery();
     }
 }

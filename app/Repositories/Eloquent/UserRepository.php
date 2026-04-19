@@ -72,29 +72,23 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     }
 
     /**
-     * Get query builder for DataTables
+     * Find user by ID including trashed
      */
-    public function forDataTable(array $filters = []): Builder
+    public function findWithTrashed(int $id): User
     {
-        $filter = $filters['status'] ?? 'active';
-        $search = $filters['search'] ?? null;
+        return $this->model->withTrashed()->findOrFail($id);
+    }
 
-        // Base query with filter
-        $query = match ($filter) {
+    /**
+     * Get Query Builder for DataTables
+     */
+    public function getDataTableQuery(string $status = 'active'): Builder
+    {
+        return match ($status) {
             'trashed' => $this->model->onlyTrashed()->with('roles'),
             'all' => $this->model->withTrashed()->with('roles'),
             default => $this->model->with('roles'),
         };
-
-        // Apply search filter
-        if (! empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
-        return $query;
     }
 
     /**
@@ -131,17 +125,5 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         }
 
         return $user->forceDelete();
-    }
-
-    /**
-     * Get total count based on filter
-     */
-    public function getTotalCount(?string $filter = null): int
-    {
-        return match ($filter) {
-            'trashed' => $this->model->onlyTrashed()->count(),
-            'all' => $this->model->withTrashed()->count(),
-            default => $this->model->count(),
-        };
     }
 }

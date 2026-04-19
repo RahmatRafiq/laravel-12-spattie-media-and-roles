@@ -28,23 +28,11 @@ class RoleRepository extends BaseRepository implements RoleRepositoryInterface
     }
 
     /**
-     * Get query builder for DataTables
+     * Get Query Builder for DataTables
      */
-    public function forDataTable(array $filters = []): Builder
+    public function getDataTableQuery(): Builder
     {
-        $search = $filters['search'] ?? null;
-
-        $query = $this->model->with('permissions');
-
-        // Apply search filter
-        if (! empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('guard_name', 'like', "%{$search}%");
-            });
-        }
-
-        return $query;
+        return $this->model->with('permissions');
     }
 
     /**

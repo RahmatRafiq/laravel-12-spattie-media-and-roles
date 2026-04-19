@@ -16,11 +16,11 @@ class RoleService
     ) {}
 
     /**
-     * Get query builder for DataTables
+     * Get Query Builder for DataTables
      */
-    public function getDataTableData(array $filters): Builder
+    public function getDataTableQuery(): Builder
     {
-        return $this->roleRepository->forDataTable($filters);
+        return $this->roleRepository->getDataTableQuery();
     }
 
     /**
