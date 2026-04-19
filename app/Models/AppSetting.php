@@ -9,7 +9,10 @@ class AppSetting extends Model
 {
     use HasFactory;
 
+    public $incrementing = false;
+
     protected $fillable = [
+        'id',
         'app_name',
         'app_description',
         'app_logo',

@@ -1,5 +1,5 @@
-import Heading from '@/components/heading';
-import PageContainer from '@/components/page-container';
+import Heading from '@/components/Heading';
+import PageContainer from '@/components/PageContainer';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
 import { type AppSetting, type BreadcrumbItem } from '@/types';

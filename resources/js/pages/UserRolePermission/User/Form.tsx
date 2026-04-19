@@ -1,6 +1,6 @@
-import HeadingSmall from '@/components/heading-small';
-import InputError from '@/components/input-error';
-import CustomSelect from '@/components/select';
+import HeadingSmall from '@/components/HeadingSmall';
+import InputError from '@/components/form/InputError';
+import CustomSelect from '@/components/form/Select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +9,11 @@ import UserRolePermissionLayout from '@/layouts/UserRolePermission/layout';
 import { BreadcrumbItem, Role, User } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEvent } from 'react';
+
+interface RoleOption {
+    value: number;
+    label: string;
+}
 
 export default function UserForm({ user, roles }: { user?: User; roles: Role[] }) {
     const isEdit = !!user;
@@ -35,8 +40,8 @@ export default function UserForm({ user, roles }: { user?: User; roles: Role[] }
         }
     };
 
-    const roleOptions = roles.map((r) => ({
-        value: r.id,
+    const roleOptions: RoleOption[] = roles.map((r) => ({
+        value: r.id as number,
         label: r.name,
     }));
 
@@ -89,13 +94,14 @@ export default function UserForm({ user, roles }: { user?: User; roles: Role[] }
                     </div>
                     <div>
                         <Label htmlFor="role_id">Role</Label>
-                        <CustomSelect
+                        <CustomSelect<RoleOption>
                             id="role_id"
                             isMulti={false}
                             options={roleOptions}
                             value={selectedRole}
                             onChange={(selected) => {
-                                setData('role_id', (selected as { value: number })?.value ?? null);
+                                const val = selected as RoleOption | null;
+                                setData('role_id', val?.value ?? null);
                             }}
                         />
                         <InputError message={errors.role_id} />

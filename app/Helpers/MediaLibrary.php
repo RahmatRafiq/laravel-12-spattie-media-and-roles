@@ -19,41 +19,32 @@ use Illuminate\Http\Request;
  * Planned methods (implement when needed):
  *
  * @method static putFeaturedImage($model, $file, array $metadata = [])
- *         Upload featured image with SEO metadata (alt_text, caption) and responsive variants
- *         Use case: Articles, Posts, Products
- *
+ *                                                                      Upload featured image with SEO metadata (alt_text, caption) and responsive variants
+ *                                                                      Use case: Articles, Posts, Products
  * @method static putGalleryImages($model, array $files, string $collection = 'gallery')
- *         Upload multiple gallery images with ordering
- *         Use case: Product galleries, Article image sets
- *
+ *                                                                                       Upload multiple gallery images with ordering
+ *                                                                                       Use case: Product galleries, Article image sets
  * @method static putPrivateDocument($model, $file, string $collection = 'attachments')
- *         Upload private documents/attachments to local disk
- *         Use case: Invoice PDFs, Contract documents, Private files
- *
+ *                                                                                      Upload private documents/attachments to local disk
+ *                                                                                      Use case: Invoice PDFs, Contract documents, Private files
  * @method static putWithFolder($model, $file, ?int $folderId, string $collection, string $visibility)
- *         Upload with folder organization and visibility control
- *         Use case: File manager, Gallery system with folders
- *
+ *                                                                                                     Upload with folder organization and visibility control
+ *                                                                                                     Use case: File manager, Gallery system with folders
  * @method static replaceMedia($model, $file, string $collection)
- *         Replace existing media (delete old, upload new)
- *         Use case: Update profile photo, Replace document
- *
+ *                                                                Replace existing media (delete old, upload new)
+ *                                                                Use case: Update profile photo, Replace document
  * @method static putAvatar($model, $file)
- *         Upload user avatar (replaces existing)
- *         Use case: User profile avatar
- *
+ *                                         Upload user avatar (replaces existing)
+ *                                         Use case: User profile avatar
  * @method static putProfileImage($model, $file)
- *         Upload profile image with responsive variants
- *         Use case: User profile photos, Team member photos
- *
+ *                                               Upload profile image with responsive variants
+ *                                               Use case: User profile photos, Team member photos
  * @method static getUrl($media): string
  *         Get media URL (automatically handles public/private routing)
  *         Use case: Display images in views
- *
  * @method static deleteMedia($media): bool
  *         Safe delete with error handling
  *         Use case: Delete single media item
- *
  * @method static clearCollection($model, string $collection): void
  *         Clear all media from a collection
  *         Use case: Reset gallery, Remove all attachments

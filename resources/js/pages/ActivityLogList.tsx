@@ -1,6 +1,6 @@
 import '@/echo';
-import Heading from '@/components/heading';
-import PageContainer from '@/components/page-container';
+import Heading from '@/components/Heading';
+import PageContainer from '@/components/PageContainer';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';

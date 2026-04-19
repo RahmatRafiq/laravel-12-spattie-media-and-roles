@@ -1,5 +1,5 @@
-import HeadingSmall from '@/components/heading-small';
-import InputError from '@/components/input-error';
+import HeadingSmall from '@/components/HeadingSmall';
+import InputError from '@/components/form/InputError';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

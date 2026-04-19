@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import PrivateImage from '@/components/private-image';
+import PrivateImage from '@/components/PrivateImage';
 import { Globe2, Lock } from 'lucide-react';
 
 interface MediaItem {

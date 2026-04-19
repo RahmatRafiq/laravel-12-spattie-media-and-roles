@@ -1,18 +1,20 @@
-import DataTableWrapper, { DataTableWrapperRef } from '@/components/datatables';
-import Heading from '@/components/heading';
-import HeadingSmall from '@/components/heading-small';
-import PageContainer from '@/components/page-container';
+import DataTableWrapper, { DataTableWrapperRef } from '@/components/DataTables';
+import Heading from '@/components/Heading';
+import HeadingSmall from '@/components/HeadingSmall';
+import PageContainer from '@/components/PageContainer';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem, Role } from '@/types';
 import type { DataTableColumn } from '@/types/DataTables';
-import { Head, Link, router } from '@inertiajs/react';
+import { useResourceActions } from '@/hooks/use-resource-actions';
+import { Head, Link } from '@inertiajs/react';
 import { useRef } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Role Management', href: route('roles.index') }];
 
 export default function RoleIndexAccordion({ success }: { success?: string }) {
     const dtRef = useRef<DataTableWrapperRef>(null);
+    const { deleteResource } = useResourceActions();
 
     const columns: DataTableColumn<Role>[] = [
         { data: 'id', title: 'ID', className: 'all' },
@@ -51,9 +53,9 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
     ];
 
     const handleDelete = (id: number | string) => {
-        router.delete(route('roles.destroy', id), {
-            preserveState: true,
-            preserveScroll: true,
+        deleteResource({
+            url: route('roles.destroy', id),
+            resourceName: 'Role',
             onSuccess: () => dtRef.current?.reload(),
         });
     };
@@ -78,15 +80,6 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
                         }}
                         columns={columns}
                         onRowDelete={handleDelete}
-                        confirmationConfig={{
-                            delete: {
-                                title: 'Delete Role Confirmation',
-                                message: 'Are you sure you want to delete this role? This action cannot be undone.',
-                                confirmText: 'Delete',
-                                cancelText: 'Cancel',
-                                successMessage: 'Role deleted successfully',
-                            },
-                        }}
                     />
             </PageContainer>
         </AppLayout>

@@ -1,4 +1,4 @@
-import Heading from '../../components/heading';
+import Heading from '../../components/Heading';
 import { Button } from '@/components/ui/button';
 import { Globe2, Lock } from 'lucide-react';
 import { router } from '@inertiajs/react';

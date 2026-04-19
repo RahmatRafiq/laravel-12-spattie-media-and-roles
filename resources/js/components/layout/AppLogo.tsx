@@ -1,5 +1,5 @@
 
-import AppLogoIcon from './app-logo-icon';
+import AppLogoIcon from './AppLogoIcon';
 import { usePage } from '@inertiajs/react';
 import { AppSetting } from '@/types';
 

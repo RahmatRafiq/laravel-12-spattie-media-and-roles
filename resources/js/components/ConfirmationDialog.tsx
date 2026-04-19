@@ -8,7 +8,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { ConfirmationState } from '@/hooks/use-confirmation';
+import { ConfirmationState } from '@/components/providers/confirmation-provider';
 import { AlertTriangle, Trash2 } from 'lucide-react';
 
 interface ConfirmationDialogProps {

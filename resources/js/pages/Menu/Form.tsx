@@ -1,8 +1,8 @@
-import Heading from '@/components/heading';
-import HeadingSmall from '@/components/heading-small';
-import InputError from '@/components/input-error';
-import PageContainer from '@/components/page-container';
-import CustomSelect from '@/components/select';
+import Heading from '@/components/Heading';
+import HeadingSmall from '@/components/HeadingSmall';
+import InputError from '@/components/form/InputError';
+import PageContainer from '@/components/PageContainer';
+import CustomSelect from '@/components/form/Select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

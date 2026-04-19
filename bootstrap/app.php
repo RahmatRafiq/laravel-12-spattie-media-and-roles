@@ -16,6 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        if (str_contains(implode(' ', $_SERVER['argv'] ?? []), 'pest') || str_contains(implode(' ', $_SERVER['argv'] ?? []), 'phpunit')) {
+            $middleware->validateCsrfTokens(except: ['*']);
+        }
+
         $middleware->encryptCookies(except: ['appearance']);
 
         $middleware->web(append: [

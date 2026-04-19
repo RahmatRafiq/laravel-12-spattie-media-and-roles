@@ -1,10 +1,10 @@
-import ConfirmationDialog from '@/components/confirmation-dialog';
-import Heading from '@/components/heading';
-import HeadingSmall from '@/components/heading-small';
-import PageContainer from '@/components/page-container';
-import { useConfirmation } from '@/hooks/use-confirmation';
+import Heading from '@/components/Heading';
+import HeadingSmall from '@/components/HeadingSmall';
+import PageContainer from '@/components/PageContainer';
 import AppLayout from '@/layouts/app-layout';
 import { GalleryProps, FileManagerFolder } from '@/types';
+import { useResourceActions } from '@/hooks/use-resource-actions';
+import { useConfirm } from '@/components/providers/confirmation-provider';
 import { toast } from '@/utils/toast';
 import { Head, router, useForm, useRemember } from '@inertiajs/react';
 import React from 'react';
@@ -21,7 +21,8 @@ export default function Gallery({
     folders = [],
     selected_folder_id = null,
 }: GalleryProps & { folders?: FileManagerFolder[]; selected_folder_id?: number | null }) {
-    const { confirmationState, openConfirmation, handleConfirm, handleCancel } = useConfirmation();
+    const { deleteResource } = useResourceActions();
+    const confirm = useConfirm();
 
     const { data, setData, post, processing, reset } = useForm<{
         file: File | null;
@@ -73,15 +74,24 @@ export default function Gallery({
     };
 
     const deleteFolder = async (id: number) => {
-        await router.delete(route('gallery.folder.delete', { id, visibility }), {
-            preserveScroll: true,
-            onSuccess: () => {
-                toast.success('Folder deleted successfully');
-            },
-            onError: () => {
-                toast.error('Failed to delete folder');
-            },
+        const isConfirmed = await confirm({
+            title: 'Delete Folder Confirmation',
+            message: 'Are you sure you want to delete this folder? All contents inside will be permanently deleted.',
+            variant: 'destructive',
+            confirmText: 'Delete',
         });
+
+        if (isConfirmed) {
+            router.delete(route('gallery.folder.delete', { id, visibility }), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast.success('Folder deleted successfully');
+                },
+                onError: () => {
+                    toast.error('Failed to delete folder');
+                },
+            });
+        }
     };
 
     const submitUpload = (e: React.FormEvent) => {
@@ -130,23 +140,14 @@ export default function Gallery({
     ];
 
     const handleDelete = (id: number, fileName: string) => {
-        openConfirmation({
+        deleteResource({
+            url: route('gallery.destroy', id),
+            resourceName: 'File',
             title: 'Delete File Confirmation',
-            message: `Are you sure you want to delete the file <b>${fileName}</b>?`,
-            confirmText: 'Delete',
-            cancelText: 'Cancel',
-            variant: 'destructive',
-            onConfirm: () => {
-                router.delete(route('gallery.destroy', id), {
-                    preserveScroll: true,
-                    onSuccess: () => {
-                        toast.success('File deleted successfully');
-                    },
-                    onError: () => {
-                        toast.error('Failed to delete file');
-                    },
-                });
-            },
+            message: `Are you sure you want to delete the file "${fileName}"? This action cannot be undone.`,
+            onSuccess: () => {
+                // Optional: additional local state cleanup if needed
+            }
         });
     };
 
@@ -190,7 +191,6 @@ export default function Gallery({
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">
                             <GalleryGrid media={media.data} handleDelete={handleDelete} />
                         </div>
-                        <ConfirmationDialog state={confirmationState} onConfirm={handleConfirm} onCancel={handleCancel} />
                         {media.links && <GalleryPagination links={media.links} />}
                     </div>
                 </div>

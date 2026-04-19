@@ -1,11 +1,16 @@
 import * as React from 'react';
-import CustomSelect from '../../components/select';
+import CustomSelect from '@/components/form/Select';
 import { Button } from '@/components/ui/button';
 
 type UploadFormData = {
     file: File | null;
     visibility: 'public' | 'private';
 };
+
+interface VisibilityOption {
+    value: 'public' | 'private';
+    label: string;
+}
 
 interface GalleryUploadFormProps {
     data: UploadFormData;
@@ -62,7 +67,7 @@ export default function GalleryUploadForm({ data, setData, processing, submitUpl
                 className="w-full sm:flex-1 text-sm"
             />
             <div className="w-full sm:w-auto sm:min-w-[140px]">
-                <CustomSelect
+                <CustomSelect<VisibilityOption>
                     value={{ value: data.visibility, label: data.visibility === 'public' ? 'Public' : 'Private' }}
                     className="rounded border px-2 py-1"
                     options={[
@@ -70,8 +75,9 @@ export default function GalleryUploadForm({ data, setData, processing, submitUpl
                         { value: 'private', label: 'Private' }
                     ]}
                     onChange={(option) => {
-                        if (option && !Array.isArray(option) && typeof option === 'object' && 'value' in option) {
-                            setData('visibility', option.value as 'public' | 'private');
+                        const val = option as VisibilityOption | null;
+                        if (val) {
+                            setData('visibility', val.value);
                         }
                     }}
                 />

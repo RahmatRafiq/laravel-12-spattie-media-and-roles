@@ -1,10 +1,9 @@
-import ConfirmationDialog from '@/components/confirmation-dialog';
-import Heading from '@/components/heading';
-import HeadingSmall from '@/components/heading-small';
-import PageContainer from '@/components/page-container';
+import Heading from '@/components/Heading';
+import HeadingSmall from '@/components/HeadingSmall';
+import PageContainer from '@/components/PageContainer';
 import TreeDnD from '@/components/TreeDnD';
 import { Button } from '@/components/ui/button';
-import { useConfirmation } from '@/hooks/use-confirmation';
+import { useResourceActions } from '@/hooks/use-resource-actions';
 import { toast } from '@/utils/toast';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -23,29 +22,15 @@ export interface MenuTreeItem {
 }
 
 function MenuIndexPage() {
-    const { confirmationState, openConfirmation, handleConfirm, handleCancel } = useConfirmation();
+    const { deleteResource } = useResourceActions();
+    
     const handleDeleteMenu = (id: number) => {
-        openConfirmation({
-            title: 'Delete Menu Confirmation',
-            message: 'Are you sure you want to delete this menu? This action cannot be undone.',
-            confirmText: 'Delete',
-            cancelText: 'Cancel',
-            variant: 'destructive',
-            icon: <Trash2 className="h-6 w-6 text-red-600" />,
-            onConfirm: () => {
-                router.delete(route('menus.destroy', id), {
-                    preserveScroll: true,
-                    onSuccess: (page) => {
-                        if (typeof page.props.success === 'string') toast.success(page.props.success);
-                        else toast.success('Menu deleted successfully.');
-                    },
-                    onError: () => {
-                        toast.error('Failed to delete menu.');
-                    },
-                });
-            },
+        deleteResource({
+            url: route('menus.destroy', id),
+            resourceName: 'Menu',
         });
     };
+
     const renderMenuItem = (item: MenuTreeItem) => (
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 rounded-lg border border-border bg-background px-3 sm:px-4 py-3 mb-2 shadow-sm hover:bg-accent/20 transition-all group min-h-[48px]">
             <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
@@ -76,6 +61,7 @@ function MenuIndexPage() {
             </div>
         </div>
     );
+    
     const { menus, success } = (usePage().props as unknown) as { menus: MenuTreeItem[], success?: string };
     const [tree, setTree] = React.useState<MenuTreeItem[]>(menus);
     const [saving, setSaving] = React.useState(false);
@@ -110,17 +96,17 @@ function MenuIndexPage() {
                 onFinish: () => {
                     setSaving(false);
                 },
-                only: [],
             });
         } catch {
             toast.error('Failed to save menu order.');
             setSaving(false);
         }
     };
+
     return (
         <AppLayout breadcrumbs={[{ title: 'Dashboard', href: '/dashboard' }, { title: 'Menu Management', href: '#' }]}>
             <Head title="Menu Management" />
-            <PageContainer maxWidth="7xl">
+            <PageContainer maxWidth="full">
                 <Heading title="Menu Management" description="Manage your application's navigation menu structure." />
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4">
                         <HeadingSmall title="Menu List" description="View and organize your application's menus." />
@@ -155,7 +141,6 @@ function MenuIndexPage() {
                             renderItem={renderMenuItem}
                         />
                     </div>
-                <ConfirmationDialog state={confirmationState} onConfirm={handleConfirm} onCancel={handleCancel} />
             </PageContainer>
         </AppLayout>
     );

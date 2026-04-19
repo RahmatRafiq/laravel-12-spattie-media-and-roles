@@ -1,6 +1,6 @@
-import { NavFooter } from '@/components/nav-footer';
-import { NavMain } from '@/components/nav-main';
-import { NavUser } from '@/components/nav-user';
+import { NavFooter } from '@/components/layout/NavFooter';
+import { NavMain } from '@/components/layout/NavMain';
+import { NavUser } from '@/components/layout/NavUser';
 import {
     Sidebar,
     SidebarContent,
@@ -13,7 +13,7 @@ import {
 import { type NavItem, type MenuItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { FileText, Github } from 'lucide-react';
-import AppLogo from './app-logo';
+import AppLogo from './AppLogo';
 import { getIcon } from '@/lib/icon-registry';
 
 const footerNavItems: NavItem[] = [

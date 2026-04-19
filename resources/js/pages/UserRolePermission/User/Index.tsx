@@ -1,12 +1,15 @@
-import DataTableWrapper, { DataTableWrapperRef } from '@/components/datatables';
-import Heading from '@/components/heading';
-import HeadingSmall from '@/components/heading-small';
-import PageContainer from '@/components/page-container';
-import ToggleTabs from '@/components/toggle-tabs';
+import DataTableWrapper, { DataTableWrapperRef } from '@/components/DataTables';
+import Heading from '@/components/Heading';
+import HeadingSmall from '@/components/HeadingSmall';
+import PageContainer from '@/components/PageContainer';
+import ToggleTabs from '@/components/form/ToggleTabs';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem, User } from '@/types';
 import type { DataTableColumn } from '@/types/DataTables';
+import { useResourceActions } from '@/hooks/use-resource-actions';
+import { useConfirm } from '@/components/providers/confirmation-provider';
+import { toast } from '@/utils/toast';
 import { Head, Link, router } from '@inertiajs/react';
 import { useRef, useState } from 'react';
 
@@ -45,25 +48,43 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
     const breadcrumbs: BreadcrumbItem[] = [{ title: 'User Management', href: route('users.index') }];
     const dtRef = useRef<DataTableWrapperRef>(null);
     const [filter, setFilter] = useState(initialFilter || 'active');
+    
+    const { deleteResource } = useResourceActions();
+    const confirm = useConfirm();
 
     const handleDelete = (id: number) => {
-        router.delete(route('users.destroy', id), {
+        deleteResource({
+            url: route('users.destroy', id),
+            resourceName: 'User',
+            message: 'Are you sure you want to delete this user? The user will be moved to trash.',
             onSuccess: () => dtRef.current?.reload(),
         });
     };
 
-    const handleRestore = (id: number) => {
-        router.post(
-            route('users.restore', id),
-            {},
-            {
-                onSuccess: () => dtRef.current?.reload(),
-            },
-        );
+    const handleRestore = async (id: number) => {
+        const isConfirmed = await confirm({
+            title: 'Restore User Confirmation',
+            message: 'Are you sure you want to restore this user from trash?',
+            variant: 'default',
+            confirmText: 'Restore',
+        });
+
+        if (isConfirmed) {
+            router.post(route('users.restore', id), {}, {
+                onSuccess: () => {
+                    toast.success('User restored successfully');
+                    dtRef.current?.reload();
+                },
+            });
+        }
     };
 
     const handleForceDelete = (id: number) => {
-        router.delete(route('users.force-delete', id), {
+        deleteResource({
+            url: route('users.force-delete', id),
+            resourceName: 'User',
+            title: 'Permanent Delete Confirmation',
+            message: 'Are you sure you want to permanently delete this user? This action cannot be undone!',
             onSuccess: () => dtRef.current?.reload(),
         });
     };
@@ -101,29 +122,6 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
                         onRowDelete={handleDelete}
                         onRowRestore={handleRestore}
                         onRowForceDelete={handleForceDelete}
-                        confirmationConfig={{
-                            delete: {
-                                title: 'Delete User Confirmation',
-                                message: 'Are you sure you want to delete this user? The user will be moved to trash.',
-                                confirmText: 'Delete',
-                                cancelText: 'Cancel',
-                                successMessage: 'User deleted successfully',
-                            },
-                            restore: {
-                                title: 'Restore User Confirmation',
-                                message: 'Are you sure you want to restore this user from trash?',
-                                confirmText: 'Restore',
-                                cancelText: 'Cancel',
-                                successMessage: 'User restored successfully',
-                            },
-                            forceDelete: {
-                                title: 'Permanent Delete Confirmation',
-                                message: 'Are you sure you want to permanently delete this user? This action cannot be undone!',
-                                confirmText: 'Permanently Delete',
-                                cancelText: 'Cancel',
-                                successMessage: 'User permanently deleted successfully',
-                            },
-                        }}
                     />
             </PageContainer>
         </AppLayout>
