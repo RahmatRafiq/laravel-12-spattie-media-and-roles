@@ -7,10 +7,10 @@ import DeleteUser from '@/pages/settings/partials/DeleteUserForm';
 import Dropzoner from '@/components/form/Dropzoner';
 import HeadingSmall from '@/components/HeadingSmall';
 import InputError from '@/components/form/InputError';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import AppLayout from '@/layouts/app-layout';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
+import AppLayout from '@/layouts/AppLayout';
 import SettingsLayout from '@/layouts/settings/layout';
 
 const breadcrumbs: BreadcrumbItem[] = [

@@ -1,7 +1,7 @@
 import Heading from '@/components/Heading';
 import PageContainer from '@/components/PageContainer';
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
-import AppLayout from '@/layouts/app-layout';
+import { PlaceholderPattern } from '@/components/ui/PlaceholderPattern';
+import AppLayout from '@/layouts/AppLayout';
 import { type AppSetting, type BreadcrumbItem } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 

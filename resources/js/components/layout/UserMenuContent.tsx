@@ -1,4 +1,4 @@
-import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/DropdownMenu';
 import { UserInfo } from '@/components/UserInfo';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
 import { type User } from '@/types';

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import CustomSelect from '@/components/form/Select';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/Button';
 
 type UploadFormData = {
     file: File | null;

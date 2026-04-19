@@ -1,13 +1,13 @@
 import HeadingSmall from '@/components/HeadingSmall';
 import InputError from '@/components/form/InputError';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEvent } from 'react';
 
 import CustomSelect from '@/components/form/Select';
-import AppLayout from '@/layouts/app-layout';
+import AppLayout from '@/layouts/AppLayout';
 import UserRolePermissionLayout from '@/layouts/UserRolePermission/layout';
 import { BreadcrumbItem, Permission, Role } from '@/types';
 

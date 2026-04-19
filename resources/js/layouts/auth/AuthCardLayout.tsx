@@ -1,5 +1,5 @@
 import AppLogoIcon from '@/components/layout/AppLogoIcon';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Link } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
 

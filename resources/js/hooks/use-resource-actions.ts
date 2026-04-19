@@ -1,4 +1,4 @@
-import { useConfirm } from '@/components/providers/confirmation-provider';
+import { useConfirm } from '@/components/providers/ConfirmationProvider';
 import { toast } from '@/utils/toast';
 import { router } from '@inertiajs/react';
 

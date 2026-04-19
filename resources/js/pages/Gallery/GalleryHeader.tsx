@@ -1,5 +1,5 @@
 import Heading from '../../components/Heading';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/Button';
 import { Globe2, Lock } from 'lucide-react';
 import { router } from '@inertiajs/react';
 

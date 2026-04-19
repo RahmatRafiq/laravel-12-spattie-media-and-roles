@@ -1,10 +1,10 @@
 import Heading from '@/components/Heading';
 import HeadingSmall from '@/components/HeadingSmall';
 import PageContainer from '@/components/PageContainer';
-import AppLayout from '@/layouts/app-layout';
+import AppLayout from '@/layouts/AppLayout';
 import { GalleryProps, FileManagerFolder } from '@/types';
 import { useResourceActions } from '@/hooks/use-resource-actions';
-import { useConfirm } from '@/components/providers/confirmation-provider';
+import { useConfirm } from '@/components/providers/ConfirmationProvider';
 import { toast } from '@/utils/toast';
 import { Head, router, useForm, useRemember } from '@inertiajs/react';
 import React from 'react';

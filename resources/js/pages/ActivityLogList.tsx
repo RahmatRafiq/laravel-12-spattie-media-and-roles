@@ -1,9 +1,9 @@
 import '@/echo';
 import Heading from '@/components/Heading';
 import PageContainer from '@/components/PageContainer';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import AppLayout from '@/layouts/app-layout';
+import { Badge } from '@/components/ui/Badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import AppLayout from '@/layouts/AppLayout';
 import type { PageProps as InertiaPageProps } from '@inertiajs/core';
 import { Head, usePage } from '@inertiajs/react';
 import type Echo from 'laravel-echo';

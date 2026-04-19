@@ -1,8 +1,8 @@
 import React from 'react';
 import { FolderOpen, Folder as FolderIcon, ChevronDown, ChevronRight, Plus, Pencil, Trash2 } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/Dialog';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { FileManagerFolder } from '@/types';
 
 interface SidebarProps {

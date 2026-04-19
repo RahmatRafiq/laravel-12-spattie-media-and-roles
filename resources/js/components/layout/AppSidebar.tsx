@@ -9,7 +9,7 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-} from '@/components/ui/sidebar';
+} from '@/components/ui/Sidebar';
 import { type NavItem, type MenuItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { FileText, Github } from 'lucide-react';

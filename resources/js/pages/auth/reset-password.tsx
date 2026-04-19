@@ -3,10 +3,10 @@ import { LoaderCircle } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
 import InputError from '@/components/form/InputError';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import AuthLayout from '@/layouts/auth-layout';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
+import AuthLayout from '@/layouts/AuthLayout';
 
 interface ResetPasswordProps {
     token: string;
