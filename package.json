@@ -12,6 +12,7 @@
     },
     "devDependencies": {
         "@eslint/js": "^9.19.0",
+        "@tanstack/react-table": "^8.21.3",
         "@types/datatables.net": "^1.10.28",
         "@types/dropzone": "^5.7.9",
         "@types/node": "^22.13.5",
@@ -58,9 +59,6 @@
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "concurrently": "^9.0.1",
-        "datatables.net-dt": "^2.2.2",
-        "datatables.net-react": "^1.0.0",
-        "datatables.net-responsive-dt": "^3.0.6",
         "dropzone": "^6.0.0-beta.2",
         "globals": "^15.14.0",
         "laravel-vite-plugin": "^1.0",

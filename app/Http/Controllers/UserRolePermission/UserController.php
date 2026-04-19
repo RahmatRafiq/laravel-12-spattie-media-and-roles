@@ -5,6 +5,7 @@ namespace App\Http\Controllers\UserRolePermission;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRolePermission\StoreUserRequest;
 use App\Http\Requests\UserRolePermission\UpdateUserRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\RoleService;
 use App\Services\UserService;
@@ -21,32 +22,19 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
+        $query = $this->userService->getDataTableQuery($request->input('filter', 'active'));
+
+        $users = DataTable::process(
+            $query,
+            $request,
+            searchableColumns: ['name', 'email', 'roles.name'],
+        )->withQueryString();
+
         return Inertia::render('UserRolePermission/User/Index', [
+            'users' => UserResource::collection($users),
             'filter' => $request->query('filter', 'active'),
             'roles' => $this->roleService->getAllRoles(),
         ]);
-    }
-
-    public function json(Request $request)
-    {
-        $query = $this->userService->getDataTableQuery($request->input('filter', 'active'));
-
-        $data = DataTable::process(
-            $query, 
-            $request,
-            searchableColumns: ['name', 'email', 'roles.name'],
-            orderableColumns: ['id', 'name', 'email', 'created_at', 'updated_at']
-        );
-
-        $data['data'] = $data['data']->map(fn ($user) => [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'roles' => $user->roles->pluck('name')->toArray(),
-            'trashed' => $user->deleted_at !== null,
-        ]);
-
-        return response()->json($data);
     }
 
     public function create()
@@ -95,5 +83,18 @@ class UserController extends Controller
     {
         $this->userService->forceDeleteUser($id);
         return redirect()->route('users.index')->with('success', 'User permanently deleted.');
+    }
+
+    public function json(Request $request)
+    {
+        $query = $this->userService->getDataTableQuery($request->input('filter', 'active'));
+
+        $users = DataTable::process(
+            $query,
+            $request,
+            searchableColumns: ['name', 'email', 'roles.name'],
+        );
+
+        return UserResource::collection($users);
     }
 }

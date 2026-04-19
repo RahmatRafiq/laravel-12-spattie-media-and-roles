@@ -1,64 +1,89 @@
-import DataTableWrapper, { DataTableWrapperRef } from '@/components/DataTables';
+import { TanstackDataTable } from '@/components/TanstackDataTable';
 import Heading from '@/components/Heading';
 import HeadingSmall from '@/components/HeadingSmall';
 import PageContainer from '@/components/PageContainer';
 import { Button } from '@/components/ui/Button';
 import AppLayout from '@/layouts/AppLayout';
-import type { BreadcrumbItem, Role } from '@/types';
-import type { DataTableColumn } from '@/types/DataTables';
+import type { BreadcrumbItem, InertiaPaginated, Role } from '@/types';
 import { useResourceActions } from '@/hooks/use-resource-actions';
 import { Head, Link } from '@inertiajs/react';
-import { useRef } from 'react';
+import { ColumnDef } from '@tanstack/react-table';
+import { MoreHorizontal } from 'lucide-react';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Role Management', href: route('roles.index') }];
 
-export default function RoleIndexAccordion({ success }: { success?: string }) {
-    const dtRef = useRef<DataTableWrapperRef>(null);
+export default function RoleIndex({ roles }: { roles: InertiaPaginated<Role> }) {
     const { deleteResource } = useResourceActions();
 
-    const columns: DataTableColumn<Role>[] = [
-        { data: 'id', title: 'ID', className: 'all' },
-        { data: 'name', title: 'Name', className: 'all' },
-        { data: 'guard_name', title: 'Guard Name', className: 'tablet-p' },
-        { data: 'created_at', title: 'Created At', className: 'tablet-l' },
-        { data: 'updated_at', title: 'Updated At', className: 'desktop' },
+    const columns: ColumnDef<Role>[] = [
         {
-            data: 'permissions_list',
-            title: 'Permissions',
-            className: 'tablet-p',
-            render: (data: Role[keyof Role] | null) => {
-                const value = typeof data === 'string' ? data : '';
-                if (!value) return '';
-                return value.split(',').map((perm) =>
-                    `<span class='inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 bg-primary text-primary-foreground mr-1 mb-1'>${perm.trim()}</span>`
-                ).join('');
+            accessorKey: 'id',
+            header: 'ID',
+            meta: { className: 'hidden md:table-cell' }
+        },
+        {
+            accessorKey: 'name',
+            header: 'Name',
+        },
+        {
+            accessorKey: 'guard_name',
+            header: 'Guard',
+        },
+        {
+            id: 'permissions',
+            header: 'Permissions',
+            meta: { className: 'hidden md:table-cell' },
+            cell: ({ row }) => {
+                const permissions = (row.original.permissions as unknown as { name: string }[]).map(p => p.name);
+                return (
+                    <div className="flex flex-wrap gap-1">
+                        {permissions.slice(0, 3).map(p => (
+                            <span key={p} className="bg-muted text-muted-foreground px-2 py-0.5 text-xs rounded">
+                                {p}
+                            </span>
+                        ))}
+                        {permissions.length > 3 && (
+                            <span className="text-xs text-muted-foreground">+{permissions.length - 3} more</span>
+                        )}
+                    </div>
+                );
             }
         },
         {
-            data: null,
-            title: 'Actions',
-            orderable: false,
-            searchable: false,
-            className: 'all',
-            render: (_data, _type, row: Role) => {
-                const btn = 'inline-block px-3 py-2 text-sm font-medium rounded text-white transition-colors';
-                return `
-                    <div class="flex flex-wrap gap-2 py-1">
-                        <a href="/dashboard/roles/${row.id}/edit" class="${btn} bg-yellow-500 hover:bg-yellow-600">Edit</a>
-                        <button class="btn-delete ${btn} bg-red-600 hover:bg-red-700" data-id="${row.id}">Delete</button>
-                    </div>
-                `;
+            id: 'actions',
+            cell: ({ row }) => {
+                const role = row.original;
+                return (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem asChild>
+                                <Link href={route('roles.edit', role.id)}>Edit</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => deleteResource({ url: route('roles.destroy', role.id), resourceName: 'Role' })}>
+                                Delete
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                );
             },
         },
     ];
-
-    const handleDelete = (id: number | string) => {
-        deleteResource({
-            url: route('roles.destroy', id),
-            resourceName: 'Role',
-            onSuccess: () => dtRef.current?.reload(),
-        });
-    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -66,21 +91,16 @@ export default function RoleIndexAccordion({ success }: { success?: string }) {
             <PageContainer maxWidth="full">
                 <Heading title="Role Management" />
                 <HeadingSmall title="Roles" description="Manage roles for your application" />
-                    <div className="mb-4 flex items-center justify-end">
-                        <Link href={route('roles.create')}>
-                            <Button>Create Role</Button>
-                        </Link>
-                    </div>
-                    {success && <div className="mb-2 rounded bg-green-100 p-2 text-green-800">{success}</div>}
-                    <DataTableWrapper<Role>
-                        ref={dtRef}
-                        ajax={{
-                            url: route('roles.json'),
-                            type: 'POST',
-                        }}
-                        columns={columns}
-                        onRowDelete={handleDelete}
-                    />
+                <div className="mb-4 flex items-center justify-end">
+                    <Link href={route('roles.create')}>
+                        <Button>Create Role</Button>
+                    </Link>
+                </div>
+                <TanstackDataTable 
+                    columns={columns} 
+                    inertiaPaginated={roles} 
+                    jsonUrl={route('roles.json')} 
+                />
             </PageContainer>
         </AppLayout>
     );

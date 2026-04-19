@@ -21,14 +21,13 @@ class DataTable
         // 1. Total records before filtering
         $recordsTotal = (clone $query)->count();
 
-        // 2. Apply Global Search
-        $searchValue = $request->input('search.value');
+        // 2. Apply Global Search (from TanStack Table or DataTables.net)
+        $searchValue = $request->input('filter.global', $request->input('search.value'));
         if (!empty($searchValue) && !empty($searchableColumns)) {
             $query->where(function ($q) use ($searchValue, $searchableColumns) {
                 foreach ($searchableColumns as $index => $column) {
                     $method = $index === 0 ? 'where' : 'orWhere';
                     
-                    // Support relationship searching (e.g. 'roles.name')
                     if (str_contains($column, '.')) {
                         [$relation, $relColumn] = explode('.', $column);
                         $q->{$method . 'Has'}($relation, function ($relQ) use ($relColumn, $searchValue) {
@@ -42,36 +41,31 @@ class DataTable
         }
 
         // 3. Records total after filtering
-        $recordsFiltered = $query->count();
+        $recordsFiltered = (clone $query)->count();
 
-        // 4. Apply Sorting
-        if ($request->filled('order')) {
+        // 4. Apply Sorting (from TanStack Table or DataTables.net)
+        if ($request->filled('sort')) { // TanStack Table
+            $query->orderBy($request->input('sort'), $request->input('direction', 'asc'));
+        } elseif ($request->filled('order')) { // DataTables.net
             $order = $request->input('order.0');
             $columnIndex = $order['column'];
             $direction = $order['dir'];
-
             $columnName = $orderableColumns[$columnIndex] ?? null;
 
-            if ($columnName) {
-                // If it's a direct column (not relationship sorting)
-                if (!str_contains($columnName, '.')) {
-                    $query->orderBy($columnName, $direction);
-                }
+            if ($columnName && !str_contains($columnName, '.')) {
+                $query->orderBy($columnName, $direction);
             }
+        } else {
+            // Default sort: newest first
+            $query->latest();
         }
 
-        // 5. Apply Pagination
-        $start = $request->input('start', 0);
-        $length = $request->input('length', 10);
-        
-        $data = $query->offset($start)->limit($length)->get();
+        // 5. Handle Pagination
+        // This is now handled by Laravel's paginate() method, returning a LengthAwarePaginator
+        $perPage = $request->input('per_page', 10);
+        $paginator = $query->paginate($perPage);
 
-        return [
-            'draw' => $request->input('draw', 1),
-            'recordsTotal' => $recordsTotal,
-            'recordsFiltered' => $recordsFiltered,
-            'data' => $data,
-        ];
+        return $paginator;
     }
 
     /**

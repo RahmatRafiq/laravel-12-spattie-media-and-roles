@@ -6,6 +6,7 @@ use App\Helpers\DataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRolePermission\StoreRoleRequest;
 use App\Http\Requests\UserRolePermission\UpdateRoleRequest;
+use App\Http\Resources\RoleResource;
 use App\Services\PermissionService;
 use App\Services\RoleService;
 use Illuminate\Http\Request;
@@ -13,57 +14,25 @@ use Inertia\Inertia;
 
 class RoleController extends Controller
 {
-    /**
-     * RoleController constructor
-     */
     public function __construct(
         private RoleService $roleService,
         private PermissionService $permissionService
     ) {}
 
-    /**
-     * Display a listing of roles
-     *
-     * @return \Inertia\Response
-     */
-    public function index()
-    {
-        return Inertia::render('UserRolePermission/Role/Index');
-    }
-
-    /**
-     * Get roles data for DataTables
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function json(Request $request)
+    public function index(Request $request)
     {
         $query = $this->roleService->getDataTableQuery();
-
-        $data = DataTable::process(
-            $query, 
+        $roles = DataTable::process(
+            $query,
             $request,
             searchableColumns: ['name', 'guard_name'],
-            orderableColumns: ['id', 'name', 'guard_name', 'created_at', 'updated_at']
-        );
+        )->withQueryString();
 
-        $data['data'] = $data['data']->map(fn ($role) => [
-            'id' => $role->id,
-            'name' => $role->name,
-            'guard_name' => $role->guard_name,
-            'created_at' => $role->created_at->toDateTimeString(),
-            'updated_at' => $role->updated_at->toDateTimeString(),
-            'permissions_list' => $role->permissions->pluck('name')->implode(', '),
+        return Inertia::render('UserRolePermission/Role/Index', [
+            'roles' => RoleResource::collection($roles),
         ]);
-
-        return response()->json($data);
     }
 
-    /**
-     * Show the form for creating a new role
-     *
-     * @return \Inertia\Response
-     */
     public function create()
     {
         return Inertia::render('UserRolePermission/Role/Form', [
@@ -71,11 +40,6 @@ class RoleController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created role
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function store(StoreRoleRequest $request)
     {
         $this->roleService->createRole($request->validated());
@@ -85,12 +49,6 @@ class RoleController extends Controller
             ->with('success', 'Role has been created successfully.');
     }
 
-    /**
-     * Show the form for editing the specified role
-     *
-     * @param  int  $id
-     * @return \Inertia\Response
-     */
     public function edit($id)
     {
         $role = $this->roleService->findRole($id);
@@ -102,12 +60,6 @@ class RoleController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified role
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function update(UpdateRoleRequest $request, $id)
     {
         $this->roleService->updateRole($id, $request->validated());
@@ -117,12 +69,6 @@ class RoleController extends Controller
             ->with('success', 'Role has been updated successfully.');
     }
 
-    /**
-     * Remove the specified role
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function destroy($id)
     {
         $this->roleService->deleteRole($id);
@@ -130,5 +76,17 @@ class RoleController extends Controller
         return redirect()
             ->route('roles.index')
             ->with('success', 'Role has been deleted successfully.');
+    }
+
+    public function json(Request $request)
+    {
+        $query = $this->roleService->getDataTableQuery();
+        $roles = DataTable::process(
+            $query,
+            $request,
+            searchableColumns: ['name', 'guard_name'],
+        );
+
+        return RoleResource::collection($roles);
     }
 }

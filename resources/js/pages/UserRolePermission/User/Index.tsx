@@ -1,100 +1,112 @@
-import DataTableWrapper, { DataTableWrapperRef } from '@/components/DataTables';
+import { TanstackDataTable } from '@/components/TanstackDataTable';
 import Heading from '@/components/Heading';
 import HeadingSmall from '@/components/HeadingSmall';
 import PageContainer from '@/components/PageContainer';
 import ToggleTabs from '@/components/form/ToggleTabs';
 import { Button } from '@/components/ui/Button';
 import AppLayout from '@/layouts/AppLayout';
-import type { BreadcrumbItem, User } from '@/types';
-import type { DataTableColumn } from '@/types/DataTables';
+import type { BreadcrumbItem, InertiaPaginated, Role, User } from '@/types';
 import { useResourceActions } from '@/hooks/use-resource-actions';
 import { useConfirm } from '@/components/providers/ConfirmationProvider';
 import { toast } from '@/utils/toast';
 import { Head, Link, router } from '@inertiajs/react';
-import { useRef, useState } from 'react';
+import { ColumnDef } from '@tanstack/react-table';
+import { MoreHorizontal } from 'lucide-react';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
 
-const columns: DataTableColumn<User>[] = [
-    { data: 'id', title: 'ID', className: 'all' },
-    { data: 'name', title: 'Name', className: 'all' },
-    { data: 'email', title: 'Email', className: 'tablet-p' },
-    { data: 'roles', title: 'Role(s)', className: 'tablet-l' },
-    {
-        data: null,
-        title: 'Actions',
-        orderable: false,
-        searchable: false,
-        className: 'all',
-        render: (_data, _type, row: User) => {
-            const btn = 'inline-block px-3 py-2 text-sm font-medium rounded text-white transition-colors';
-            if (row.trashed) {
-                return `
-                    <div class="flex flex-wrap gap-2 py-1">
-                        <button class="btn-restore ${btn} bg-green-600 hover:bg-green-700" data-id="${row.id}">Restore</button>
-                        <button class="btn-force-delete ${btn} bg-red-600 hover:bg-red-700" data-id="${row.id}">Force Delete</button>
-                    </div>
-                `;
-            }
-            return `
-                <div class="flex flex-wrap gap-2 py-1">
-                    <a href="/dashboard/users/${row.id}/edit" class="${btn} bg-yellow-500 hover:bg-yellow-600">Edit</a>
-                    <button class="btn-delete ${btn} bg-red-600 hover:bg-red-700" data-id="${row.id}">Delete</button>
-                </div>
-            `;
-        },
-    },
-];
-
-export default function UserIndex({ filter: initialFilter, success }: { filter: string; success?: string }) {
+export default function UserIndex({ users, filter, roles }: { users: InertiaPaginated<User>, filter: string, roles: Role[] }) {
     const breadcrumbs: BreadcrumbItem[] = [{ title: 'User Management', href: route('users.index') }];
-    const dtRef = useRef<DataTableWrapperRef>(null);
-    const [filter, setFilter] = useState(initialFilter || 'active');
-    
     const { deleteResource } = useResourceActions();
     const confirm = useConfirm();
 
-    const handleDelete = (id: number) => {
-        deleteResource({
-            url: route('users.destroy', id),
-            resourceName: 'User',
-            message: 'Are you sure you want to delete this user? The user will be moved to trash.',
-            onSuccess: () => dtRef.current?.reload(),
-        });
-    };
-
     const handleRestore = async (id: number) => {
         const isConfirmed = await confirm({
-            title: 'Restore User Confirmation',
-            message: 'Are you sure you want to restore this user from trash?',
+            title: 'Restore User',
+            message: 'Are you sure you want to restore this user?',
             variant: 'default',
             confirmText: 'Restore',
         });
-
         if (isConfirmed) {
             router.post(route('users.restore', id), {}, {
-                onSuccess: () => {
-                    toast.success('User restored successfully');
-                    dtRef.current?.reload();
-                },
+                onSuccess: () => toast.success('User restored successfully'),
             });
         }
     };
-
+    
     const handleForceDelete = (id: number) => {
         deleteResource({
             url: route('users.force-delete', id),
             resourceName: 'User',
-            title: 'Permanent Delete Confirmation',
-            message: 'Are you sure you want to permanently delete this user? This action cannot be undone!',
-            onSuccess: () => dtRef.current?.reload(),
+            title: 'Permanent Deletion',
+            message: 'Are you sure you want to permanently delete this user? This action cannot be undone.'
         });
     };
 
+    const columns: ColumnDef<User>[] = [
+        {
+            accessorKey: 'id',
+            header: 'ID',
+            meta: { className: 'hidden md:table-cell' }
+        },
+        {
+            accessorKey: 'name',
+            header: 'Name',
+        },
+        {
+            accessorKey: 'email',
+            header: 'Email',
+        },
+        {
+            accessorKey: 'roles',
+            header: 'Roles',
+            meta: { className: 'hidden md:table-cell' },
+            enableSorting: false,
+            cell: ({ row }) => <span>{(row.original.roles as unknown as string[]).join(', ')}</span>
+        },
+        {
+            id: 'actions',
+            cell: ({ row }) => {
+                const user = row.original;
+                return (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            {user.trashed ? (
+                                <>
+                                    <DropdownMenuItem onClick={() => handleRestore(user.id)}>Restore</DropdownMenuItem>
+                                    <DropdownMenuItem className='text-red-600' onClick={() => handleForceDelete(user.id)}>Force Delete</DropdownMenuItem>
+                                </>
+                            ) : (
+                                <>
+                                    <DropdownMenuItem asChild>
+                                        <Link href={route('users.edit', user.id)}>Edit</Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => deleteResource({ url: route('users.destroy', user.id), resourceName: 'User' })}>Delete</DropdownMenuItem>
+                                </>
+                            )}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                );
+            },
+        },
+    ];
+
     const handleFilterChange = (newFilter: string) => {
-        setFilter(newFilter);
-        if (dtRef.current) {
-            const newUrl = route('users.json') + '?filter=' + newFilter;
-            dtRef.current.updateUrl(newUrl);
-        }
+        router.get(route('users.index'), { filter: newFilter }, { preserveState: true });
     };
 
     return (
@@ -102,27 +114,20 @@ export default function UserIndex({ filter: initialFilter, success }: { filter: 
             <Head title="Users" />
             <PageContainer maxWidth="full">
                 <Heading title="User Management" />
-                    <HeadingSmall title="Users" description="Manage application users and their roles" />
-                    <div className="mb-4 flex items-center justify-end">
-                        <Link href={route('users.create')}>
-                            <Button>Create User</Button>
-                        </Link>
-                    </div>
-
-                    <ToggleTabs tabs={['active', 'trashed', 'all']} active={filter} onChange={handleFilterChange} />
-
-                    {success && <div className="mb-2 rounded bg-green-100 p-2 text-green-800">{success}</div>}
-                    <DataTableWrapper<User>
-                        ref={dtRef}
-                        ajax={{
-                            url: route('users.json') + '?filter=' + filter,
-                            type: 'POST',
-                        }}
-                        columns={columns}
-                        onRowDelete={handleDelete}
-                        onRowRestore={handleRestore}
-                        onRowForceDelete={handleForceDelete}
-                    />
+                <HeadingSmall title="Users" description="Manage application users and their roles" />
+                <div className="mb-4 flex items-center justify-end">
+                    <Link href={route('users.create')}>
+                        <Button>Create User</Button>
+                    </Link>
+                </div>
+                <TanstackDataTable 
+                    columns={columns} 
+                    inertiaPaginated={users} 
+                    jsonUrl={route('users.json', { filter })} 
+                    headerContent={
+                        <ToggleTabs tabs={['active', 'trashed', 'all']} active={filter} onChange={handleFilterChange} />
+                    }
+                />
             </PageContainer>
         </AppLayout>
     );
