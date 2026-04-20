@@ -101,6 +101,23 @@ class PermissionService
     }
 
     /**
+     * Get Paginated Permissions for DataTables
+     * 
+     * @param array $params
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function getPaginatedPermissions(array $params): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        $query = $this->getDataTableQuery();
+
+        return \App\Helpers\DataTable::process(
+            $query,
+            $params,
+            searchableColumns: ['name', 'guard_name'],
+        );
+    }
+
+    /**
      * Get Query Builder for DataTables
      */
     public function getDataTableQuery(): \Illuminate\Database\Eloquent\Builder

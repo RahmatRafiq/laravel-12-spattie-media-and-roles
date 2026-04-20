@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\UserRolePermission;
 
-use App\Helpers\DataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRolePermission\StorePermissionRequest;
 use App\Http\Requests\UserRolePermission\UpdatePermissionRequest;
@@ -19,12 +18,7 @@ class PermissionController extends Controller
 
     public function index(Request $request)
     {
-        $query = $this->permissionService->getDataTableQuery();
-        $permissions = DataTable::process(
-            $query,
-            $request,
-            searchableColumns: ['name', 'guard_name'],
-        );
+        $permissions = $this->permissionService->getPaginatedPermissions($request->all());
 
         return Inertia::render('UserRolePermission/Permission/Index', [
             'permissions' => Inertia::defer(fn () => PermissionResource::collection($permissions)),

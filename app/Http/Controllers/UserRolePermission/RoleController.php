@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\UserRolePermission;
 
-use App\Helpers\DataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRolePermission\StoreRoleRequest;
 use App\Http\Requests\UserRolePermission\UpdateRoleRequest;
@@ -21,12 +20,7 @@ class RoleController extends Controller
 
     public function index(Request $request)
     {
-        $query = $this->roleService->getDataTableQuery();
-        $roles = DataTable::process(
-            $query,
-            $request,
-            searchableColumns: ['name', 'guard_name'],
-        );
+        $roles = $this->roleService->getPaginatedRoles($request->all());
 
         return Inertia::render('UserRolePermission/Role/Index', [
             'roles' => Inertia::defer(fn () => RoleResource::collection($roles)),

@@ -46,7 +46,7 @@ class AppSetting extends Model
      */
     public static function getInstance(): self
     {
-        return static::first() ?: static::create([
+        return static::find(1) ?: static::create([
             'id' => 1,
             'app_name' => config('app.name', 'Laravel App'),
         ]);

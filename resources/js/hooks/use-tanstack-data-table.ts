@@ -49,7 +49,7 @@ export function useTanstackDataTable<TData>({
                 pageSize: meta.per_page,
             });
         }
-    }, [meta?.current_page, meta?.per_page]);
+    }, [meta]);
 
     // Inertia Mode URL Synchronization
     useEffect(() => {
@@ -96,7 +96,7 @@ export function useTanstackDataTable<TData>({
             pageIndex: meta ? meta.current_page - 1 : 0,
             pageSize: meta ? meta.per_page : 10,
         }),
-        [meta?.current_page, meta?.per_page]
+        [meta]
     );
 
     const table = useReactTable({

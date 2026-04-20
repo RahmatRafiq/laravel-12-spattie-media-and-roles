@@ -17,6 +17,24 @@ class UserService
     ) {}
 
     /**
+     * Get Paginated Users for DataTables
+     * 
+     * @param array $params
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function getPaginatedUsers(array $params): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        $status = $params['filter'] ?? 'active';
+        $query = $this->getDataTableQuery($status);
+
+        return \App\Helpers\DataTable::process(
+            $query,
+            $params,
+            searchableColumns: ['name', 'email', 'roles.name'],
+        );
+    }
+
+    /**
      * Get Query Builder for DataTables
      */
     public function getDataTableQuery(string $status = 'active'): Builder

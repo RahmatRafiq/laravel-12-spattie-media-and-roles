@@ -9,7 +9,6 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\RoleService;
 use App\Services\UserService;
-use App\Helpers\DataTable;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -22,18 +21,11 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        $query = $this->userService->getDataTableQuery($request->input('filter', 'active'));
-
-        $users = DataTable::process(
-            $query,
-            $request,
-            searchableColumns: ['name', 'email', 'roles.name'],
-        );
+        $users = $this->userService->getPaginatedUsers($request->all());
 
         return Inertia::render('UserRolePermission/User/Index', [
             'users' => Inertia::defer(fn () => UserResource::collection($users)),
             'filter' => $request->query('filter', 'active'),
-            'roles' => $this->roleService->getAllRoles(),
         ]);
     }
 

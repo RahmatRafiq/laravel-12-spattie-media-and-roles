@@ -16,6 +16,23 @@ class RoleService
     ) {}
 
     /**
+     * Get Paginated Roles for DataTables
+     * 
+     * @param array $params
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function getPaginatedRoles(array $params): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        $query = $this->getDataTableQuery();
+
+        return \App\Helpers\DataTable::process(
+            $query,
+            $params,
+            searchableColumns: ['name', 'guard_name'],
+        );
+    }
+
+    /**
      * Get Query Builder for DataTables
      */
     public function getDataTableQuery(): Builder
