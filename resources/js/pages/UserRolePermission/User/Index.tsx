@@ -5,7 +5,7 @@ import PageContainer from '@/components/PageContainer';
 import ToggleTabs from '@/components/form/ToggleTabs';
 import { Button } from '@/components/ui/Button';
 import AppLayout from '@/layouts/AppLayout';
-import type { BreadcrumbItem, InertiaPaginated, Role, User } from '@/types';
+import type { BreadcrumbItem, InertiaPaginated, User } from '@/types';
 import { useResourceActions } from '@/hooks/use-resource-actions';
 import { useConfirm } from '@/components/providers/ConfirmationProvider';
 import { toast } from '@/utils/toast';
@@ -21,7 +21,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
 
-export default function UserIndex({ users, filter, roles }: { users: InertiaPaginated<User>, filter: string, roles: Role[] }) {
+export default function UserIndex({ users, filter }: { users: InertiaPaginated<User>, filter: string }) {
     const breadcrumbs: BreadcrumbItem[] = [{ title: 'User Management', href: route('users.index') }];
     const { deleteResource } = useResourceActions();
     const confirm = useConfirm();

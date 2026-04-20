@@ -7,17 +7,16 @@ import type { InertiaPaginated } from '@/types';
 import type { ColumnDef } from '@tanstack/react-table';
 import { flexRender } from '@tanstack/react-table';
 
-import { ArrowDown, ArrowUp, ArrowUpDown, CircleMinus, CirclePlus } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, CircleMinus, CirclePlus, Loader2 } from 'lucide-react';
 import React, { useMemo } from 'react';
 
 interface TanstackDataTableProps<TData> {
     columns: ColumnDef<TData>[];
-    inertiaPaginated: InertiaPaginated<TData>;
-    jsonUrl?: string;
+    inertiaPaginated: InertiaPaginated<TData> | undefined;
     headerContent?: React.ReactNode;
 }
 
-export function TanstackDataTable<TData>({ columns, inertiaPaginated, jsonUrl, headerContent }: TanstackDataTableProps<TData>) {
+export function TanstackDataTable<TData>({ columns, inertiaPaginated, headerContent }: TanstackDataTableProps<TData>) {
     const tableColumns = useMemo<ColumnDef<TData>[]>(() => [
         {
             id: 'expander',
@@ -25,10 +24,9 @@ export function TanstackDataTable<TData>({ columns, inertiaPaginated, jsonUrl, h
             cell: ({ row }) => {
                 return row.getCanExpand() ? (
                     <button
-                        {...{
-                            onClick: row.getToggleExpandedHandler(),
-                            style: { cursor: 'pointer' },
-                        }}
+                        type="button"
+                        onClick={row.getToggleExpandedHandler()}
+                        style={{ cursor: 'pointer' }}
                         className="flex items-center justify-center sm:hidden"
                     >
                         {row.getIsExpanded() ? (
@@ -45,11 +43,10 @@ export function TanstackDataTable<TData>({ columns, inertiaPaginated, jsonUrl, h
     ], [columns]);
 
     const { table, pagination, links } = useTanstackDataTable({
-        data: inertiaPaginated.data,
+        data: inertiaPaginated?.data ?? [],
         columns: tableColumns,
-        meta: inertiaPaginated.meta,
-        links: inertiaPaginated.links,
-        jsonUrl,
+        meta: inertiaPaginated?.meta,
+        links: inertiaPaginated?.links,
     });
 
     const handlePreviousPage = () => {
@@ -81,14 +78,20 @@ export function TanstackDataTable<TData>({ columns, inertiaPaginated, jsonUrl, h
                     />
                 </div>
             </div>
-            <div className="rounded-md border overflow-x-auto w-full">
+            <div className="relative rounded-md border overflow-x-auto w-full">
+                {!inertiaPaginated && (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/50 backdrop-blur-[1px]">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                )}
                 <Table className="min-w-full">
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => {
+                                    const meta = header.column.columnDef.meta as { className?: string } | undefined;
                                     return (
-                                        <TableHead key={header.id} className={(header.column.columnDef.meta as any)?.className}>
+                                        <TableHead key={header.id} className={meta?.className}>
                                             {header.isPlaceholder
                                                 ? null
                                                 : header.column.getCanSort() ? (
@@ -123,18 +126,21 @@ export function TanstackDataTable<TData>({ columns, inertiaPaginated, jsonUrl, h
                             table.getRowModel().rows.map((row) => (
                                 <React.Fragment key={row.id}>
                                     <TableRow data-state={row.getIsSelected() && 'selected'}>
-                                        {row.getVisibleCells().map((cell) => (
-                                            <TableCell key={cell.id} className={cn("whitespace-nowrap", (cell.column.columnDef.meta as any)?.className)}>
-                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                            </TableCell>
-                                        ))}
+                                        {row.getVisibleCells().map((cell) => {
+                                            const meta = cell.column.columnDef.meta as { className?: string } | undefined;
+                                            return (
+                                                <TableCell key={cell.id} className={cn("whitespace-nowrap", meta?.className)}>
+                                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                </TableCell>
+                                            );
+                                        })}
                                     </TableRow>
                                     {row.getIsExpanded() && (
                                         <TableRow className="bg-muted/30">
                                             <TableCell colSpan={row.getVisibleCells().length}>
                                                 <div className="grid grid-cols-1 gap-2 p-4 sm:hidden">
                                                     {row.getAllCells().map((cell) => {
-                                                        const meta = cell.column.columnDef.meta as any;
+                                                        const meta = cell.column.columnDef.meta as { className?: string } | undefined;
                                                         // Only show if it's a "hidden" column on mobile
                                                         if (meta?.className?.includes('hidden') && cell.column.id !== 'expander') {
                                                             return (
@@ -161,7 +167,7 @@ export function TanstackDataTable<TData>({ columns, inertiaPaginated, jsonUrl, h
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={tableColumns.length} className="h-24 text-center">
-                                    No results.
+                                    {inertiaPaginated ? "No results." : "Loading..."}
                                 </TableCell>
                             </TableRow>
                         )}
@@ -170,7 +176,7 @@ export function TanstackDataTable<TData>({ columns, inertiaPaginated, jsonUrl, h
             </div>
             <div className="flex items-center justify-end space-x-2">
                 <div className="flex-1 text-sm text-muted-foreground">
-                    Page {pagination.pageIndex + 1} of {table.getPageCount()}
+                    Page {pagination.pageIndex + 1} of {table.getPageCount() > 0 ? table.getPageCount() : 1}
                 </div>
                 <div className="space-x-2">
                     <Button
