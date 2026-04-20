@@ -53,10 +53,14 @@ class GalleryService
     }
 
     /**
-     * Get media query by visibility
+     * Get paginated media by visibility and folder
      */
-    public function getMediaByVisibility(string $visibility, string $collection = 'gallery'): Builder
+    public function getPaginatedMedia(array $params): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
+        $visibility = $params['visibility'] ?? 'public';
+        $collection = $params['collection_name'] ?? 'gallery';
+        $folderId = $params['folder_id'] ?? null;
+
         $disks = $this->classifyDisksByVisibility();
         $selectedDisks = $visibility === 'public' ? $disks['public'] : $disks['private'];
 
@@ -68,28 +72,36 @@ class GalleryService
             $query->whereRaw('1=0');
         }
 
-        return $query;
+        if ($folderId) {
+            $query->where('folder_id', (int) $folderId);
+        }
+
+        return $query->orderBy('created_at', 'desc')
+            ->paginate(20)
+            ->withQueryString();
     }
 
     /**
-     * Get query builder for DataTables
+     * Get all folders
      */
-    public function getDataTableData(array $filters): Builder
+    public function getAllFolders(): \Illuminate\Database\Eloquent\Collection
     {
-        $visibility = $filters['visibility'] ?? 'public';
-        $collection = $filters['collection'] ?? 'gallery';
-
-        return $this->getMediaByVisibility($visibility, $collection);
+        return FilemanagerFolder::all();
     }
 
     /**
-     * Get media by collection
+     * Check if folder can be deleted
      */
-    public function getByCollection(string $collection): \Illuminate\Database\Eloquent\Collection
+    public function canDeleteFolder(int $id): bool
     {
-        return Media::where('collection_name', $collection)
-            ->orderByDesc('created_at')
-            ->get();
+        $folder = FilemanagerFolder::findOrFail($id);
+        
+        $hasFiles = Media::where('folder_id', $id)->exists();
+        if ($hasFiles) return false;
+
+        if ($folder->children()->exists()) return false;
+
+        return true;
     }
 
     /**
@@ -214,7 +226,6 @@ class GalleryService
     {
         $folder = FilemanagerFolder::findOrFail($id);
         $folder->galleries()->update(['folder_id' => null]);
-        
         return $folder->delete();
     }
 

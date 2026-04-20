@@ -12,6 +12,10 @@ class GalleryResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $url = $this->disk === 'public' || str_contains($this->disk, 'profile-images')
+            ? $this->getUrl()
+            : route('gallery.file', $this->id);
+
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -21,9 +25,10 @@ class GalleryResource extends JsonResource
             'size_formatted' => $this->human_readable_size,
             'disk' => $this->disk,
             'collection_name' => $this->collection_name,
-            'folder_id' => $this->custom_properties['folder_id'] ?? null,
-            'url' => $this->getUrl(),
+            'folder_id' => $this->folder_id,
+            'original_url' => $url,
             'preview_url' => $this->hasGeneratedConversion('thumb') ? $this->getUrl('thumb') : null,
+            'custom_properties' => $this->custom_properties,
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];
