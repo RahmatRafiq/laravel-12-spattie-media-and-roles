@@ -62,6 +62,7 @@ export default function UserIndex({ users, filter }: { users: InertiaPaginated<U
         {
             accessorKey: 'email',
             header: 'Email',
+            meta: { className: 'hidden lg:table-cell' } // Hidden on mobile and tablet, show only on large screens
         },
         {
             accessorKey: 'roles',
@@ -112,7 +113,7 @@ export default function UserIndex({ users, filter }: { users: InertiaPaginated<U
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Users" />
-            <PageContainer maxWidth="full">
+            <PageContainer>
                 <Heading title="User Management" />
                 <HeadingSmall title="Users" description="Manage application users and their roles" />
                 <div className="mb-4 flex items-center justify-end">

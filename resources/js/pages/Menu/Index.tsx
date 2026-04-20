@@ -1,3 +1,4 @@
+import { Card, CardContent } from '@/components/ui/Card';
 import Heading from '@/components/Heading';
 import HeadingSmall from '@/components/HeadingSmall';
 import PageContainer from '@/components/PageContainer';
@@ -131,16 +132,18 @@ function MenuIndexPage() {
                             {saving ? 'Saving Order...' : 'Save Order'}
                         </Button>
                     </div>
-                    <div className="bg-white dark:bg-card rounded shadow p-4 mt-2 border border-border">
-                        <TreeDnD
-                            items={tree}
-                            onChange={setTree}
-                            getId={item => item.id}
-                            getChildren={item => item.children}
-                            setChildren={(item, children) => ({ ...item, children })}
-                            renderItem={renderMenuItem}
-                        />
-                    </div>
+                    <Card>
+                        <CardContent className="p-4">
+                            <TreeDnD
+                                items={tree}
+                                onChange={setTree}
+                                getId={item => item.id}
+                                getChildren={item => item.children}
+                                setChildren={(item, children) => ({ ...item, children })}
+                                renderItem={renderMenuItem}
+                            />
+                        </CardContent>
+                    </Card>
             </PageContainer>
         </AppLayout>
     );

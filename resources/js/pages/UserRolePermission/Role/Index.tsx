@@ -36,6 +36,7 @@ export default function RoleIndex({ roles }: { roles: InertiaPaginated<Role> }) 
         {
             accessorKey: 'guard_name',
             header: 'Guard',
+            meta: { className: 'hidden md:table-cell' }
         },
         {
             id: 'permissions',
@@ -88,7 +89,7 @@ export default function RoleIndex({ roles }: { roles: InertiaPaginated<Role> }) 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Roles" />
-            <PageContainer maxWidth="full">
+            <PageContainer>
                 <Heading title="Role Management" />
                 <HeadingSmall title="Roles" description="Manage roles for your application" />
                 <div className="mb-4 flex items-center justify-end">

@@ -5,30 +5,33 @@ import { Fragment } from 'react';
 
 export function Breadcrumbs({ breadcrumbs }: { breadcrumbs: BreadcrumbItemType[] }) {
     return (
-        <>
+        <div className="overflow-hidden">
             {breadcrumbs.length > 0 && (
                 <Breadcrumb>
-                    <BreadcrumbList>
+                    <BreadcrumbList className="flex-nowrap whitespace-nowrap overflow-hidden">
                         {breadcrumbs.map((item, index) => {
                             const isLast = index === breadcrumbs.length - 1;
                             return (
                                 <Fragment key={index}>
-                                    <BreadcrumbItem>
+                                    <BreadcrumbItem className={cn(
+                                        "min-w-0",
+                                        index < breadcrumbs.length - 2 ? "hidden sm:inline-flex" : "inline-flex"
+                                    )}>
                                         {isLast ? (
-                                            <BreadcrumbPage>{item.title}</BreadcrumbPage>
+                                            <BreadcrumbPage className="truncate max-w-[150px] sm:max-w-none">{item.title}</BreadcrumbPage>
                                         ) : (
-                                            <BreadcrumbLink asChild>
+                                            <BreadcrumbLink asChild className="truncate max-w-[100px] sm:max-w-none">
                                                 <Link href={item.href}>{item.title}</Link>
                                             </BreadcrumbLink>
                                         )}
                                     </BreadcrumbItem>
-                                    {!isLast && <BreadcrumbSeparator />}
+                                    {!isLast && <BreadcrumbSeparator className={index < breadcrumbs.length - 2 ? "hidden sm:block" : "block"} />}
                                 </Fragment>
                             );
                         })}
                     </BreadcrumbList>
                 </Breadcrumb>
             )}
-        </>
+        </div>
     );
 }

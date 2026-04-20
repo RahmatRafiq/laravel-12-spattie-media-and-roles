@@ -154,7 +154,7 @@ export default function Gallery({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="File Manager" />
-            <PageContainer maxWidth="7xl">
+            <PageContainer>
                 <Heading title="File Manager" description="Manage your application's files and folders." />
                 <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6 mt-4 min-h-[60vh]">
                     {/* Mobile: Collapsible Sidebar */}

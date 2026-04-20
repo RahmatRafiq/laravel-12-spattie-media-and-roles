@@ -63,9 +63,9 @@ export function TanstackDataTable<TData>({ columns, inertiaPaginated, headerCont
 
     return (
         <div className="space-y-4">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between overflow-hidden">
                 {headerContent && (
-                    <div className="flex-1 overflow-x-auto pb-1 sm:pb-0">
+                    <div className="flex-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
                         {headerContent}
                     </div>
                 )}
@@ -78,13 +78,13 @@ export function TanstackDataTable<TData>({ columns, inertiaPaginated, headerCont
                     />
                 </div>
             </div>
-            <div className="relative rounded-md border overflow-hidden w-full">
+            <div className="relative rounded-md border w-full overflow-x-auto overflow-y-hidden">
                 {!inertiaPaginated && (
                     <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/50 backdrop-blur-[1px]">
                         <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     </div>
                 )}
-                <Table className="min-w-full">
+                <Table className="min-w-full table-fixed md:table-auto">
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
@@ -129,7 +129,7 @@ export function TanstackDataTable<TData>({ columns, inertiaPaginated, headerCont
                                         {row.getVisibleCells().map((cell) => {
                                             const meta = cell.column.columnDef.meta as { className?: string } | undefined;
                                             return (
-                                                <TableCell key={cell.id} className={cn("whitespace-nowrap", meta?.className)}>
+                                                <TableCell key={cell.id} className={cn("py-3", meta?.className)}>
                                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                 </TableCell>
                                             );

@@ -136,7 +136,7 @@ export default function ActivityLogList() {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Live Activity Logs" />
 
-            <PageContainer maxWidth="full">
+            <PageContainer>
                 <div className="flex flex-col gap-6">
                     <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                         <Heading title="Live Activity Logs" description="Monitor real-time user activities and system changes" />

@@ -36,6 +36,7 @@ export default function PermissionIndex({ permissions }: { permissions: InertiaP
         {
             accessorKey: 'guard_name',
             header: 'Guard',
+            meta: { className: 'hidden md:table-cell' }
         },
         {
             accessorKey: 'created_at',
@@ -74,7 +75,7 @@ export default function PermissionIndex({ permissions }: { permissions: InertiaP
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Permissions" />
-            <PageContainer maxWidth="full">
+            <PageContainer>
                 <Heading title="Permission Management" />
                 <HeadingSmall title="Permissions" description="Manage permissions for your application" />
                 <div className="mb-4 flex items-center justify-end">
