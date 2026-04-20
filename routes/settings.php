@@ -1,8 +1,8 @@
 <?php
 
+use App\Http\Controllers\ProfilePhotoController;
 use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Settings\ProfileController;
-use App\Http\Controllers\ProfilePhotoController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -13,6 +13,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('settings/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('settings/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::get('settings/profile-photo/{user}/{conversion?}', [ProfilePhotoController::class, 'show'])->name('profile-photo.show');
     Route::post('settings/profile-photo', [ProfilePhotoController::class, 'update'])->name('profile-photo.update');
     Route::delete('settings/profile-photo', [ProfilePhotoController::class, 'destroy'])->name('profile-photo.destroy');
 

@@ -41,8 +41,6 @@ class AppSetting extends Model
 
     /**
      * Get the application settings instance.
-     *
-     * @return self
      */
     public static function getInstance(): self
     {

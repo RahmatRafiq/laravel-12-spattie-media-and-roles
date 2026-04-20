@@ -1,14 +1,8 @@
-import { TanstackDataTable } from '@/components/TanstackDataTable';
 import Heading from '@/components/Heading';
 import HeadingSmall from '@/components/HeadingSmall';
 import PageContainer from '@/components/PageContainer';
+import { TanstackDataTable } from '@/components/TanstackDataTable';
 import { Button } from '@/components/ui/Button';
-import AppLayout from '@/layouts/AppLayout';
-import type { BreadcrumbItem, InertiaPaginated, Permission } from '@/types';
-import { useResourceActions } from '@/hooks/use-resource-actions';
-import { Head, Link } from '@inertiajs/react';
-import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -17,6 +11,12 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
+import { useResourceActions } from '@/hooks/use-resource-actions';
+import AppLayout from '@/layouts/AppLayout';
+import type { BreadcrumbItem, InertiaPaginated, Permission } from '@/types';
+import { Head, Link } from '@inertiajs/react';
+import { ColumnDef } from '@tanstack/react-table';
+import { MoreHorizontal } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Permission Management', href: route('permissions.index') }];
 
@@ -27,7 +27,7 @@ export default function PermissionIndex({ permissions }: { permissions: InertiaP
         {
             accessorKey: 'id',
             header: 'ID',
-            meta: { className: 'hidden md:table-cell' }
+            meta: { className: 'hidden md:table-cell' },
         },
         {
             accessorKey: 'name',
@@ -36,7 +36,7 @@ export default function PermissionIndex({ permissions }: { permissions: InertiaP
         {
             accessorKey: 'guard_name',
             header: 'Guard',
-            meta: { className: 'hidden md:table-cell' }
+            meta: { className: 'hidden md:table-cell' },
         },
         {
             accessorKey: 'created_at',
@@ -62,7 +62,9 @@ export default function PermissionIndex({ permissions }: { permissions: InertiaP
                             <DropdownMenuItem asChild>
                                 <Link href={route('permissions.edit', permission.id)}>Edit</Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => deleteResource({ url: route('permissions.destroy', permission.id), resourceName: 'Permission' })}>
+                            <DropdownMenuItem
+                                onClick={() => deleteResource({ url: route('permissions.destroy', permission.id), resourceName: 'Permission' })}
+                            >
                                 Delete
                             </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -83,10 +85,7 @@ export default function PermissionIndex({ permissions }: { permissions: InertiaP
                         <Button>Create Permission</Button>
                     </Link>
                 </div>
-                <TanstackDataTable 
-                    columns={columns} 
-                    inertiaPaginated={permissions} 
-                />
+                <TanstackDataTable columns={columns} inertiaPaginated={permissions} />
             </PageContainer>
         </AppLayout>
     );

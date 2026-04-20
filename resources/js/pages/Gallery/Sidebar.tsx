@@ -1,9 +1,9 @@
-import React from 'react';
-import { FolderOpen, Folder as FolderIcon, ChevronDown, ChevronRight, Plus, Pencil, Trash2 } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/Dialog';
 import { Button } from '@/components/ui/Button';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/Dialog';
 import { Input } from '@/components/ui/Input';
 import { FileManagerFolder } from '@/types';
+import { ChevronDown, ChevronRight, Folder as FolderIcon, FolderOpen, Pencil, Plus, Trash2 } from 'lucide-react';
+import React from 'react';
 
 interface SidebarProps {
     folders: FileManagerFolder[];
@@ -38,19 +38,22 @@ export default function Sidebar({
     const [folderName, setFolderName] = React.useState('');
     // removed unused renameDefault state
 
-    const openParentChain = React.useCallback((folderId: number | null, setter: typeof setExpanded) => {
-        if (!folderId) return;
-        setter((prev) => {
-            const next = { ...prev };
-            next[folderId] = true;
-            let parent = folders.find((f) => f.id === folderId)?.parent_id ?? null;
-            while (parent) {
-                next[parent] = true;
-                parent = folders.find((f) => f.id === parent)?.parent_id ?? null;
-            }
-            return next;
-        });
-    }, [folders]);
+    const openParentChain = React.useCallback(
+        (folderId: number | null, setter: typeof setExpanded) => {
+            if (!folderId) return;
+            setter((prev) => {
+                const next = { ...prev };
+                next[folderId] = true;
+                let parent = folders.find((f) => f.id === folderId)?.parent_id ?? null;
+                while (parent) {
+                    next[parent] = true;
+                    parent = folders.find((f) => f.id === parent)?.parent_id ?? null;
+                }
+                return next;
+            });
+        },
+        [folders],
+    );
 
     const handleToggle = (id: number) => {
         setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -100,13 +103,10 @@ export default function Sidebar({
                 const hasChildren = folders.some((f) => f.parent_id === folder.id);
                 const isOpen = !!expanded[folder.id];
                 return (
-                    <div key={folder.id} className={
-                        [
-                            'flex flex-col',
-                            level > 0 ? 'border-l border-gray-200 pl-3' : '',
-                        ].join(' ')
-                    }>
-                        <div className={`flex items-center gap-2 py-1 group rounded ${currentFolderId === folder.id ? 'bg-accent/10 text-accent-foreground' : ''}`}>
+                    <div key={folder.id} className={['flex flex-col', level > 0 ? 'border-l border-gray-200 pl-3' : ''].join(' ')}>
+                        <div
+                            className={`group flex items-center gap-2 rounded py-1 ${currentFolderId === folder.id ? 'bg-accent/10 text-accent-foreground' : ''}`}
+                        >
                             {hasChildren ? (
                                 <button
                                     type="button"
@@ -114,18 +114,18 @@ export default function Sidebar({
                                         e.stopPropagation();
                                         handleToggle(folder.id);
                                     }}
-                                    className="p-0.5 text-gray-400 hover:text-blue-500 flex items-center justify-center focus:outline-none"
+                                    className="flex items-center justify-center p-0.5 text-gray-400 hover:text-blue-500 focus:outline-none"
                                     tabIndex={-1}
                                     aria-label={isOpen ? 'Collapse folder' : 'Expand folder'}
                                 >
                                     {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                                 </button>
                             ) : (
-                                <span className="w-4 inline-block" />
+                                <span className="inline-block w-4" />
                             )}
 
                             <button
-                                className={`flex items-center gap-2 flex-1 text-left truncate ${currentFolderId === folder.id ? 'font-bold text-blue-600' : ''}`}
+                                className={`flex flex-1 items-center gap-2 truncate text-left ${currentFolderId === folder.id ? 'font-bold text-blue-600' : ''}`}
                                 onClick={() => handleFolderClick(folder.id)}
                                 aria-current={currentFolderId === folder.id ? 'page' : undefined}
                             >
@@ -137,7 +137,7 @@ export default function Sidebar({
                                 title="Add subfolder"
                                 type="button"
                                 onClick={() => openAddDialog(folder.id)}
-                                className="text-xs text-blue-400 opacity-0 group-hover:opacity-100 transition flex items-center ml-1 focus:outline-none"
+                                className="ml-1 flex items-center text-xs text-blue-400 opacity-0 transition group-hover:opacity-100 focus:outline-none"
                                 aria-label="Add subfolder"
                             >
                                 <Plus size={14} />
@@ -147,7 +147,7 @@ export default function Sidebar({
                                 title="Rename"
                                 type="button"
                                 onClick={() => openRenameDialog(folder.id, folder.name)}
-                                className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition flex items-center focus:outline-none"
+                                className="flex items-center text-xs text-gray-400 opacity-0 transition group-hover:opacity-100 focus:outline-none"
                                 aria-label="Rename folder"
                             >
                                 <Pencil size={14} />
@@ -157,7 +157,7 @@ export default function Sidebar({
                                 title="Delete"
                                 type="button"
                                 onClick={() => onDeleteFolder(folder.id)}
-                                className="text-xs text-red-400 opacity-0 group-hover:opacity-100 transition flex items-center focus:outline-none"
+                                className="flex items-center text-xs text-red-400 opacity-0 transition group-hover:opacity-100 focus:outline-none"
                                 aria-label="Delete folder"
                             >
                                 <Trash2 size={14} />
@@ -171,14 +171,14 @@ export default function Sidebar({
     };
 
     return (
-        <aside className="w-full md:w-64 min-w-0 md:min-w-[240px] pr-6 bg-background max-h-[80vh] md:max-h-none overflow-y-auto border rounded shadow-sm">
-            <div className="mb-2 font-semibold text-sm text-muted-foreground flex items-center justify-between px-4 pt-4">
+        <aside className="bg-background max-h-[80vh] w-full min-w-0 overflow-y-auto rounded border pr-6 shadow-sm md:max-h-none md:w-64 md:min-w-[240px]">
+            <div className="text-muted-foreground mb-2 flex items-center justify-between px-4 pt-4 text-sm font-semibold">
                 Folders
                 <Button
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="text-xs text-primary hover:underline px-1 py-0 h-6"
+                    className="text-primary h-6 px-1 py-0 text-xs hover:underline"
                     onClick={() => openAddDialog(null)}
                 >
                     + Folder
@@ -196,11 +196,11 @@ export default function Sidebar({
                         <Input
                             autoFocus
                             value={folderName}
-                            onChange={e => setFolderName(e.target.value)}
+                            onChange={(e) => setFolderName(e.target.value)}
                             placeholder={dialogType === 'add' ? 'Folder name' : 'New folder name'}
                             className="mt-2"
                         />
-                        <DialogFooter className="mt-4 flex gap-2 justify-end">
+                        <DialogFooter className="mt-4 flex justify-end gap-2">
                             <Button type="button" variant="secondary" onClick={() => setDialogOpen(false)}>
                                 Cancel
                             </Button>

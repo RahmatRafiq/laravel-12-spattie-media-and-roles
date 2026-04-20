@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import { type MenuItem } from '@/types';
+import { useEffect, useState } from 'react';
 
 export function useMenus() {
     const [menus, setMenus] = useState<MenuItem[]>([]);
@@ -9,11 +9,8 @@ export function useMenus() {
     useEffect(() => {
         setLoading(true);
         let url = '/dashboard/menus/json';
-        if (
-            typeof window !== 'undefined' &&
-            typeof (window as unknown as { route?: unknown }).route === 'function'
-        ) {
-            url = ((window as unknown as { route: (name: string) => string }).route)('menus.json');
+        if (typeof window !== 'undefined' && typeof (window as unknown as { route?: unknown }).route === 'function') {
+            url = (window as unknown as { route: (name: string) => string }).route('menus.json');
         }
         fetch(url)
             .then((res) => {

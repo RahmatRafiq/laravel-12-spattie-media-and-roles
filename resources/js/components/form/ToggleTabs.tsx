@@ -5,7 +5,7 @@ type ToggleTabsProps = {
     active: string;
     onChange: (tab: string) => void;
     labels?: Record<string, string>;
-}
+};
 
 const defaultLabels: Record<string, string> = {
     active: 'Active',

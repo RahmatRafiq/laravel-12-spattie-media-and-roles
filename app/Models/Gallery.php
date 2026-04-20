@@ -48,7 +48,7 @@ class Gallery extends Model implements HasMedia
     {
         $this->addMediaCollection('gallery')
             ->acceptsMimeTypes([
-                // Images (SVG removed due to XSS risk - use sanitized SVG upload if needed)
+                // Images
                 'image/jpeg',
                 'image/png',
                 'image/gif',
@@ -62,7 +62,7 @@ class Gallery extends Model implements HasMedia
                 'application/vnd.ms-powerpoint',
                 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
                 'text/plain',
-                // Archives (consider removing for security)
+                // Archives
                 'application/zip',
                 'application/x-rar-compressed',
                 // Videos
@@ -70,7 +70,6 @@ class Gallery extends Model implements HasMedia
                 'video/quicktime',
                 'video/x-msvideo',
             ])
-            ->maxFileSize(10 * 1024 * 1024) // 10MB limit
             ->useDisk('public'); // Default to public disk
     }
 

@@ -1,6 +1,6 @@
+import { Z_INDEX } from '@/lib/constants';
 import { useMemo } from 'react';
 import type { GroupBase, StylesConfig } from 'react-select';
-import { Z_INDEX } from '@/lib/constants';
 
 /**
  * OKLCH Color Tokens for React Select
@@ -38,11 +38,9 @@ const COLORS = {
  * @param isDark - boolean indicating if dark mode is active
  * @returns StylesConfig for react-select components
  */
-export function useSelectStyles<
-    OptionType,
-    IsMulti extends boolean = false,
-    Group extends GroupBase<OptionType> = GroupBase<OptionType>,
->(isDark: boolean): StylesConfig<OptionType, IsMulti, Group> {
+export function useSelectStyles<OptionType, IsMulti extends boolean = false, Group extends GroupBase<OptionType> = GroupBase<OptionType>>(
+    isDark: boolean,
+): StylesConfig<OptionType, IsMulti, Group> {
     return useMemo(
         () => ({
             control: (provided, state) => ({
@@ -55,9 +53,7 @@ export function useSelectStyles<
                     : isDark
                       ? COLORS.borderDark
                       : COLORS.borderLight,
-                boxShadow: state.isFocused
-                    ? `0 0 0 2px ${isDark ? `${COLORS.borderFocusDark} / 0.5` : `${COLORS.borderFocusLight} / 0.5`}`
-                    : 'none',
+                boxShadow: state.isFocused ? `0 0 0 2px ${isDark ? `${COLORS.borderFocusDark} / 0.5` : `${COLORS.borderFocusLight} / 0.5`}` : 'none',
                 borderRadius: '0.375rem',
                 minHeight: '2.25rem',
                 '&:hover': {
@@ -86,11 +82,7 @@ export function useSelectStyles<
                 color: state.isSelected ? COLORS.selectedText : isDark ? COLORS.textDark : COLORS.textLight,
                 cursor: 'pointer',
                 '&:hover': {
-                    backgroundColor: state.isSelected
-                        ? COLORS.selected
-                        : isDark
-                          ? COLORS.bgHoverDark
-                          : COLORS.bgHoverLight,
+                    backgroundColor: state.isSelected ? COLORS.selected : isDark ? COLORS.bgHoverDark : COLORS.bgHoverLight,
                 },
             }),
             singleValue: (provided) => ({

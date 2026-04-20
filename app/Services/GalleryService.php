@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\FilemanagerFolder;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Config;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
@@ -18,7 +17,7 @@ class GalleryService
             ->distinct()
             ->pluck('disk')
             ->toArray();
-            
+
         $publicDisks = [];
         $privateDisks = [];
 
@@ -95,11 +94,15 @@ class GalleryService
     public function canDeleteFolder(int $id): bool
     {
         $folder = FilemanagerFolder::findOrFail($id);
-        
-        $hasFiles = Media::where('folder_id', $id)->exists();
-        if ($hasFiles) return false;
 
-        if ($folder->children()->exists()) return false;
+        $hasFiles = Media::where('folder_id', $id)->exists();
+        if ($hasFiles) {
+            return false;
+        }
+
+        if ($folder->children()->exists()) {
+            return false;
+        }
 
         return true;
     }
@@ -226,6 +229,7 @@ class GalleryService
     {
         $folder = FilemanagerFolder::findOrFail($id);
         $folder->galleries()->update(['folder_id' => null]);
+
         return $folder->delete();
     }
 
@@ -242,12 +246,59 @@ class GalleryService
     }
 
     /**
+     * Toggle public sharing for a media item.
+     */
+    public function toggleSharing(int $mediaId, bool $isShared): Media
+    {
+        $media = Media::findOrFail($mediaId);
+        $customProperties = $media->custom_properties;
+        $customProperties['is_shared'] = $isShared;
+
+        $media->custom_properties = $customProperties;
+        $media->save();
+
+        return $media;
+    }
+
+    /**
+     * Get media by UUID only if it is shared.
+     */
+    public function getSharedMedia(string $uuid): ?Media
+    {
+        $media = Media::where('uuid', $uuid)->first();
+
+        if (! $media) {
+            return null;
+        }
+
+        // Check if is_shared is true in custom properties
+        if (! ($media->custom_properties['is_shared'] ?? false)) {
+            return null;
+        }
+
+        return $media;
+    }
+
+    /**
+     * Generate public share URL.
+     */
+    public function getShareUrl(Media $media): string
+    {
+        return route('media.share', ['uuid' => $media->uuid]);
+    }
+
+    /**
      * Generate URL for media based on visibility
      */
     public function getMediaUrl(Media $media): string
     {
-        if ($media->disk === 'public' || str_contains($media->disk, 'profile-images')) {
+        if ($media->disk === 'public') {
             return $media->getUrl();
+        }
+
+        // If private, check if it is shared
+        if ($media->custom_properties['is_shared'] ?? false) {
+            return $this->getShareUrl($media);
         }
 
         return route('gallery.file', $media->id);
@@ -268,6 +319,7 @@ class GalleryService
 
         if ($media->model_type === \App\Models\Gallery::class) {
             $gallery = \App\Models\Gallery::find($media->model_id);
+
             return $gallery && $gallery->user_id === $user->id;
         }
 

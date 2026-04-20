@@ -5,7 +5,7 @@ type PrivateImageProps = {
     alt: string;
     className?: string;
     onError?: () => void;
-}
+};
 
 /**
  * Component for displaying images from protected routes

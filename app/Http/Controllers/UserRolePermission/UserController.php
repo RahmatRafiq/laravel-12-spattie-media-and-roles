@@ -39,6 +39,7 @@ class UserController extends Controller
     public function store(StoreUserRequest $request)
     {
         $this->userService->createUser($request->validated());
+
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
@@ -56,24 +57,28 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, $id)
     {
         $this->userService->updateUser($id, $request->validated());
+
         return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 
     public function destroy(User $user)
     {
         $this->userService->deleteUser($user->id);
+
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
 
     public function restore($id)
     {
         $this->userService->restoreUser($id);
+
         return redirect()->route('users.index')->with('success', 'User restored successfully.');
     }
 
     public function forceDelete($id)
     {
         $this->userService->forceDeleteUser($id);
+
         return redirect()->route('users.index')->with('success', 'User permanently deleted.');
     }
 }

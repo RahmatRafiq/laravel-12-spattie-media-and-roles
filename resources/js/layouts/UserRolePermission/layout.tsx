@@ -2,7 +2,7 @@ import Heading from '@/components/Heading';
 import { Button } from '@/components/ui/Button';
 import { Separator } from '@/components/ui/Separator';
 import { cn } from '@/lib/utils';
-import { type NavItem, type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem, type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import { PropsWithChildren } from 'react';
 

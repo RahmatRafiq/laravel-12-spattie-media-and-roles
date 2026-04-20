@@ -87,6 +87,7 @@ class PermissionService
                     'guard_name' => $permission['guard_name'] ?? 'web',
                 ]);
             }
+
             return true;
         } catch (\Exception $e) {
             return false;
@@ -115,7 +116,7 @@ class PermissionService
     public function updatePermission(int $id, array $data): Permission
     {
         $permission = Permission::findOrFail($id);
-        
+
         $permission->update([
             'name' => $data['name'],
             'guard_name' => $data['guard_name'] ?? 'web',
@@ -134,9 +135,6 @@ class PermissionService
 
     /**
      * Get Paginated Permissions for DataTables
-     * 
-     * @param array $params
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function getPaginatedPermissions(array $params): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {

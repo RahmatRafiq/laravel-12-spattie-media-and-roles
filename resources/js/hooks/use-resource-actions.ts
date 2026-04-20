@@ -13,13 +13,7 @@ interface DeleteOptions {
 export function useResourceActions() {
     const confirm = useConfirm();
 
-    const deleteResource = async ({
-        url,
-        title = 'Delete Confirmation',
-        message,
-        resourceName = 'item',
-        onSuccess,
-    }: DeleteOptions) => {
+    const deleteResource = async ({ url, title = 'Delete Confirmation', message, resourceName = 'item', onSuccess }: DeleteOptions) => {
         const isConfirmed = await confirm({
             title,
             message: message || `Are you sure you want to delete this ${resourceName.toLowerCase()}? This action cannot be undone.`,

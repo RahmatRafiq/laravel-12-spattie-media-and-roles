@@ -1,17 +1,10 @@
-import { TanstackDataTable } from '@/components/TanstackDataTable';
 import Heading from '@/components/Heading';
 import HeadingSmall from '@/components/HeadingSmall';
 import PageContainer from '@/components/PageContainer';
+import { TanstackDataTable } from '@/components/TanstackDataTable';
 import ToggleTabs from '@/components/form/ToggleTabs';
-import { Button } from '@/components/ui/Button';
-import AppLayout from '@/layouts/AppLayout';
-import type { BreadcrumbItem, InertiaPaginated, User } from '@/types';
-import { useResourceActions } from '@/hooks/use-resource-actions';
 import { useConfirm } from '@/components/providers/ConfirmationProvider';
-import { toast } from '@/utils/toast';
-import { Head, Link, router } from '@inertiajs/react';
-import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -20,8 +13,15 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
+import { useResourceActions } from '@/hooks/use-resource-actions';
+import AppLayout from '@/layouts/AppLayout';
+import type { BreadcrumbItem, InertiaPaginated, User } from '@/types';
+import { toast } from '@/utils/toast';
+import { Head, Link, router } from '@inertiajs/react';
+import { ColumnDef } from '@tanstack/react-table';
+import { MoreHorizontal } from 'lucide-react';
 
-export default function UserIndex({ users, filter }: { users: InertiaPaginated<User>, filter: string }) {
+export default function UserIndex({ users, filter }: { users: InertiaPaginated<User>; filter: string }) {
     const breadcrumbs: BreadcrumbItem[] = [{ title: 'User Management', href: route('users.index') }];
     const { deleteResource } = useResourceActions();
     const confirm = useConfirm();
@@ -34,18 +34,22 @@ export default function UserIndex({ users, filter }: { users: InertiaPaginated<U
             confirmText: 'Restore',
         });
         if (isConfirmed) {
-            router.post(route('users.restore', id), {}, {
-                onSuccess: () => toast.success('User restored successfully'),
-            });
+            router.post(
+                route('users.restore', id),
+                {},
+                {
+                    onSuccess: () => toast.success('User restored successfully'),
+                },
+            );
         }
     };
-    
+
     const handleForceDelete = (id: number) => {
         deleteResource({
             url: route('users.force-delete', id),
             resourceName: 'User',
             title: 'Permanent Deletion',
-            message: 'Are you sure you want to permanently delete this user? This action cannot be undone.'
+            message: 'Are you sure you want to permanently delete this user? This action cannot be undone.',
         });
     };
 
@@ -53,7 +57,7 @@ export default function UserIndex({ users, filter }: { users: InertiaPaginated<U
         {
             accessorKey: 'id',
             header: 'ID',
-            meta: { className: 'hidden md:table-cell' }
+            meta: { className: 'hidden md:table-cell' },
         },
         {
             accessorKey: 'name',
@@ -62,14 +66,14 @@ export default function UserIndex({ users, filter }: { users: InertiaPaginated<U
         {
             accessorKey: 'email',
             header: 'Email',
-            meta: { className: 'hidden lg:table-cell' } // Hidden on mobile and tablet, show only on large screens
+            meta: { className: 'hidden lg:table-cell' }, // Hidden on mobile and tablet, show only on large screens
         },
         {
             accessorKey: 'roles',
             header: 'Roles',
             meta: { className: 'hidden md:table-cell' },
             enableSorting: false,
-            cell: ({ row }) => <span>{(row.original.roles as unknown as string[]).join(', ')}</span>
+            cell: ({ row }) => <span>{(row.original.roles as unknown as string[]).join(', ')}</span>,
         },
         {
             id: 'actions',
@@ -89,14 +93,18 @@ export default function UserIndex({ users, filter }: { users: InertiaPaginated<U
                             {user.trashed ? (
                                 <>
                                     <DropdownMenuItem onClick={() => handleRestore(user.id)}>Restore</DropdownMenuItem>
-                                    <DropdownMenuItem className='text-red-600' onClick={() => handleForceDelete(user.id)}>Force Delete</DropdownMenuItem>
+                                    <DropdownMenuItem className="text-red-600" onClick={() => handleForceDelete(user.id)}>
+                                        Force Delete
+                                    </DropdownMenuItem>
                                 </>
                             ) : (
                                 <>
                                     <DropdownMenuItem asChild>
                                         <Link href={route('users.edit', user.id)}>Edit</Link>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => deleteResource({ url: route('users.destroy', user.id), resourceName: 'User' })}>Delete</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => deleteResource({ url: route('users.destroy', user.id), resourceName: 'User' })}>
+                                        Delete
+                                    </DropdownMenuItem>
                                 </>
                             )}
                         </DropdownMenuContent>
@@ -121,12 +129,10 @@ export default function UserIndex({ users, filter }: { users: InertiaPaginated<U
                         <Button>Create User</Button>
                     </Link>
                 </div>
-                <TanstackDataTable 
-                    columns={columns} 
-                    inertiaPaginated={users} 
-                    headerContent={
-                        <ToggleTabs tabs={['active', 'trashed', 'all']} active={filter} onChange={handleFilterChange} />
-                    }
+                <TanstackDataTable
+                    columns={columns}
+                    inertiaPaginated={users}
+                    headerContent={<ToggleTabs tabs={['active', 'trashed', 'all']} active={filter} onChange={handleFilterChange} />}
                 />
             </PageContainer>
         </AppLayout>

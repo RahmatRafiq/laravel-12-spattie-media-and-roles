@@ -1,5 +1,5 @@
 import ConfirmationDialog from '@/components/ConfirmationDialog';
-import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
+import React, { createContext, useCallback, useContext, useRef, useState } from 'react';
 
 export interface ConfirmationOptions {
     title?: string;
@@ -61,11 +61,7 @@ export function ConfirmationProvider({ children }: { children: React.ReactNode }
     return (
         <ConfirmationContext.Provider value={{ confirm }}>
             {children}
-            <ConfirmationDialog 
-                state={state} 
-                onConfirm={handleConfirm} 
-                onCancel={handleCancel} 
-            />
+            <ConfirmationDialog state={state} onConfirm={handleConfirm} onCancel={handleCancel} />
         </ConfirmationContext.Provider>
     );
 }

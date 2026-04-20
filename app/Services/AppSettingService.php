@@ -24,6 +24,7 @@ class AppSettingService
     {
         $settings = $this->getSettings();
         $settings->update($data);
+
         return $settings;
     }
 

@@ -13,8 +13,8 @@ test('can get singleton instance', function () {
 
 test('can update settings', function () {
     $setting = AppSetting::getInstance();
-    $setting = AppSetting::updateSettings(['app_name' => 'Updated App']);
-    expect($setting->app_name)->toBe('Updated App');
+    $setting->update(['app_name' => 'Updated App']);
+    expect($setting->refresh()->app_name)->toBe('Updated App');
 });
 
 test('casts work as expected', function () {

@@ -1,4 +1,6 @@
+import type { InertiaPaginated } from '@/types';
 import { router } from '@inertiajs/react';
+import type { ColumnDef, ColumnFiltersState, ExpandedState, PaginationState, SortingState } from '@tanstack/react-table';
 import {
     getCoreRowModel,
     getExpandedRowModel,
@@ -7,15 +9,7 @@ import {
     getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table';
-import type {
-    ColumnDef,
-    ColumnFiltersState,
-    ExpandedState,
-    PaginationState,
-    SortingState,
-} from '@tanstack/react-table';
-import { useEffect, useMemo, useState, useRef } from 'react';
-import type { InertiaPaginated } from '@/types';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 interface UseTanstackDataTableProps<TData> {
     data: TData[];
@@ -24,12 +18,7 @@ interface UseTanstackDataTableProps<TData> {
     links: InertiaPaginated<TData>['links'] | undefined;
 }
 
-export function useTanstackDataTable<TData>({ 
-    data, 
-    columns, 
-    meta, 
-    links: _links, 
-}: UseTanstackDataTableProps<TData>) {
+export function useTanstackDataTable<TData>({ data, columns, meta, links: _links }: UseTanstackDataTableProps<TData>) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [globalFilter, setGlobalFilter] = useState('');
@@ -73,7 +62,7 @@ export function useTanstackDataTable<TData>({
         }
 
         // Add any existing column filters
-        columnFilters.forEach(filter => {
+        columnFilters.forEach((filter) => {
             params[`filter[${filter.id}]`] = filter.value as string;
         });
 
@@ -81,7 +70,7 @@ export function useTanstackDataTable<TData>({
         const currentParams = Object.fromEntries(new URLSearchParams(window.location.search).entries());
         const allParams = {
             ...currentParams,
-            ...params
+            ...params,
         };
 
         router.get(window.location.pathname, allParams, {
@@ -96,7 +85,7 @@ export function useTanstackDataTable<TData>({
             pageIndex: meta ? meta.current_page - 1 : 0,
             pageSize: meta ? meta.per_page : 10,
         }),
-        [meta]
+        [meta],
     );
 
     const table = useReactTable({
@@ -133,12 +122,12 @@ export function useTanstackDataTable<TData>({
         manualFiltering: true,
     });
 
-    return { 
-        table, 
-        pagination, 
-        sorting, 
-        columnFilters, 
-        globalFilter, 
-        links: _links || { first: '', last: '', prev: null, next: null } 
+    return {
+        table,
+        pagination,
+        sorting,
+        columnFilters,
+        globalFilter,
+        links: _links || { first: '', last: '', prev: null, next: null },
     };
 }

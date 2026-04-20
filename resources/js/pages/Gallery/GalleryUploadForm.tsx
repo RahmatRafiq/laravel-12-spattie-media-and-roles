@@ -1,6 +1,6 @@
-import * as React from 'react';
 import CustomSelect from '@/components/form/Select';
 import { Button } from '@/components/ui/Button';
+import * as React from 'react';
 
 type UploadFormData = {
     file: File | null;
@@ -21,12 +21,24 @@ interface GalleryUploadFormProps {
 
 export default function GalleryUploadForm({ data, setData, processing, submitUpload }: GalleryUploadFormProps) {
     const allowedTypes = [
-        'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
-        'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-        'text/plain', 'application/zip', 'application/x-rar-compressed',
-        'video/mp4', 'video/quicktime', 'video/x-msvideo'
+        'image/jpeg',
+        'image/png',
+        'image/gif',
+        'image/webp',
+        'image/svg+xml',
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'text/plain',
+        'application/zip',
+        'application/x-rar-compressed',
+        'video/mp4',
+        'video/quicktime',
+        'video/x-msvideo',
     ];
 
     const maxFileSize = 10240000;
@@ -48,7 +60,9 @@ export default function GalleryUploadForm({ data, setData, processing, submitUpl
 
         // Validate file type
         if (!allowedTypes.includes(file.type)) {
-            alert('Invalid file type. Allowed types: Images (JPG, PNG, GIF, WebP, SVG), Documents (PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT), Archives (ZIP, RAR), Videos (MP4, MOV, AVI)');
+            alert(
+                'Invalid file type. Allowed types: Images (JPG, PNG, GIF, WebP, SVG), Documents (PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT), Archives (ZIP, RAR), Videos (MP4, MOV, AVI)',
+            );
             e.target.value = '';
             setData('file', null);
             return;
@@ -58,13 +72,13 @@ export default function GalleryUploadForm({ data, setData, processing, submitUpl
     };
 
     return (
-        <form onSubmit={submitUpload} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-4">
+        <form onSubmit={submitUpload} className="mb-4 flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
             <input
                 type="file"
                 onChange={handleFileChange}
                 accept=".jpg,.jpeg,.png,.gif,.webp,.svg,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar,.mp4,.mov,.avi"
                 required
-                className="w-full sm:flex-1 text-sm"
+                className="w-full text-sm sm:flex-1"
             />
             <div className="w-full sm:w-auto sm:min-w-[140px]">
                 <CustomSelect<VisibilityOption>
@@ -72,7 +86,7 @@ export default function GalleryUploadForm({ data, setData, processing, submitUpl
                     className="rounded border px-2 py-1"
                     options={[
                         { value: 'public', label: 'Public' },
-                        { value: 'private', label: 'Private' }
+                        { value: 'private', label: 'Private' },
                     ]}
                     onChange={(option) => {
                         const val = option as VisibilityOption | null;

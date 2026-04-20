@@ -1,7 +1,6 @@
-
-import AppLogoIcon from './AppLogoIcon';
-import { usePage } from '@inertiajs/react';
 import { AppSetting } from '@/types';
+import { usePage } from '@inertiajs/react';
+import AppLogoIcon from './AppLogoIcon';
 
 type PageProps = { appSettings: AppSetting };
 

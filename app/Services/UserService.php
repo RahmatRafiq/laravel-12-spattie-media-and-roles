@@ -10,9 +10,6 @@ class UserService
 {
     /**
      * Get Paginated Users for DataTables
-     * 
-     * @param array $params
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function getPaginatedUsers(array $params): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {

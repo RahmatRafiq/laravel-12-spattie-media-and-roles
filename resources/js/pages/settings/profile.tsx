@@ -3,15 +3,15 @@ import { Transition } from '@headlessui/react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler, useEffect, useRef } from 'react';
 
-import DeleteUser from '@/pages/settings/partials/DeleteUserForm';
 import Dropzoner from '@/components/form/Dropzoner';
-import HeadingSmall from '@/components/HeadingSmall';
 import InputError from '@/components/form/InputError';
+import HeadingSmall from '@/components/HeadingSmall';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import AppLayout from '@/layouts/AppLayout';
 import SettingsLayout from '@/layouts/settings/layout';
+import DeleteUser from '@/pages/settings/partials/DeleteUserForm';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {

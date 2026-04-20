@@ -1,14 +1,8 @@
-import { TanstackDataTable } from '@/components/TanstackDataTable';
 import Heading from '@/components/Heading';
 import HeadingSmall from '@/components/HeadingSmall';
 import PageContainer from '@/components/PageContainer';
+import { TanstackDataTable } from '@/components/TanstackDataTable';
 import { Button } from '@/components/ui/Button';
-import AppLayout from '@/layouts/AppLayout';
-import type { BreadcrumbItem, InertiaPaginated, Role } from '@/types';
-import { useResourceActions } from '@/hooks/use-resource-actions';
-import { Head, Link } from '@inertiajs/react';
-import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -17,6 +11,12 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
+import { useResourceActions } from '@/hooks/use-resource-actions';
+import AppLayout from '@/layouts/AppLayout';
+import type { BreadcrumbItem, InertiaPaginated, Role } from '@/types';
+import { Head, Link } from '@inertiajs/react';
+import { ColumnDef } from '@tanstack/react-table';
+import { MoreHorizontal } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Role Management', href: route('roles.index') }];
 
@@ -27,7 +27,7 @@ export default function RoleIndex({ roles }: { roles: InertiaPaginated<Role> }) 
         {
             accessorKey: 'id',
             header: 'ID',
-            meta: { className: 'hidden md:table-cell' }
+            meta: { className: 'hidden md:table-cell' },
         },
         {
             accessorKey: 'name',
@@ -36,27 +36,25 @@ export default function RoleIndex({ roles }: { roles: InertiaPaginated<Role> }) 
         {
             accessorKey: 'guard_name',
             header: 'Guard',
-            meta: { className: 'hidden md:table-cell' }
+            meta: { className: 'hidden md:table-cell' },
         },
         {
             id: 'permissions',
             header: 'Permissions',
             meta: { className: 'hidden md:table-cell' },
             cell: ({ row }) => {
-                const permissions = (row.original.permissions as unknown as { name: string }[]).map(p => p.name);
+                const permissions = (row.original.permissions as unknown as { name: string }[]).map((p) => p.name);
                 return (
                     <div className="flex flex-wrap gap-1">
-                        {permissions.slice(0, 3).map(p => (
-                            <span key={p} className="bg-muted text-muted-foreground px-2 py-0.5 text-xs rounded">
+                        {permissions.slice(0, 3).map((p) => (
+                            <span key={p} className="bg-muted text-muted-foreground rounded px-2 py-0.5 text-xs">
                                 {p}
                             </span>
                         ))}
-                        {permissions.length > 3 && (
-                            <span className="text-xs text-muted-foreground">+{permissions.length - 3} more</span>
-                        )}
+                        {permissions.length > 3 && <span className="text-muted-foreground text-xs">+{permissions.length - 3} more</span>}
                     </div>
                 );
-            }
+            },
         },
         {
             id: 'actions',
@@ -97,10 +95,7 @@ export default function RoleIndex({ roles }: { roles: InertiaPaginated<Role> }) 
                         <Button>Create Role</Button>
                     </Link>
                 </div>
-                <TanstackDataTable 
-                    columns={columns} 
-                    inertiaPaginated={roles} 
-                />
+                <TanstackDataTable columns={columns} inertiaPaginated={roles} />
             </PageContainer>
         </AppLayout>
     );

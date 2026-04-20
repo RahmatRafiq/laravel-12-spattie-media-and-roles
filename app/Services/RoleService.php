@@ -9,9 +9,6 @@ class RoleService
 {
     /**
      * Get Paginated Roles for DataTables
-     * 
-     * @param array $params
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function getPaginatedRoles(array $params): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
@@ -72,7 +69,7 @@ class RoleService
     public function updateRole(int $id, array $data): Role
     {
         $role = Role::findOrFail($id);
-        
+
         $role->update([
             'name' => $data['name'],
             'guard_name' => $data['guard_name'] ?? 'web',

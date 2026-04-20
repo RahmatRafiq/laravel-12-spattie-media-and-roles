@@ -76,9 +76,7 @@ export default function RoleForm({ role, permissions }: { role?: Role; permissio
                             isMulti
                             options={permissionOptions}
                             value={permissionOptions.filter((option) => data.permissions.includes(option.value))}
-                            onChange={(newValue) =>
-                                setData('permissions', Array.isArray(newValue) ? newValue.map((option) => option.value) : [])
-                            }
+                            onChange={(newValue) => setData('permissions', Array.isArray(newValue) ? newValue.map((option) => option.value) : [])}
                         />
                         <InputError message={errors.permissions} />
                     </div>

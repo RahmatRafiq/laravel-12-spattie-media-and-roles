@@ -1,8 +1,8 @@
+import { useDarkMode } from '@/hooks/use-dark-mode';
+import { useSelectStyles } from '@/hooks/use-select-styles';
 import type { Props as SelectProps } from 'react-select';
 import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
-import { useDarkMode } from '@/hooks/use-dark-mode';
-import { useSelectStyles } from '@/hooks/use-select-styles';
 
 type CustomSelectProps<OptionType> = SelectProps<OptionType> & {
     isCreatable?: boolean;

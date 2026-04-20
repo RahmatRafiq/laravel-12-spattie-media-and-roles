@@ -86,7 +86,7 @@ class User extends Authenticatable implements HasMedia
         $this->addMediaCollection('profile_image')
             ->singleFile() // Only one profile image per user
             ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
-            ->useDisk('public');
+            ->useDisk('local'); // Changed from public to local for security
     }
 
     /**

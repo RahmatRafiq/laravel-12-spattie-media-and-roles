@@ -1,8 +1,8 @@
-import '@/echo';
 import Heading from '@/components/Heading';
 import PageContainer from '@/components/PageContainer';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import '@/echo';
 import AppLayout from '@/layouts/AppLayout';
 import type { PageProps as InertiaPageProps } from '@inertiajs/core';
 import { Head, usePage } from '@inertiajs/react';
@@ -82,7 +82,7 @@ export default function ActivityLogList() {
 
     useEffect(() => {
         const cleanup = setInterval(() => {
-            setLogs(prev => prev.slice(0, 50));
+            setLogs((prev) => prev.slice(0, 50));
         }, 60000);
 
         return () => clearInterval(cleanup);
@@ -110,21 +110,17 @@ export default function ActivityLogList() {
         if (!properties || !properties.old || !properties.attributes) return null;
 
         return (
-            <div className="mt-4 rounded-lg border border-border bg-muted/50 p-4">
+            <div className="border-border bg-muted/50 mt-4 rounded-lg border p-4">
                 <div className="mb-2 flex items-center gap-2">
-                    <Database className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium text-foreground">Data Changes</span>
+                    <Database className="text-muted-foreground h-4 w-4" />
+                    <span className="text-foreground text-sm font-medium">Data Changes</span>
                 </div>
                 <div className="space-y-2">
                     {Object.keys(properties.attributes).map((key) => (
                         <div key={key} className="grid grid-cols-1 gap-2 text-sm md:grid-cols-3">
-                            <div className="font-medium text-foreground">{key}</div>
-                            <div className="text-destructive line-through">
-                                {String(properties.old![key] || '-')}
-                            </div>
-                            <div className="text-green-600 dark:text-green-400">
-                                {String(properties.attributes![key] || '-')}
-                            </div>
+                            <div className="text-foreground font-medium">{key}</div>
+                            <div className="text-destructive line-through">{String(properties.old![key] || '-')}</div>
+                            <div className="text-green-600 dark:text-green-400">{String(properties.attributes![key] || '-')}</div>
                         </div>
                     ))}
                 </div>
@@ -166,8 +162,8 @@ export default function ActivityLogList() {
                                 </Badge>
                             )}
                             <div className="flex items-center gap-2">
-                                <Activity className="h-5 w-5 text-muted-foreground" />
-                                <span className="text-sm text-muted-foreground">
+                                <Activity className="text-muted-foreground h-5 w-5" />
+                                <span className="text-muted-foreground text-sm">
                                     {logs.length} log{logs.length !== 1 ? 's' : ''}
                                 </span>
                             </div>
@@ -177,9 +173,9 @@ export default function ActivityLogList() {
                     {logs.length === 0 ? (
                         <Card className="flex h-64 items-center justify-center">
                             <CardContent className="text-center">
-                                <Activity className="mx-auto h-12 w-12 text-muted-foreground/50" />
-                                <h3 className="mt-4 text-lg font-medium text-foreground">No Activity Logs</h3>
-                                <p className="mt-2 text-sm text-muted-foreground">
+                                <Activity className="text-muted-foreground/50 mx-auto h-12 w-12" />
+                                <h3 className="text-foreground mt-4 text-lg font-medium">No Activity Logs</h3>
+                                <p className="text-muted-foreground mt-2 text-sm">
                                     Activity logs will appear here in real-time when users perform actions.
                                 </p>
                             </CardContent>
@@ -187,11 +183,11 @@ export default function ActivityLogList() {
                     ) : (
                         <div className="space-y-4">
                             {logs.map((log, index) => (
-                                <Card key={log.id} className={`transition-all duration-300 ${index === 0 ? 'ring-2 ring-primary/20' : ''}`}>
+                                <Card key={log.id} className={`transition-all duration-300 ${index === 0 ? 'ring-primary/20 ring-2' : ''}`}>
                                     <CardHeader>
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1">
-                                                <CardTitle className="text-base font-medium text-foreground">
+                                                <CardTitle className="text-foreground text-base font-medium">
                                                     {log.description || 'Unknown activity'}
                                                 </CardTitle>
                                                 <CardDescription className="mt-1 flex items-center gap-4 text-sm">
@@ -215,20 +211,13 @@ export default function ActivityLogList() {
                                                     </div>
                                                 </CardDescription>
                                             </div>
-                                            <Badge
-                                                variant="secondary"
-                                                className={`${getEventColor(log.event || 'unknown')} border-0`}
-                                            >
+                                            <Badge variant="secondary" className={`${getEventColor(log.event || 'unknown')} border-0`}>
                                                 {log.event || 'unknown'}
                                             </Badge>
                                         </div>
                                     </CardHeader>
 
-                                    {log.properties && (
-                                        <CardContent>
-                                            {renderProperties(log.properties)}
-                                        </CardContent>
-                                    )}
+                                    {log.properties && <CardContent>{renderProperties(log.properties)}</CardContent>}
                                 </Card>
                             ))}
                         </div>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\MediaShareController;
 use App\Http\Controllers\SocialAuthController;
 use App\Models\AppSetting;
 use Illuminate\Support\Facades\Route;
@@ -13,6 +14,8 @@ Route::get('/', function () {
         'settings' => $settings,
     ]);
 })->name('home');
+
+Route::get('s/{uuid}/{conversion?}', [MediaShareController::class, 'show'])->name('media.share');
 
 Route::get('auth/{provider}', [SocialAuthController::class, 'redirectToProvider'])->name('auth.redirect');
 Route::get('auth/{provider}/callback', [SocialAuthController::class, 'handleProviderCallback'])->name('auth.callback');

@@ -1,8 +1,8 @@
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { cn } from '@/lib/utils';
 import { useTanstackDataTable } from '@/hooks/use-tanstack-data-table';
+import { cn } from '@/lib/utils';
 import type { InertiaPaginated } from '@/types';
 import type { ColumnDef } from '@tanstack/react-table';
 import { flexRender } from '@tanstack/react-table';
@@ -17,30 +17,29 @@ interface TanstackDataTableProps<TData> {
 }
 
 export function TanstackDataTable<TData>({ columns, inertiaPaginated, headerContent }: TanstackDataTableProps<TData>) {
-    const tableColumns = useMemo<ColumnDef<TData>[]>(() => [
-        {
-            id: 'expander',
-            header: () => null,
-            cell: ({ row }) => {
-                return row.getCanExpand() ? (
-                    <button
-                        type="button"
-                        onClick={row.getToggleExpandedHandler()}
-                        style={{ cursor: 'pointer' }}
-                        className="flex items-center justify-center sm:hidden"
-                    >
-                        {row.getIsExpanded() ? (
-                            <CircleMinus className="h-4 w-4 text-red-500" />
-                        ) : (
-                            <CirclePlus className="h-4 w-4 text-primary" />
-                        )}
-                    </button>
-                ) : null;
+    const tableColumns = useMemo<ColumnDef<TData>[]>(
+        () => [
+            {
+                id: 'expander',
+                header: () => null,
+                cell: ({ row }) => {
+                    return row.getCanExpand() ? (
+                        <button
+                            type="button"
+                            onClick={row.getToggleExpandedHandler()}
+                            style={{ cursor: 'pointer' }}
+                            className="flex items-center justify-center sm:hidden"
+                        >
+                            {row.getIsExpanded() ? <CircleMinus className="h-4 w-4 text-red-500" /> : <CirclePlus className="text-primary h-4 w-4" />}
+                        </button>
+                    ) : null;
+                },
+                meta: { className: 'w-[40px] sm:hidden' },
             },
-            meta: { className: 'w-[40px] sm:hidden' }
-        },
-        ...columns,
-    ], [columns]);
+            ...columns,
+        ],
+        [columns],
+    );
 
     const { table, pagination, links } = useTanstackDataTable({
         data: inertiaPaginated?.data ?? [],
@@ -63,12 +62,8 @@ export function TanstackDataTable<TData>({ columns, inertiaPaginated, headerCont
 
     return (
         <div className="space-y-4">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between overflow-hidden">
-                {headerContent && (
-                    <div className="flex-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-                        {headerContent}
-                    </div>
-                )}
+            <div className="flex flex-col gap-4 overflow-hidden sm:flex-row sm:items-center sm:justify-between">
+                {headerContent && <div className="scrollbar-none flex-1 overflow-x-auto pb-1 sm:pb-0">{headerContent}</div>}
                 <div className="flex items-center sm:ml-auto">
                     <Input
                         placeholder="Search all columns..."
@@ -78,10 +73,10 @@ export function TanstackDataTable<TData>({ columns, inertiaPaginated, headerCont
                     />
                 </div>
             </div>
-            <div className="relative rounded-md border w-full overflow-x-auto overflow-y-hidden">
+            <div className="relative w-full overflow-x-auto overflow-y-hidden rounded-md border">
                 {!inertiaPaginated && (
-                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/50 backdrop-blur-[1px]">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <div className="bg-background/50 absolute inset-0 z-10 flex items-center justify-center backdrop-blur-[1px]">
+                        <Loader2 className="text-primary h-8 w-8 animate-spin" />
                     </div>
                 )}
                 <Table className="min-w-full table-fixed md:table-auto">
@@ -92,29 +87,24 @@ export function TanstackDataTable<TData>({ columns, inertiaPaginated, headerCont
                                     const meta = header.column.columnDef.meta as { className?: string } | undefined;
                                     return (
                                         <TableHead key={header.id} className={meta?.className}>
-                                            {header.isPlaceholder
-                                                ? null
-                                                : header.column.getCanSort() ? (
-                                                    <Button
-                                                        variant="ghost"
-                                                        onClick={header.column.getToggleSortingHandler()}
-                                                        className="-ml-4 h-8 data-[state=open]:bg-accent"
-                                                    >
-                                                        <span>{flexRender(header.column.columnDef.header, header.getContext())}</span>
-                                                        {header.column.getIsSorted() === 'desc' ? (
-                                                            <ArrowDown className="ml-2 h-4 w-4" />
-                                                        ) : header.column.getIsSorted() === 'asc' ? (
-                                                            <ArrowUp className="ml-2 h-4 w-4" />
-                                                        ) : (
-                                                            <ArrowUpDown className="ml-2 h-4 w-4 text-muted-foreground/50" />
-                                                        )}
-                                                    </Button>
-                                                ) : (
-                                                    <div className="py-2">
-                                                        {flexRender(header.column.columnDef.header, header.getContext())}
-                                                    </div>
-                                                )
-                                            }
+                                            {header.isPlaceholder ? null : header.column.getCanSort() ? (
+                                                <Button
+                                                    variant="ghost"
+                                                    onClick={header.column.getToggleSortingHandler()}
+                                                    className="data-[state=open]:bg-accent -ml-4 h-8"
+                                                >
+                                                    <span>{flexRender(header.column.columnDef.header, header.getContext())}</span>
+                                                    {header.column.getIsSorted() === 'desc' ? (
+                                                        <ArrowDown className="ml-2 h-4 w-4" />
+                                                    ) : header.column.getIsSorted() === 'asc' ? (
+                                                        <ArrowUp className="ml-2 h-4 w-4" />
+                                                    ) : (
+                                                        <ArrowUpDown className="text-muted-foreground/50 ml-2 h-4 w-4" />
+                                                    )}
+                                                </Button>
+                                            ) : (
+                                                <div className="py-2">{flexRender(header.column.columnDef.header, header.getContext())}</div>
+                                            )}
                                         </TableHead>
                                     );
                                 })}
@@ -129,7 +119,7 @@ export function TanstackDataTable<TData>({ columns, inertiaPaginated, headerCont
                                         {row.getVisibleCells().map((cell) => {
                                             const meta = cell.column.columnDef.meta as { className?: string } | undefined;
                                             return (
-                                                <TableCell key={cell.id} className={cn("py-3", meta?.className)}>
+                                                <TableCell key={cell.id} className={cn('py-3', meta?.className)}>
                                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                 </TableCell>
                                             );
@@ -144,10 +134,10 @@ export function TanstackDataTable<TData>({ columns, inertiaPaginated, headerCont
                                                         // Only show if it's a "hidden" column on mobile
                                                         if (meta?.className?.includes('hidden') && cell.column.id !== 'expander') {
                                                             return (
-                                                                <div key={cell.id} className="flex flex-col border-b border-muted py-2 last:border-0">
-                                                                    <span className="text-xs font-semibold uppercase text-muted-foreground">
-                                                                        {typeof cell.column.columnDef.header === 'string' 
-                                                                            ? cell.column.columnDef.header 
+                                                                <div key={cell.id} className="border-muted flex flex-col border-b py-2 last:border-0">
+                                                                    <span className="text-muted-foreground text-xs font-semibold uppercase">
+                                                                        {typeof cell.column.columnDef.header === 'string'
+                                                                            ? cell.column.columnDef.header
                                                                             : cell.column.id}
                                                                     </span>
                                                                     <div className="mt-1 text-sm">
@@ -167,7 +157,7 @@ export function TanstackDataTable<TData>({ columns, inertiaPaginated, headerCont
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={tableColumns.length} className="h-24 text-center">
-                                    {inertiaPaginated ? "No results." : "Loading..."}
+                                    {inertiaPaginated ? 'No results.' : 'Loading...'}
                                 </TableCell>
                             </TableRow>
                         )}
@@ -175,24 +165,14 @@ export function TanstackDataTable<TData>({ columns, inertiaPaginated, headerCont
                 </Table>
             </div>
             <div className="flex items-center justify-end space-x-2">
-                <div className="flex-1 text-sm text-muted-foreground">
+                <div className="text-muted-foreground flex-1 text-sm">
                     Page {pagination.pageIndex + 1} of {table.getPageCount() > 0 ? table.getPageCount() : 1}
                 </div>
                 <div className="space-x-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handlePreviousPage}
-                        disabled={!links.prev}
-                    >
+                    <Button variant="outline" size="sm" onClick={handlePreviousPage} disabled={!links.prev}>
                         Previous
                     </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleNextPage}
-                        disabled={!links.next}
-                    >
+                    <Button variant="outline" size="sm" onClick={handleNextPage} disabled={!links.next}>
                         Next
                     </Button>
                 </div>

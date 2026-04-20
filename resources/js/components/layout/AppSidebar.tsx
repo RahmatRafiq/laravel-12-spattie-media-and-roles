@@ -1,20 +1,12 @@
 import { NavFooter } from '@/components/layout/NavFooter';
 import { NavMain } from '@/components/layout/NavMain';
 import { NavUser } from '@/components/layout/NavUser';
-import {
-    Sidebar,
-    SidebarContent,
-    SidebarFooter,
-    SidebarHeader,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
-} from '@/components/ui/Sidebar';
-import { type NavItem, type MenuItem } from '@/types';
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/Sidebar';
+import { getIcon } from '@/lib/icon-registry';
+import { type MenuItem, type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { FileText, Github } from 'lucide-react';
 import AppLogo from './AppLogo';
-import { getIcon } from '@/lib/icon-registry';
 
 const footerNavItems: NavItem[] = [
     {

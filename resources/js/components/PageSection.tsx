@@ -27,7 +27,7 @@ export default function PageSection({ children, sidebar, className, contentClass
     }
 
     return (
-        <div className={cn('flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0', className)}>
+        <div className={cn('flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-12', className)}>
             {/* Sidebar - hidden on mobile, fixed width on desktop */}
             <aside className="w-full max-w-xl lg:w-48">{sidebar}</aside>
 

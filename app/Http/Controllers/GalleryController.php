@@ -76,7 +76,7 @@ class GalleryController extends Controller
 
         $folder = FilemanagerFolder::findOrFail($id);
         $parentId = $folder->parent_id;
-        
+
         $this->galleryService->deleteFolder((int) $id);
 
         return redirect()->route('gallery.index', ['folder_id' => $parentId, 'visibility' => $request->query('visibility', 'public')])

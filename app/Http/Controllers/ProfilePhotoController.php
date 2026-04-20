@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Services\ProfilePhotoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,6 +13,35 @@ class ProfilePhotoController extends Controller
         protected ProfilePhotoService $service
     ) {}
 
+    /**
+     * Display the specified profile photo securely.
+     */
+    public function show(int $userId, string $conversion = '')
+    {
+        $user = User::findOrFail($userId);
+
+        // Authorization: Admin or the owner of the account
+        if (! auth()->user()->hasRole('admin') && auth()->id() !== $user->id) {
+            abort(403, 'Unauthorized access to profile photo.');
+        }
+
+        $media = $user->getFirstMedia('profile_image');
+
+        if (! $media) {
+            abort(404);
+        }
+
+        // Optimized for both local and cloud storage
+        if ($media->getDiskDriverName() === 'local') {
+            return response()->file($media->getPath($conversion));
+        }
+
+        // For Cloud Storage (S3, etc.), stream the file securely
+        return response()->streamDownload(function () use ($media, $conversion) {
+            echo file_get_contents($media->getTemporaryUrl(now()->addMinutes(5), $conversion));
+        }, $media->file_name);
+    }
+
     public function update(Request $request): JsonResponse
     {
         $request->validate([
@@ -20,7 +50,7 @@ class ProfilePhotoController extends Controller
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
-        
+
         $this->service->update($user, $request->file('photo'));
 
         return response()->json(['message' => 'Profile photo updated successfully.']);

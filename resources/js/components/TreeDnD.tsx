@@ -1,20 +1,9 @@
-import React from 'react';
-import {
-    DndContext,
-    closestCenter,
-    PointerSensor,
-    useSensor,
-    useSensors,
-    DragEndEvent,
-} from '@dnd-kit/core';
-import {
-    SortableContext,
-    verticalListSortingStrategy,
-    useSortable,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import { Z_INDEX } from '@/lib/constants';
 import { findParentAndIndex, insertNode, removeNode } from '@/lib/utils/tree';
+import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import React from 'react';
 
 export interface TreeDnDProps<T> {
     items: T[];
@@ -25,23 +14,26 @@ export interface TreeDnDProps<T> {
     renderItem: (item: T) => React.ReactNode;
 }
 
-function DefaultTreeItem<T>({ item, children, getId, renderItem }: { item: T; children?: React.ReactNode; getId: (item: T) => string | number; renderItem: (item: T) => React.ReactNode }) {
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging,
-    } = useSortable({ id: String(getId(item)) });
-    
+function DefaultTreeItem<T>({
+    item,
+    children,
+    getId,
+    renderItem,
+}: {
+    item: T;
+    children?: React.ReactNode;
+    getId: (item: T) => string | number;
+    renderItem: (item: T) => React.ReactNode;
+}) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: String(getId(item)) });
+
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
         opacity: isDragging ? 0.5 : 1,
         zIndex: isDragging ? Z_INDEX.DRAGGING : undefined,
     };
-    
+
     return (
         <li ref={setNodeRef} style={style} className="mb-1">
             <div {...attributes} {...listeners}>
@@ -52,11 +44,23 @@ function DefaultTreeItem<T>({ item, children, getId, renderItem }: { item: T; ch
     );
 }
 
-function Tree<T>({ items, getId, getChildren, setChildren, renderItem }: { items: T[]; getId: (item: T) => string | number; getChildren: (item: T) => T[] | undefined; setChildren: (item: T, children: T[]) => T; renderItem: (item: T) => React.ReactNode }) {
+function Tree<T>({
+    items,
+    getId,
+    getChildren,
+    setChildren,
+    renderItem,
+}: {
+    items: T[];
+    getId: (item: T) => string | number;
+    getChildren: (item: T) => T[] | undefined;
+    setChildren: (item: T, children: T[]) => T;
+    renderItem: (item: T) => React.ReactNode;
+}) {
     if (!items || items.length === 0) {
         return <div className="text-muted-foreground text-sm">No data found.</div>;
     }
-    
+
     return (
         <SortableContext items={items.map((i) => String(getId(i)))} strategy={verticalListSortingStrategy}>
             <ul className="pl-0">
@@ -66,8 +70,14 @@ function Tree<T>({ items, getId, getChildren, setChildren, renderItem }: { items
                         <React.Fragment key={getId(item)}>
                             <DefaultTreeItem item={item} getId={getId} renderItem={renderItem}>
                                 {children && children.length > 0 && (
-                                    <div className="ml-3 sm:ml-6 mt-1">
-                                        <Tree items={children} getId={getId} getChildren={getChildren} setChildren={setChildren} renderItem={renderItem} />
+                                    <div className="mt-1 ml-3 sm:ml-6">
+                                        <Tree
+                                            items={children}
+                                            getId={getId}
+                                            getChildren={getChildren}
+                                            setChildren={setChildren}
+                                            renderItem={renderItem}
+                                        />
                                     </div>
                                 )}
                             </DefaultTreeItem>
@@ -80,9 +90,7 @@ function Tree<T>({ items, getId, getChildren, setChildren, renderItem }: { items
 }
 
 export default function TreeDnD<T>({ items, onChange, getId, getChildren, setChildren, renderItem }: TreeDnDProps<T>) {
-    const sensors = useSensors(
-        useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
-    );
+    const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
@@ -103,24 +111,12 @@ export default function TreeDnD<T>({ items, onChange, getId, getChildren, setChi
             targetIndex = to.index;
         }
 
-        const newTree = insertNode(
-            treeWithoutNode,
-            removedNode,
-            to.parentId,
-            targetIndex,
-            getId,
-            getChildren,
-            setChildren
-        );
+        const newTree = insertNode(treeWithoutNode, removedNode, to.parentId, targetIndex, getId, getChildren, setChildren);
         onChange(newTree);
     };
 
     return (
-        <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-        >
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <Tree items={items} getId={getId} getChildren={getChildren} setChildren={setChildren} renderItem={renderItem} />
         </DndContext>
     );

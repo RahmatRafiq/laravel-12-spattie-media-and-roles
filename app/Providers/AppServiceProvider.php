@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Models\AppSetting;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
 use Spatie\Activitylog\Models\Activity;
