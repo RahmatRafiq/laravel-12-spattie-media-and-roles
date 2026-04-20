@@ -16,6 +16,9 @@ A modern, production-ready starter kit for web apps using **Laravel 12**, **Reac
 ### 📁 File & Media Management
 - Advanced file manager dengan **nested folder structure**
 - **Public & private file storage** dengan visual indicators
+- **Secure Profile Photo**: Foto profil disimpan di disk privat (`local`) dengan akses terkontrol
+- **UUID-based Sharing Link**: Berbagi file privat via link publik unik (mirip Google Drive)
+- **Bucket-Ready Architecture**: Siap pindah ke AWS S3/Cloud Storage tanpa ubah kode logic
 - Drag & drop upload (Dropzone)
 - Image preview & pagination
 - **Persistent visibility filter** (tidak reset setelah operations)
@@ -59,6 +62,17 @@ A modern, production-ready starter kit for web apps using **Laravel 12**, **Reac
 - OKLCH color system
 - Tailwind CSS 4.0
 - Smooth animations & transitions
+
+## 🏗️ Development Standards & Culture
+
+Project ini dikelola menggunakan mandat **Senior Architect** dengan filosofi:
+
+- **KISS (Keep It Simple, Stupid)**: Hindari kompleksitas yang tidak perlu.
+- **DRY (Don't Repeat Yourself)**: Minimalkan duplikasi logika bisnis.
+- **SoC (Separation of Concerns)**: Gunakan **Service Pattern** untuk logika bisnis.
+- **TDD (Test-Driven Development)**: Setiap fitur baru wajib disertai test yang lulus di environment `testing` (SQLite `:memory:`).
+
+> 🇮🇩 **Dokumentasi & Mandat:** Seluruh koordinasi teknis dan mandat internal dalam proyek ini menggunakan **Bahasa Indonesia** yang santai namun profesional (Senior Architect style) untuk menjaga efisiensi dan kejelasan tim. Lihat [`GEMINI.md`](GEMINI.md) untuk detail mandat selengkapnya.
 
 ## 🚀 Quick Start
 
@@ -235,18 +249,22 @@ MIT License
 
 ## 🧪 Testing
 
+Project ini mewajibkan penggunaan environment `testing` dengan **SQLite (:memory:)** untuk isolasi total dan kecepatan maksimal.
+
 ```bash
-# Run tests
-php artisan test
+# Pre-flight check environment
+php artisan env --env=testing
+
+# Run tests (Mandatory flag)
+php artisan test --env=testing
 
 # Run tests with coverage
-php artisan test --coverage
+php artisan test --env=testing --coverage
 
-# Type checking
-npm run type-check
-
-# Linting
+# Type checking & Linting
+npm run types
 npm run lint
+npm run format
 ```
 
 ## 🔧 Troubleshooting
