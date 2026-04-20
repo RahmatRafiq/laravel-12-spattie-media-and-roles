@@ -2,24 +2,16 @@
 
 namespace App\Services;
 
-use App\Repositories\Contracts\PermissionRepositoryInterface;
 use Spatie\Permission\Models\Permission;
 
 class PermissionService
 {
     /**
-     * PermissionService constructor
-     */
-    public function __construct(
-        private PermissionRepositoryInterface $permissionRepository
-    ) {}
-
-    /**
      * Get all permissions
      */
     public function getAllPermissions(): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->permissionRepository->all();
+        return Permission::all();
     }
 
     /**
@@ -27,7 +19,31 @@ class PermissionService
      */
     public function getGroupedPermissions(): array
     {
-        return $this->permissionRepository->getGroupedByCategory();
+        $permissions = Permission::all();
+
+        $grouped = [
+            'User Management' => [],
+            'Role & Permission' => [],
+            'File Management' => [],
+            'General' => [],
+        ];
+
+        foreach ($permissions as $permission) {
+            $name = $permission->name;
+
+            if (str_contains($name, 'user')) {
+                $grouped['User Management'][] = $permission;
+            } elseif (str_contains($name, 'role') || str_contains($name, 'permission')) {
+                $grouped['Role & Permission'][] = $permission;
+            } elseif (str_contains($name, 'gallery') || str_contains($name, 'file') || str_contains($name, 'folder')) {
+                $grouped['File Management'][] = $permission;
+            } else {
+                $grouped['General'][] = $permission;
+            }
+        }
+
+        // Remove empty categories
+        return array_filter($grouped, fn ($items) => ! empty($items));
     }
 
     /**
@@ -35,7 +51,7 @@ class PermissionService
      */
     public function getPermissionOptions(): array
     {
-        return $this->permissionRepository->getPermissionOptions();
+        return Permission::pluck('name', 'id')->toArray();
     }
 
     /**
@@ -43,7 +59,9 @@ class PermissionService
      */
     public function getPermissionsByRole(int $roleId): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->permissionRepository->getByRole($roleId);
+        return Permission::whereHas('roles', function ($query) use ($roleId) {
+            $query->where('roles.id', $roleId);
+        })->get();
     }
 
     /**
@@ -51,7 +69,7 @@ class PermissionService
      */
     public function createPermission(array $data): Permission
     {
-        return $this->permissionRepository->create([
+        return Permission::create([
             'name' => $data['name'],
             'guard_name' => $data['guard_name'] ?? 'web',
         ]);
@@ -62,7 +80,17 @@ class PermissionService
      */
     public function bulkCreatePermissions(array $permissions): bool
     {
-        return $this->permissionRepository->bulkCreate($permissions);
+        try {
+            foreach ($permissions as $permission) {
+                Permission::firstOrCreate([
+                    'name' => $permission['name'],
+                    'guard_name' => $permission['guard_name'] ?? 'web',
+                ]);
+            }
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -70,7 +98,7 @@ class PermissionService
      */
     public function findByName(string $name): ?Permission
     {
-        return $this->permissionRepository->findByName($name);
+        return Permission::where('name', $name)->first();
     }
 
     /**
@@ -78,7 +106,7 @@ class PermissionService
      */
     public function findPermission(int $id): Permission
     {
-        return $this->permissionRepository->findOrFail($id);
+        return Permission::findOrFail($id);
     }
 
     /**
@@ -86,10 +114,14 @@ class PermissionService
      */
     public function updatePermission(int $id, array $data): Permission
     {
-        return $this->permissionRepository->update($id, [
+        $permission = Permission::findOrFail($id);
+        
+        $permission->update([
             'name' => $data['name'],
             'guard_name' => $data['guard_name'] ?? 'web',
         ]);
+
+        return $permission;
     }
 
     /**
@@ -97,7 +129,7 @@ class PermissionService
      */
     public function deletePermission(int $id): bool
     {
-        return $this->permissionRepository->delete($id);
+        return Permission::findOrFail($id)->delete();
     }
 
     /**
@@ -122,6 +154,6 @@ class PermissionService
      */
     public function getDataTableQuery(): \Illuminate\Database\Eloquent\Builder
     {
-        return $this->permissionRepository->getDataTableQuery();
+        return Permission::query();
     }
 }

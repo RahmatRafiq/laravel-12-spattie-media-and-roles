@@ -4,17 +4,9 @@ namespace App\Services;
 
 use App\Models\Menu;
 use App\Models\User;
-use App\Repositories\Contracts\MenuRepositoryInterface;
 
 class MenuService
 {
-    /**
-     * MenuService constructor
-     */
-    public function __construct(
-        private MenuRepositoryInterface $menuRepository
-    ) {}
-
     /**
      * Get menus for current authenticated user
      * Filters by permissions
@@ -27,7 +19,7 @@ class MenuService
             return collect([]);
         }
 
-        return collect($this->menuRepository->getMenusForUser($user));
+        return collect($this->getMenusForUser($user));
     }
 
     /**
@@ -35,7 +27,19 @@ class MenuService
      */
     public function getMenusForUser(User $user): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->menuRepository->getMenusForUser($user);
+        return $this->getRootMenusWithChildren()
+            ->filter(function ($menu) use ($user) {
+                return ! $menu->permission || $user->can($menu->permission);
+            })
+            ->map(function ($menu) use ($user) {
+                // Filter children by permissions
+                $menu->children = $menu->children->filter(function ($child) use ($user) {
+                    return ! $child->permission || $user->can($child->permission);
+                })->values();
+
+                return $menu;
+            })
+            ->values();
     }
 
     /**
@@ -43,7 +47,7 @@ class MenuService
      */
     public function getAllMenusWithChildren(): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->menuRepository->getRootMenusWithChildren();
+        return $this->getRootMenusWithChildren();
     }
 
     /**
@@ -51,7 +55,12 @@ class MenuService
      */
     public function getRootMenusWithChildren(): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->menuRepository->getRootMenusWithChildren();
+        return Menu::with(['children' => function ($query) {
+            $query->orderBy('order');
+        }])
+            ->whereNull('parent_id')
+            ->orderBy('order')
+            ->get();
     }
 
     /**
@@ -59,7 +68,7 @@ class MenuService
      */
     public function getAllMenusFlat(): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->menuRepository->getAllFlat();
+        return Menu::orderBy('order')->get();
     }
 
     /**
@@ -67,7 +76,7 @@ class MenuService
      */
     public function getAllMenus(): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->menuRepository->all();
+        return Menu::orderBy('order')->get();
     }
 
     /**
@@ -83,7 +92,7 @@ class MenuService
      */
     public function createMenu(array $data): Menu
     {
-        return $this->menuRepository->create([
+        return Menu::create([
             'title' => $data['title'],
             'route' => $data['route'] ?? null,
             'icon' => $data['icon'] ?? null,
@@ -98,7 +107,8 @@ class MenuService
      */
     public function updateMenu(int $id, array $data): Menu
     {
-        return $this->menuRepository->update($id, [
+        $menu = Menu::findOrFail($id);
+        $menu->update([
             'title' => $data['title'],
             'route' => $data['route'] ?? null,
             'icon' => $data['icon'] ?? null,
@@ -106,6 +116,8 @@ class MenuService
             'parent_id' => $data['parent_id'] ?? null,
             'order' => $data['order'] ?? 0,
         ]);
+
+        return $menu;
     }
 
     /**
@@ -113,7 +125,7 @@ class MenuService
      */
     public function deleteMenu(int $id): bool
     {
-        return $this->menuRepository->delete($id);
+        return Menu::findOrFail($id)->delete();
     }
 
     /**
@@ -121,7 +133,15 @@ class MenuService
      */
     public function updateMenuOrder(array $menuOrder): bool
     {
-        return $this->menuRepository->updateOrder($menuOrder);
+        try {
+            foreach ($menuOrder as $order => $menuId) {
+                Menu::where('id', $menuId)->update(['order' => $order]);
+            }
+
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -129,7 +149,7 @@ class MenuService
      */
     public function findMenu(int $id): Menu
     {
-        return $this->menuRepository->findOrFail($id);
+        return Menu::findOrFail($id);
     }
 
     /**
@@ -137,6 +157,8 @@ class MenuService
      */
     public function getChildMenus(int $parentId): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->menuRepository->getChildMenus($parentId);
+        return Menu::where('parent_id', $parentId)
+            ->orderBy('order')
+            ->get();
     }
 }

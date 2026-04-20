@@ -2,19 +2,11 @@
 
 namespace App\Services;
 
-use App\Repositories\Contracts\RoleRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\Permission\Models\Role;
 
 class RoleService
 {
-    /**
-     * RoleService constructor
-     */
-    public function __construct(
-        private RoleRepositoryInterface $roleRepository
-    ) {}
-
     /**
      * Get Paginated Roles for DataTables
      * 
@@ -37,7 +29,7 @@ class RoleService
      */
     public function getDataTableQuery(): Builder
     {
-        return $this->roleRepository->getDataTableQuery();
+        return Role::with('permissions');
     }
 
     /**
@@ -45,7 +37,7 @@ class RoleService
      */
     public function getAllRoles(): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->roleRepository->getRolesWithPermissions();
+        return Role::with('permissions')->get();
     }
 
     /**
@@ -53,7 +45,7 @@ class RoleService
      */
     public function getRoleOptions(): array
     {
-        return $this->roleRepository->getRoleOptions();
+        return Role::pluck('name', 'id')->toArray();
     }
 
     /**
@@ -61,14 +53,14 @@ class RoleService
      */
     public function createRole(array $data): Role
     {
-        $role = $this->roleRepository->create([
+        $role = Role::create([
             'name' => $data['name'],
             'guard_name' => $data['guard_name'] ?? 'web',
         ]);
 
         // Sync permissions if provided
         if (isset($data['permissions']) && is_array($data['permissions'])) {
-            $this->roleRepository->syncPermissions($role->id, $data['permissions']);
+            $role->syncPermissions($data['permissions']);
         }
 
         return $role->fresh(['permissions']);
@@ -79,14 +71,16 @@ class RoleService
      */
     public function updateRole(int $id, array $data): Role
     {
-        $role = $this->roleRepository->update($id, [
+        $role = Role::findOrFail($id);
+        
+        $role->update([
             'name' => $data['name'],
             'guard_name' => $data['guard_name'] ?? 'web',
         ]);
 
         // Sync permissions if provided
         if (isset($data['permissions']) && is_array($data['permissions'])) {
-            $this->roleRepository->syncPermissions($role->id, $data['permissions']);
+            $role->syncPermissions($data['permissions']);
         }
 
         return $role->fresh(['permissions']);
@@ -97,7 +91,7 @@ class RoleService
      */
     public function deleteRole(int $id): bool
     {
-        return $this->roleRepository->delete($id);
+        return Role::findOrFail($id)->delete();
     }
 
     /**
@@ -105,7 +99,7 @@ class RoleService
      */
     public function findRole(int $id): Role
     {
-        return $this->roleRepository->findOrFail($id);
+        return Role::findOrFail($id);
     }
 
     /**
@@ -113,6 +107,11 @@ class RoleService
      */
     public function searchRoles(string $query): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->roleRepository->searchRoles($query);
+        return Role::with('permissions')
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                    ->orWhere('guard_name', 'like', "%{$query}%");
+            })
+            ->get();
     }
 }

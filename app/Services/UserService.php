@@ -3,19 +3,11 @@
 namespace App\Services;
 
 use App\Models\User;
-use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Hash;
 
 class UserService
 {
-    /**
-     * UserService constructor
-     */
-    public function __construct(
-        private UserRepositoryInterface $userRepository
-    ) {}
-
     /**
      * Get Paginated Users for DataTables
      * 
@@ -39,7 +31,11 @@ class UserService
      */
     public function getDataTableQuery(string $status = 'active'): Builder
     {
-        return $this->userRepository->getDataTableQuery($status);
+        return match ($status) {
+            'trashed' => User::onlyTrashed()->with('roles'),
+            'all' => User::withTrashed()->with('roles'),
+            default => User::with('roles'),
+        };
     }
 
     /**
@@ -47,7 +43,7 @@ class UserService
      */
     public function getAllUsers(): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->userRepository->getUsersWithRoles();
+        return User::with('roles')->get();
     }
 
     /**
@@ -55,7 +51,7 @@ class UserService
      */
     public function getUserWithTrashed(int $id): User
     {
-        return $this->userRepository->findWithTrashed($id);
+        return User::withTrashed()->findOrFail($id);
     }
 
     /**
@@ -64,7 +60,7 @@ class UserService
     public function createUser(array $data): User
     {
         // Create user
-        $user = $this->userRepository->create([
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
@@ -83,7 +79,7 @@ class UserService
      */
     public function updateUser(int $id, array $data): User
     {
-        $user = $this->userRepository->findWithTrashed($id);
+        $user = User::withTrashed()->findOrFail($id);
 
         // Update basic info
         $updateData = [
@@ -111,7 +107,7 @@ class UserService
      */
     public function deleteUser(int $id): bool
     {
-        return $this->userRepository->delete($id);
+        return User::findOrFail($id)->delete();
     }
 
     /**
@@ -119,7 +115,13 @@ class UserService
      */
     public function restoreUser(int $id): bool
     {
-        return $this->userRepository->restore($id);
+        $user = User::onlyTrashed()->find($id);
+
+        if (! $user) {
+            return false;
+        }
+
+        return $user->restore();
     }
 
     /**
@@ -127,7 +129,13 @@ class UserService
      */
     public function forceDeleteUser(int $id): bool
     {
-        return $this->userRepository->forceDelete($id);
+        $user = User::onlyTrashed()->find($id);
+
+        if (! $user) {
+            return false;
+        }
+
+        return $user->forceDelete();
     }
 
     /**
@@ -135,7 +143,7 @@ class UserService
      */
     public function getTrashedUsers(): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->userRepository->getTrashedUsers();
+        return User::onlyTrashed()->with('roles')->get();
     }
 
     /**
@@ -143,6 +151,11 @@ class UserService
      */
     public function searchUsers(string $query): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->userRepository->searchUsers($query);
+        return User::with('roles')
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                    ->orWhere('email', 'like', "%{$query}%");
+            })
+            ->get();
     }
 }

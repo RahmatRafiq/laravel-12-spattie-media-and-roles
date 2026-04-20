@@ -2,24 +2,19 @@
 
 namespace App\Services;
 
-use App\Repositories\Contracts\ActivityLogRepositoryInterface;
 use Spatie\Activitylog\Models\Activity;
 
 class ActivityLogService
 {
     /**
-     * ActivityLogService constructor
-     */
-    public function __construct(
-        private ActivityLogRepositoryInterface $activityLogRepository
-    ) {}
-
-    /**
      * Get latest activity logs
      */
     public function getLatestLogs(int $limit = 50): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->activityLogRepository->getLatestWithCauser($limit);
+        return Activity::with('causer')
+            ->latest()
+            ->limit($limit)
+            ->get();
     }
 
     /**
@@ -27,7 +22,11 @@ class ActivityLogService
      */
     public function getLogsForSubject(string $subjectType, int $subjectId): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->activityLogRepository->getForSubject($subjectType, $subjectId);
+        return Activity::where('subject_type', $subjectType)
+            ->where('subject_id', $subjectId)
+            ->with('causer')
+            ->latest()
+            ->get();
     }
 
     /**
@@ -35,7 +34,9 @@ class ActivityLogService
      */
     public function getLogsByUser(int $userId): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->activityLogRepository->getByCauser($userId);
+        return Activity::where('causer_id', $userId)
+            ->latest()
+            ->get();
     }
 
     /**
@@ -43,7 +44,10 @@ class ActivityLogService
      */
     public function getLogsByEvent(string $event): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->activityLogRepository->getByEvent($event);
+        return Activity::where('event', $event)
+            ->with('causer')
+            ->latest()
+            ->get();
     }
 
     /**
@@ -53,7 +57,8 @@ class ActivityLogService
      */
     public function clearOldLogs(int $daysToKeep = 30): int
     {
-        return $this->activityLogRepository->clearOldLogs($daysToKeep);
+        return Activity::where('created_at', '<', now()->subDays($daysToKeep))
+            ->delete();
     }
 
     /**
@@ -61,7 +66,21 @@ class ActivityLogService
      */
     public function getStatistics(): array
     {
-        return $this->activityLogRepository->getStatistics();
+        $totalLogs = Activity::count();
+        $recentLogs = Activity::where('created_at', '>=', now()->subDay())->count();
+        $uniqueCausers = Activity::distinct('causer_id')->count('causer_id');
+
+        $eventCounts = Activity::selectRaw('event, COUNT(*) as count')
+            ->groupBy('event')
+            ->pluck('count', 'event')
+            ->toArray();
+
+        return [
+            'total_logs' => $totalLogs,
+            'recent_logs_24h' => $recentLogs,
+            'unique_causers' => $uniqueCausers,
+            'events' => $eventCounts,
+        ];
     }
 
     /**

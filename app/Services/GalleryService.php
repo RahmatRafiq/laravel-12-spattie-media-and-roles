@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\FilemanagerFolder;
-use App\Repositories\Contracts\GalleryRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Config;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -11,19 +10,15 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class GalleryService
 {
     /**
-     * GalleryService constructor
-     */
-    public function __construct(
-        private GalleryRepositoryInterface $galleryRepository
-    ) {}
-
-    /**
      * Classify disks by visibility (public/private)
-     * Extracted from GalleryController::index()
      */
     public function classifyDisksByVisibility(): array
     {
-        $allDisks = $this->galleryRepository->getAllDisks();
+        $allDisks = Media::select('disk')
+            ->distinct()
+            ->pluck('disk')
+            ->toArray();
+            
         $publicDisks = [];
         $privateDisks = [];
 
@@ -65,7 +60,15 @@ class GalleryService
         $disks = $this->classifyDisksByVisibility();
         $selectedDisks = $visibility === 'public' ? $disks['public'] : $disks['private'];
 
-        return $this->galleryRepository->getByCollectionAndDisks($collection, $selectedDisks);
+        $query = Media::where('collection_name', $collection);
+
+        if (! empty($selectedDisks)) {
+            $query->whereIn('disk', $selectedDisks);
+        } else {
+            $query->whereRaw('1=0');
+        }
+
+        return $query;
     }
 
     /**
@@ -76,14 +79,7 @@ class GalleryService
         $visibility = $filters['visibility'] ?? 'public';
         $collection = $filters['collection'] ?? 'gallery';
 
-        $disks = $this->classifyDisksByVisibility();
-        $selectedDisks = $visibility === 'public' ? $disks['public'] : $disks['private'];
-
-        return $this->galleryRepository->forDataTable([
-            'visibility' => $visibility,
-            'collection' => $collection,
-            'disks' => $selectedDisks,
-        ]);
+        return $this->getMediaByVisibility($visibility, $collection);
     }
 
     /**
@@ -91,7 +87,9 @@ class GalleryService
      */
     public function getByCollection(string $collection): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->galleryRepository->getByCollection($collection);
+        return Media::where('collection_name', $collection)
+            ->orderByDesc('created_at')
+            ->get();
     }
 
     /**
@@ -110,7 +108,7 @@ class GalleryService
      */
     public function findMedia(int $id): Media
     {
-        return $this->galleryRepository->findOrFail($id);
+        return Media::findOrFail($id);
     }
 
     /**
@@ -118,7 +116,7 @@ class GalleryService
      */
     public function findMediaByUuid(string $uuid): ?Media
     {
-        return $this->galleryRepository->findByUuid($uuid);
+        return Media::where('uuid', $uuid)->first();
     }
 
     /**
@@ -126,7 +124,13 @@ class GalleryService
      */
     public function deleteMedia(int $id): bool
     {
-        return $this->galleryRepository->deleteMedia($id);
+        $media = Media::find($id);
+
+        if (! $media) {
+            return false;
+        }
+
+        return $media->delete();
     }
 
     /**
@@ -134,7 +138,34 @@ class GalleryService
      */
     public function getStatistics(): array
     {
-        return $this->galleryRepository->getStatistics();
+        $totalMedia = Media::count();
+        $totalSize = Media::sum('size');
+        $collections = Media::select('collection_name')
+            ->distinct()
+            ->pluck('collection_name')
+            ->toArray();
+
+        return [
+            'total_media' => $totalMedia,
+            'total_size' => $totalSize,
+            'total_size_formatted' => $this->formatBytes($totalSize),
+            'collections' => $collections,
+            'collections_count' => count($collections),
+        ];
+    }
+
+    /**
+     * Format bytes to human readable format
+     */
+    private function formatBytes(int $bytes, int $precision = 2): string
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+
+        for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
+            $bytes /= 1024;
+        }
+
+        return round($bytes, $precision).' '.$units[$i];
     }
 
     /**
@@ -182,8 +213,6 @@ class GalleryService
     public function deleteFolder(int $id): bool
     {
         $folder = FilemanagerFolder::findOrFail($id);
-        
-        // Handle orphaned galleries (SoC from Model)
         $folder->galleries()->update(['folder_id' => null]);
         
         return $folder->delete();
@@ -206,12 +235,10 @@ class GalleryService
      */
     public function getMediaUrl(Media $media): string
     {
-        // For public disks or profile images, use Spatie's built-in URL
         if ($media->disk === 'public' || str_contains($media->disk, 'profile-images')) {
             return $media->getUrl();
         }
 
-        // For private files, use protected route
         return route('gallery.file', $media->id);
     }
 
@@ -220,20 +247,16 @@ class GalleryService
      */
     public function canAccessMedia(Media $media, \App\Models\User $user): bool
     {
-        // Public files are accessible to all authenticated users
         if ($media->disk === 'public') {
             return true;
         }
 
-        // Admin can access all files
         if ($user->hasRole('admin')) {
             return true;
         }
 
-        // Check ownership based on model type
         if ($media->model_type === \App\Models\Gallery::class) {
             $gallery = \App\Models\Gallery::find($media->model_id);
-
             return $gallery && $gallery->user_id === $user->id;
         }
 
@@ -255,20 +278,17 @@ class GalleryService
     ): Media {
         $diskName = $visibility === 'public' ? 'public' : 'local';
 
-        // Create Gallery record
         $gallery = \App\Models\Gallery::create([
             'name' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
             'user_id' => $userId,
             'folder_id' => $folderId,
         ]);
 
-        // Add media to gallery
         $gallery->addMedia($file)
             ->usingName(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME))
             ->withCustomProperties(['visibility' => $visibility, 'uploaded_by' => $userId])
             ->toMediaCollection('gallery', $diskName);
 
-        // Update media with folder_id if provided
         if ($folderId) {
             $media = $gallery->getFirstMedia('gallery');
             if ($media) {

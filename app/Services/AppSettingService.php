@@ -2,18 +2,22 @@
 
 namespace App\Services;
 
-use App\Repositories\Contracts\AppSettingRepositoryInterface;
 use App\Models\AppSetting;
 
 class AppSettingService
 {
-    public function __construct(
-        private AppSettingRepositoryInterface $appSettingRepository
-    ) {}
-
     public function getSettings(): AppSetting
     {
-        return $this->appSettingRepository->getSingleton();
+        return AppSetting::firstOrCreate(
+            ['id' => 1],
+            [
+                'app_name' => config('app.name', 'Laravel App'),
+                'primary_color' => '#3b82f6',
+                'secondary_color' => '#6b7280',
+                'accent_color' => '#10b981',
+                'maintenance_mode' => false,
+            ]
+        );
     }
 
     public function updateSettings(array $data): AppSetting
