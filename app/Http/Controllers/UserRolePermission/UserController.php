@@ -28,10 +28,10 @@ class UserController extends Controller
             $query,
             $request,
             searchableColumns: ['name', 'email', 'roles.name'],
-        )->withQueryString();
+        );
 
         return Inertia::render('UserRolePermission/User/Index', [
-            'users' => UserResource::collection($users),
+            'users' => Inertia::defer(fn () => UserResource::collection($users)),
             'filter' => $request->query('filter', 'active'),
             'roles' => $this->roleService->getAllRoles(),
         ]);
@@ -83,18 +83,5 @@ class UserController extends Controller
     {
         $this->userService->forceDeleteUser($id);
         return redirect()->route('users.index')->with('success', 'User permanently deleted.');
-    }
-
-    public function json(Request $request)
-    {
-        $query = $this->userService->getDataTableQuery($request->input('filter', 'active'));
-
-        $users = DataTable::process(
-            $query,
-            $request,
-            searchableColumns: ['name', 'email', 'roles.name'],
-        );
-
-        return UserResource::collection($users);
     }
 }

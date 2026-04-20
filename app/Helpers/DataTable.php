@@ -18,10 +18,10 @@ class DataTable
      */
     public static function process(Builder $query, Request $request, array $searchableColumns = [], array $orderableColumns = [])
     {
-        // 1. Total records before filtering
-        $recordsTotal = (clone $query)->count();
+        // 1. Total records before filtering (Optional, but useful for DataTables.net compatibility)
+        // $recordsTotal = (clone $query)->count();
 
-        // 2. Apply Global Search (from TanStack Table or DataTables.net)
+        // 2. Apply Global Search
         $searchValue = $request->input('filter.global', $request->input('search.value'));
         if (!empty($searchValue) && !empty($searchableColumns)) {
             $query->where(function ($q) use ($searchValue, $searchableColumns) {
@@ -40,32 +40,44 @@ class DataTable
             });
         }
 
-        // 3. Records total after filtering
-        $recordsFiltered = (clone $query)->count();
+        // 3. Apply Sorting
+        $sort = null;
+        $direction = 'asc';
 
-        // 4. Apply Sorting (from TanStack Table or DataTables.net)
         if ($request->filled('sort')) { // TanStack Table
-            $query->orderBy($request->input('sort'), $request->input('direction', 'asc'));
+            $sort = $request->input('sort');
+            $direction = $request->input('direction', 'asc');
         } elseif ($request->filled('order')) { // DataTables.net
             $order = $request->input('order.0');
             $columnIndex = $order['column'];
-            $direction = $order['dir'];
-            $columnName = $orderableColumns[$columnIndex] ?? null;
+            $direction = $order['dir'] ?? 'asc';
+            $sort = $orderableColumns[$columnIndex] ?? null;
+        }
 
-            if ($columnName && !str_contains($columnName, '.')) {
-                $query->orderBy($columnName, $direction);
+        if ($sort) {
+            // Validation: Only allow sorting if column is in $orderableColumns (if provided)
+            // or if it's a simple alphanumeric string (basic protection)
+            $isAllowed = empty($orderableColumns) || in_array($sort, $orderableColumns);
+            
+            if ($isAllowed && preg_match('/^[a-zA-Z0-9_\.]+$/', $sort)) {
+                if (str_contains($sort, '.')) {
+                    // Handle sorting by relationship (basic implementation)
+                    // Note: This usually requires joins which we might not want to automate here
+                    // For now, we only support direct columns or let the developer handle complex sorts
+                } else {
+                    $query->orderBy($sort, $direction === 'desc' ? 'desc' : 'asc');
+                }
+            } else {
+                $query->latest();
             }
         } else {
-            // Default sort: newest first
+            // Default sort
             $query->latest();
         }
 
-        // 5. Handle Pagination
-        // This is now handled by Laravel's paginate() method, returning a LengthAwarePaginator
-        $perPage = $request->input('per_page', 10);
-        $paginator = $query->paginate($perPage);
-
-        return $paginator;
+        // 4. Handle Pagination
+        $perPage = $request->input('per_page', $request->input('length', 10));
+        return $query->paginate($perPage)->withQueryString();
     }
 
     /**

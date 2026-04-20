@@ -25,15 +25,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
 
-        Route::post('roles/json', [\App\Http\Controllers\UserRolePermission\RoleController::class, 'json'])->name('roles.json');
         Route::resource('roles', \App\Http\Controllers\UserRolePermission\RoleController::class)
             ->middleware('permission:view-roles|create-roles|edit-roles|delete-roles');
 
-        Route::post('permissions/json', [\App\Http\Controllers\UserRolePermission\PermissionController::class, 'json'])->name('permissions.json');
         Route::resource('permissions', \App\Http\Controllers\UserRolePermission\PermissionController::class)
             ->middleware('permission:view-permissions|assign-permissions');
 
-        Route::post('users/json', [\App\Http\Controllers\UserRolePermission\UserController::class, 'json'])->name('users.json');
         Route::resource('users', \App\Http\Controllers\UserRolePermission\UserController::class)
             ->middleware('permission:view-users|create-users|edit-users|delete-users');
         Route::get('users/trashed', [\App\Http\Controllers\UserRolePermission\UserController::class, 'trashed'])->name('users.trashed');

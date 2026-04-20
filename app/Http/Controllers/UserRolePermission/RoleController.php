@@ -26,10 +26,10 @@ class RoleController extends Controller
             $query,
             $request,
             searchableColumns: ['name', 'guard_name'],
-        )->withQueryString();
+        );
 
         return Inertia::render('UserRolePermission/Role/Index', [
-            'roles' => RoleResource::collection($roles),
+            'roles' => Inertia::defer(fn () => RoleResource::collection($roles)),
         ]);
     }
 
@@ -76,17 +76,5 @@ class RoleController extends Controller
         return redirect()
             ->route('roles.index')
             ->with('success', 'Role has been deleted successfully.');
-    }
-
-    public function json(Request $request)
-    {
-        $query = $this->roleService->getDataTableQuery();
-        $roles = DataTable::process(
-            $query,
-            $request,
-            searchableColumns: ['name', 'guard_name'],
-        );
-
-        return RoleResource::collection($roles);
     }
 }

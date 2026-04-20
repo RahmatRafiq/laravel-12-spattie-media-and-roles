@@ -123,7 +123,6 @@ export default function UserIndex({ users, filter, roles }: { users: InertiaPagi
                 <TanstackDataTable 
                     columns={columns} 
                     inertiaPaginated={users} 
-                    jsonUrl={route('users.json', { filter })} 
                     headerContent={
                         <ToggleTabs tabs={['active', 'trashed', 'all']} active={filter} onChange={handleFilterChange} />
                     }

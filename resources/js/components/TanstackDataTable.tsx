@@ -4,8 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { cn } from '@/lib/utils';
 import { useTanstackDataTable } from '@/hooks/use-tanstack-data-table';
 import type { InertiaPaginated } from '@/types';
-import { Link } from '@inertiajs/react';
-import type { ColumnDef, Table as TanstackTable } from '@tanstack/react-table';
+import type { ColumnDef } from '@tanstack/react-table';
 import { flexRender } from '@tanstack/react-table';
 
 import { ArrowDown, ArrowUp, ArrowUpDown, CircleMinus, CirclePlus } from 'lucide-react';
@@ -76,8 +75,8 @@ export function TanstackDataTable<TData>({ columns, inertiaPaginated, jsonUrl, h
                 <div className="flex items-center sm:ml-auto">
                     <Input
                         placeholder="Search all columns..."
-                        value={(table.getColumn('globalFilter')?.getFilterValue() as string) ?? ''}
-                        onChange={(event) => table.getColumn('globalFilter')?.setFilterValue(event.target.value)}
+                        value={table.getState().globalFilter ?? ''}
+                        onChange={(event) => table.setGlobalFilter(event.target.value)}
                         className="w-full sm:w-[300px]"
                     />
                 </div>

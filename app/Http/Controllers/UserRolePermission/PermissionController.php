@@ -24,10 +24,10 @@ class PermissionController extends Controller
             $query,
             $request,
             searchableColumns: ['name', 'guard_name'],
-        )->withQueryString();
+        );
 
         return Inertia::render('UserRolePermission/Permission/Index', [
-            'permissions' => PermissionResource::collection($permissions),
+            'permissions' => Inertia::defer(fn () => PermissionResource::collection($permissions)),
         ]);
     }
 
@@ -64,17 +64,5 @@ class PermissionController extends Controller
         $this->permissionService->deletePermission($id);
 
         return redirect()->route('permissions.index')->with('success', 'Permission deleted successfully.');
-    }
-
-    public function json(Request $request)
-    {
-        $query = $this->permissionService->getDataTableQuery();
-        $permissions = DataTable::process(
-            $query,
-            $request,
-            searchableColumns: ['name', 'guard_name'],
-        );
-
-        return PermissionResource::collection($permissions);
     }
 }

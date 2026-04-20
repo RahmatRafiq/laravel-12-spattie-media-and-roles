@@ -38,4 +38,17 @@ class AppSetting extends Model
         'custom_settings' => 'array',
         'maintenance_mode' => 'boolean',
     ];
+
+    /**
+     * Get the application settings instance.
+     *
+     * @return self
+     */
+    public static function getInstance(): self
+    {
+        return static::first() ?: static::create([
+            'id' => 1,
+            'app_name' => config('app.name', 'Laravel App'),
+        ]);
+    }
 }

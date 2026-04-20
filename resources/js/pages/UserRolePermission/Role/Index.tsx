@@ -99,7 +99,6 @@ export default function RoleIndex({ roles }: { roles: InertiaPaginated<Role> }) 
                 <TanstackDataTable 
                     columns={columns} 
                     inertiaPaginated={roles} 
-                    jsonUrl={route('roles.json')} 
                 />
             </PageContainer>
         </AppLayout>

@@ -85,7 +85,6 @@ export default function PermissionIndex({ permissions }: { permissions: InertiaP
                 <TanstackDataTable 
                     columns={columns} 
                     inertiaPaginated={permissions} 
-                    jsonUrl={route('permissions.json')} 
                 />
             </PageContainer>
         </AppLayout>

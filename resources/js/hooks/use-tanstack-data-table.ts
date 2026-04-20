@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import {
     getCoreRowModel,
     getExpandedRowModel,
@@ -13,8 +14,7 @@ import type {
     PaginationState,
     SortingState,
 } from '@tanstack/react-table';
-import { useMemo, useState } from 'react';
-import { useDataTableFetch } from './use-data-table-fetch';
+import { useEffect, useMemo, useState, useRef } from 'react';
 
 interface UseTanstackDataTableProps<TData> {
     data: TData[];
@@ -23,35 +23,72 @@ interface UseTanstackDataTableProps<TData> {
     meta: any;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     links: any;
-    jsonUrl?: string;
 }
 
 export function useTanstackDataTable<TData>({ 
-    data: initialData, 
+    data, 
     columns, 
-    meta: initialMeta, 
-    links: initialLinks, 
-    jsonUrl 
+    meta, 
+    links: _links, 
 }: UseTanstackDataTableProps<TData>) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+    const [globalFilter, setGlobalFilter] = useState('');
     const [paginationState, setPaginationState] = useState<PaginationState>({
-        pageIndex: initialMeta.current_page - 1,
-        pageSize: initialMeta.per_page,
+        pageIndex: meta.current_page - 1,
+        pageSize: meta.per_page,
     });
     const [expanded, setExpanded] = useState<ExpandedState>({});
 
-    // If jsonUrl is provided, fetch data via AJAX. Otherwise, use initial props.
-    const { data, meta, links } = jsonUrl
-        ? useDataTableFetch({
-            jsonUrl,
-            initialData: { data: initialData, meta: initialMeta, links: initialLinks },
-            sorting,
-            columnFilters,
-            pageIndex: paginationState.pageIndex,
-            pageSize: paginationState.pageSize,
-        })
-        : { data: initialData, meta: initialMeta, links: initialLinks };
+    const isFirstRender = useRef(true);
+
+    // Sync state with props when they change (e.g. on external navigation or initial load)
+    useEffect(() => {
+        setPaginationState({
+            pageIndex: meta.current_page - 1,
+            pageSize: meta.per_page,
+        });
+    }, [meta.current_page, meta.per_page]);
+
+    // Inertia Mode URL Synchronization
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
+        const params: any = {
+            page: paginationState.pageIndex + 1,
+            per_page: paginationState.pageSize,
+        };
+
+        if (sorting.length > 0) {
+            params.sort = sorting[0].id;
+            params.direction = sorting[0].desc ? 'desc' : 'asc';
+        }
+
+        if (globalFilter) {
+            params['filter[global]'] = globalFilter;
+        }
+
+        // Add any existing column filters
+        columnFilters.forEach(filter => {
+            params[`filter[${filter.id}]`] = filter.value;
+        });
+
+        // Merge with existing query parameters to preserve other filters (e.g. status tabs)
+        const currentParams = Object.fromEntries(new URLSearchParams(window.location.search).entries());
+        const allParams = {
+            ...currentParams,
+            ...params
+        };
+
+        router.get(window.location.pathname, allParams, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
+    }, [sorting, columnFilters, globalFilter, paginationState.pageIndex, paginationState.pageSize]);
 
     const pagination = useMemo<PaginationState>(
         () => ({
@@ -68,11 +105,13 @@ export function useTanstackDataTable<TData>({
         state: {
             sorting,
             columnFilters,
+            globalFilter,
             pagination,
             expanded,
         },
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
+        onGlobalFilterChange: setGlobalFilter,
         onExpandedChange: setExpanded,
         onPaginationChange: (updater) => {
             if (typeof updater === 'function') {
@@ -93,5 +132,5 @@ export function useTanstackDataTable<TData>({
         manualFiltering: true,
     });
 
-    return { table, pagination, sorting, columnFilters, links };
+    return { table, pagination, sorting, columnFilters, globalFilter, links: _links };
 }
