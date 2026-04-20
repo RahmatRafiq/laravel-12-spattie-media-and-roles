@@ -50,7 +50,7 @@ export default function PageContainer({
     centerWidth = '7xl',
 }: PageContainerProps) {
     const baseClasses = cn(
-        'w-full px-4 py-6 sm:px-6 lg:px-8', // Responsive horizontal padding
+        'w-full px-2 py-4 sm:px-6 lg:px-8', // Reduced padding from px-4 to px-2 on mobile
         maxWidthClasses[maxWidth],
         className
     );
