@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Services\ProfilePhotoService;
+use App\Services\ProfileService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ProfilePhotoController extends Controller
 {
     public function __construct(
-        protected ProfilePhotoService $service
+        protected ProfileService $service
     ) {}
 
     /**
@@ -51,7 +51,7 @@ class ProfilePhotoController extends Controller
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $this->service->update($user, $request->file('photo'));
+        $this->service->updatePhoto($user, $request->file('photo'));
 
         return response()->json(['message' => 'Profile photo updated successfully.']);
     }
@@ -61,7 +61,7 @@ class ProfilePhotoController extends Controller
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $this->service->delete($user);
+        $this->service->deletePhoto($user);
 
         return response()->json(['message' => 'Profile photo deleted successfully.']);
     }

@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers\Settings;
 
-use App\Helpers\MediaLibrary;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
-use DB;
+use App\Services\ProfileService;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,9 +15,13 @@ use Storage;
 
 class ProfileController extends Controller
 {
+    public function __construct(
+        protected ProfileService $profileService
+    ) {}
+
     public function edit(Request $request): Response
     {
-        $media = $request->user()->getMedia('profile-images')->first();
+        $media = $request->user()->getMedia('profile_image')->first();
         $profileImage = $media
         ? [
             'file_name' => $media->file_name,
@@ -37,10 +40,10 @@ class ProfileController extends Controller
     public function upload(Request $request)
     {
         $request->validate([
-            'profile-images.*' => 'required|file|image|max:2048',
+            'profile_image.*' => 'required|file|image|max:2048',
         ]);
 
-        $file = $request->file('profile-images')[0];
+        $file = $request->file('profile_image')[0];
         $tempPath = $file->store('', 'temp');
 
         return response()->json([
@@ -52,35 +55,20 @@ class ProfileController extends Controller
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $request->validate([
-            'profile-images' => 'array|max:1',
-            'profile-images.*' => 'string',
+            'profile_image' => 'array|max:1',
+            'profile_image.*' => 'string',
         ]);
 
-        $user = $request->user();
-
-        DB::beginTransaction();
         try {
-            MediaLibrary::put(
-                $user,
-                'profile-images',
-                $request,
-                'profile-images'
+            $this->profileService->updateProfile(
+                $request->user(),
+                $request->validated(),
+                $request
             );
-
-            $user->fill($request->validated());
-
-            if ($user->isDirty('email')) {
-                $user->email_verified_at = null;
-            }
-
-            $user->save();
-
-            DB::commit();
 
             return to_route('profile.edit');
         } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error($e->getMessage());
+            \Log::error('Profile update failed: ' . $e->getMessage());
 
             return back()->withErrors('Profile update failed.');
         }
@@ -96,7 +84,7 @@ class ProfileController extends Controller
 
         Auth::logout();
 
-        $user->clearMediaCollection('profile-images');
+        $this->profileService->deletePhoto($user);
 
         $user->delete();
 
@@ -110,15 +98,20 @@ class ProfileController extends Controller
     {
         $data = $request->validate(['filename' => 'required|string']);
 
-        if (Storage::disk('profile-images')->exists($data['filename'])) {
-            Storage::disk('profile-images')->delete($data['filename']);
+        // Safe delete from storage if exists
+        if (Storage::disk('local')->exists('profile_image/' . $data['filename'])) {
+            Storage::disk('local')->delete('profile_image/' . $data['filename']);
         }
 
-        $media = \Spatie\MediaLibrary\MediaCollections\Models\Media::where('file_name', $data['filename'])->first();
+        // Also check Spatie Media
+        $media = \Spatie\MediaLibrary\MediaCollections\Models\Media::where('file_name', $data['filename'])
+            ->where('collection_name', 'profile_image')
+            ->first();
+
         if ($media) {
             $media->delete();
         }
 
-        return response()->json(['message' => 'File berhasil dihapus'], 200);
+        return response()->json(['message' => 'File deleted successfully'], 200);
     }
 }
