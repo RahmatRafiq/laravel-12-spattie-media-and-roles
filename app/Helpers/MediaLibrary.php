@@ -5,75 +5,18 @@ namespace App\Helpers;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * MediaLibrary Helper - Centralized Spatie Media Library abstraction
- *
- * Current methods:
- * - put()     : Handle media sync from temp storage
- * - destroy() : Delete all media from collection
- *
- * TODO: Add specialized helper methods for common use cases
- * This will standardize media handling across the application and reduce boilerplate.
- *
- * Planned methods (implement when needed):
- *
- * @method static putFeaturedImage($model, $file, array $metadata = [])
- *                                                                      Upload featured image with SEO metadata (alt_text, caption) and responsive variants
- *                                                                      Use case: Articles, Posts, Products
- * @method static putGalleryImages($model, array $files, string $collection = 'gallery')
- *                                                                                       Upload multiple gallery images with ordering
- *                                                                                       Use case: Product galleries, Article image sets
- * @method static putPrivateDocument($model, $file, string $collection = 'attachments')
- *                                                                                      Upload private documents/attachments to local disk
- *                                                                                      Use case: Invoice PDFs, Contract documents, Private files
- * @method static putWithFolder($model, $file, ?int $folderId, string $collection, string $visibility)
- *                                                                                                     Upload with folder organization and visibility control
- *                                                                                                     Use case: File manager, Gallery system with folders
- * @method static replaceMedia($model, $file, string $collection)
- *                                                                Replace existing media (delete old, upload new)
- *                                                                Use case: Update profile photo, Replace document
- * @method static putAvatar($model, $file)
- *                                         Upload user avatar (replaces existing)
- *                                         Use case: User profile avatar
- * @method static putProfileImage($model, $file)
- *                                               Upload profile image with responsive variants
- *                                               Use case: User profile photos, Team member photos
- * @method static getUrl($media): string
- *         Get media URL (automatically handles public/private routing)
- *         Use case: Display images in views
- * @method static deleteMedia($media): bool
- *         Safe delete with error handling
- *         Use case: Delete single media item
- * @method static clearCollection($model, string $collection): void
- *         Clear all media from a collection
- *         Use case: Reset gallery, Remove all attachments
- *
- * Benefits of adding these methods:
- * - DRY: Eliminate duplicate Spatie boilerplate across services
- * - Consistency: Standard pattern for all media operations
- * - Maintainability: Update logic in one place
- * - Testability: Easier to mock helper methods
- * - Clean Services: Services focus on business logic, not media handling details
- *
- * Pattern recommendation:
- * - Simple use cases (profile, avatar) → Use helper methods directly
- * - Complex use cases (gallery, documents) → Use Service layer that calls helper methods
- *
- * Example future usage:
- * ```php
- * // In ArticleService
- * MediaLibrary::putFeaturedImage($article, $file, ['alt_text' => 'Hero image']);
- *
- * // In GalleryService
- * MediaLibrary::putWithFolder($gallery, $file, $folderId, 'gallery', 'public');
- *
- * // In ProfileController
- * MediaLibrary::putAvatar($user, $request->file('avatar'));
- * ```
  */
 class MediaLibrary
 {
+    /**
+     * Handle media sync from temp storage or direct upload.
+     * Pattern: Useful for forms where media names are sent in request.
+     */
     public static function put(Collection|Model $model, string $collectionName, Request $request, string $disk = 'media')
     {
         // retrieve saved images
@@ -112,28 +55,80 @@ class MediaLibrary
 
         return [
             'model' => $model,
-            // removed files
             'removed' => $filesToRemove,
-            // added files
             'added' => $addedFiles,
-            // files that not affected
             'not_affected' => $files,
         ];
     }
 
+    /**
+     * Replace existing media in a collection (delete old, upload new).
+     */
+    public static function replace(Model $model, UploadedFile $file, string $collection, string $disk = 'public'): Media
+    {
+        $model->clearMediaCollection($collection);
+
+        return $model->addMedia($file)->toMediaCollection($collection, $disk);
+    }
+
+    /**
+     * Upload media with folder organization and custom properties.
+     */
+    public static function putWithMetadata(
+        Model $model,
+        UploadedFile $file,
+        string $collection,
+        string $disk = 'public',
+        ?int $folderId = null,
+        array $customProperties = []
+    ): Media {
+        $adder = $model->addMedia($file);
+
+        if (! empty($customProperties)) {
+            $adder->withCustomProperties($customProperties);
+        }
+
+        $media = $adder->toMediaCollection($collection, $disk);
+
+        if ($folderId) {
+            $media->folder_id = $folderId;
+            $media->save();
+        }
+
+        return $media;
+    }
+
+    /**
+     * Clear all media from a collection.
+     */
+    public static function clearCollection(Model $model, string $collection = 'default'): void
+    {
+        $model->clearMediaCollection($collection);
+    }
+
+    /**
+     * Safe delete a single media item.
+     */
+    public static function deleteMedia(int|string|Media $media): bool
+    {
+        if (! $media instanceof Media) {
+            $media = Media::find($media);
+        }
+
+        return $media ? $media->delete() : false;
+    }
+
+    /**
+     * DEPRECATED: Use clearCollection or deleteMedia instead.
+     */
     public static function destroy(Collection|Model $model, string $collectionName = 'default')
     {
         try {
-            // delete file from media
-            $model->getMedia($collectionName)->each->delete();
+            $model->clearMediaCollection($collectionName);
 
-            return response()->json([
-                'message' => 'File deleted',
-            ]);
+            return response()->json(['message' => 'File deleted']);
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => 'File not found',
-            ]);
+            return response()->json(['message' => 'File not found'], 404);
         }
     }
 }

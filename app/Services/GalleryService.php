@@ -139,13 +139,7 @@ class GalleryService
      */
     public function deleteMedia(int $id): bool
     {
-        $media = Media::find($id);
-
-        if (! $media) {
-            return false;
-        }
-
-        return $media->delete();
+        return \App\Helpers\MediaLibrary::deleteMedia($id);
     }
 
     /**
@@ -347,22 +341,14 @@ class GalleryService
             'folder_id' => $folderId,
         ]);
 
-        $gallery->addMedia($file)
-            ->usingName(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME))
-            ->withCustomProperties(['visibility' => $visibility, 'uploaded_by' => $userId])
-            ->toMediaCollection('gallery', $diskName);
-
-        if ($folderId) {
-            $media = $gallery->getFirstMedia('gallery');
-            if ($media) {
-                $media->folder_id = (int) $folderId;
-                $media->save();
-            }
-
-            return $media;
-        }
-
-        return $gallery->getFirstMedia('gallery');
+        return \App\Helpers\MediaLibrary::putWithMetadata(
+            $gallery,
+            $file,
+            'gallery',
+            $diskName,
+            $folderId,
+            ['visibility' => $visibility, 'uploaded_by' => $userId]
+        );
     }
 
     /**

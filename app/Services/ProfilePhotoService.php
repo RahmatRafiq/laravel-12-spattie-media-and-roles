@@ -17,14 +17,14 @@ class ProfilePhotoService
         // 1. Get or create folder System/Profile Photos
         $folderId = $this->getOrCreateProfilePhotosFolder();
 
-        // 2. Upload media
-        $media = $user->addMedia($file)->toMediaCollection('profile_image');
-
-        // 3. Associate with folder_id
-        $media->folder_id = $folderId;
-        $media->save();
-
-        return $media;
+        // 2. Upload media using helper
+        return \App\Helpers\MediaLibrary::putWithMetadata(
+            $user,
+            $file,
+            'profile_image',
+            'local',
+            $folderId
+        );
     }
 
     /**
@@ -32,7 +32,7 @@ class ProfilePhotoService
      */
     public function delete(User $user): void
     {
-        $user->clearMediaCollection('profile_image');
+        \App\Helpers\MediaLibrary::clearCollection($user, 'profile_image');
     }
 
     /**
